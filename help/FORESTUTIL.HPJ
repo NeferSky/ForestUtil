@@ -1,0 +1,9 @@
+; This file is maintained by HCW. Do not modify this file directly.
+
+[OPTIONS]
+LCID=0x419 0x0 0x0 ; Русский (Россия)
+REPORT=Yes
+HLP=FORESTUTIL.hlp
+
+[FILES]
+ForestUtil.rtf

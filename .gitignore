@@ -1,0 +1,8 @@
+*~*
+*.doc*
+*.xls*
+*.exe
+*.dic
+*.ini
+SQLQueries.lst
+\dcu

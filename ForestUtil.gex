@@ -1,0 +1,13 @@
+[General]
+Name=ForestUtil
+Project=1
+[Classes]
+Count=8
+Class0="TfrmUI","TForm","UI","13","N:\Projects\Delphi\ForestUtil\UI.pas"
+Class1="TdmData","TDataModule","Data","20","N:\Projects\Delphi\ForestUtil\Data.pas"
+Class2="TDictionary","TObject","Dictionary","14","N:\Projects\Delphi\ForestUtil\Dictionary.pas"
+Class3="TSQLQueries","TObject","SQLQuery","11","N:\Projects\Delphi\ForestUtil\SQLQuery.pas"
+Class4="TValidator","TObject","Validator","86","N:\Projects\Delphi\ForestUtil\Validator.pas"
+Class5="TfrmEdit","TForm","Edit","12","N:\Projects\Delphi\ForestUtil\Edit.pas"
+Class6="TfrmSettings","TForm","Settings","8","N:\Projects\Delphi\ForestUtil\Settings.pas"
+Class7="TfrmDicts","TForm","Dicts","9","N:\Projects\Delphi\ForestUtil\Dicts.pas"
