@@ -216,33 +216,33 @@ const
   S_DB_INSERT_SCRIPT_FORMAT_END: AnsiString = ');';
 
   S_DB_INSERT_SCRIPT_FORMAT_FLD1: AnsiString =
-    'id, input_date, forestry_number, local_forestry_number, quarter, ';
+    'id, input_date, forestry_number, local_forestry_number, kv, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD2: AnsiString =
-    'land, landuse_purpose_code, defense_category, species_id, damaged_species_id, ';
+    'patch, landuse_purpose_code, defense_category, main_species, damage_species, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD3: AnsiString =
-    'cause_code, damage_year, damage_cause_group, land_area, examined_all, ';
+    'main_reason, damage_year, damage_cause_group, patch_area, exam_all, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD4: AnsiString =
-    'examined_by_RLZ, examined_by_forestries, examined_by_contractor, damaged_year_begin, damaged_found, ';
+    'exam_fbi, exam_lesn, exam_other, dam_byear, dam_iyear, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD5: AnsiString =
-    'damaged_period_end, damaged_less_4, damaged_4_to_10, damaged_10_to_40, damaged_more_40, ';
+    'dam_eyear, dam4, dam4_10, dam10_40, dam40, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD6: AnsiString =
-    'lost_period_begin, lost_year_begin, survive_period_end, planned_events_by_SSR, planned_events_by_VSR, ';
+    'lost_byear, lost_iyear, lost_eyear, nazn_ssr, nazn_vsr, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD7: AnsiString =
-    'planned_events_by_UZ, planned_event_type, planned_event_area, done_events_SSR_period_total, done_events_SSR_period_total_rent, ';
+    'nazn_und, nazn_etc, nazn_etc_s, ssr_kv, ssr_kv_ar, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD8: AnsiString =
-    'done_events_SSR_year_total, done_events_SSR_year_total_rent, done_events_SSR_supply_total, done_events_SSR_supply_total_rent, done_events_VSR_period_total, ';
+    'ssr_year, ssr_year_ar, ssr_stock, ssr_stock_ar, vsr_kv, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD9: AnsiString =
-    'done_events_VSR_period_total_rent, done_events_VSR_year_total, done_events_VSR_year_total_rent, done_events_VSR_supply_total, done_events_VSR_supply_total_rent,';
+    'vsr_kv_ar, vsr_year, vsr_year_ar, vsr_stock, vsr_stock_ar, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD10: AnsiString =
-    'done_events_UZ_period_total, done_events_UZ_period_total_rent, done_events_UZ_year_total, done_events_UZ_year_total_rent, done_events_UZ_supply_total, ';
+    'und_kv, und_kv_ar, und_year, und_year_ar, und_stock, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD11: AnsiString =
-    'done_events_UZ_supply_total_rent, done_other_event_type, done_other_events_period_total, done_other_event_period_rent, done_other_events_year_total, ';
+    'und_stock_ar, etc_event_type, etc_kv, etc_kv_ar, etc_year, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD12: AnsiString =
-    'done_other_event_year_rent, done_other_events_supply_total, done_other_event_supply_rent, damage_state, pest_code, ';
+    'etc_year_ar, etc_stock, etc_stock_ar, sost, pest, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD13: AnsiString =
-    'damage_area_year_begin, damage_recedive, damage_liquidated, damage_self_extinguished, damage_period_total, ';
+    'pest_on_byear, pest_by_year, pest_likv_year, pest_zat_year, pest_eyear, ';
   S_DB_INSERT_SCRIPT_FORMAT_FLD14: AnsiString =
-    'damage_require_period_end, damage_strength_low, damage_strength_middle, damage_strength_high, damage_strength_full';
+    'pest_eyear_mer, pest_sl, pest_sr, pest_si, pest_sp';
 
   S_DB_INSERT_SCRIPT_FORMAT_VAL1: AnsiString =
     '''%s'', ''%s'', %d, %d, %d, %d, %d, ''%s'', %d, %d, ';

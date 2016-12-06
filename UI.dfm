@@ -1,6 +1,6 @@
 object frmUI: TfrmUI
-  Left = 1313
-  Top = 236
+  Left = 360
+  Top = 210
   Width = 800
   Height = 658
   Caption = 'ForestUtil'
@@ -191,7 +191,7 @@ object frmUI: TfrmUI
           Width = 147
           Height = 21
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 0
           OnSelect = cmbFileSheetSelect
         end
@@ -266,8 +266,8 @@ object frmUI: TfrmUI
           object lblHint: TLabel
             Left = 1
             Top = 1
-            Width = 609
-            Height = 28
+            Width = 551
+            Height = 26
             Cursor = crHandPoint
             Align = alClient
             Alignment = taCenter
@@ -382,7 +382,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 471
+          Top = 470
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -456,7 +456,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 415
+          Top = 414
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]
