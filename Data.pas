@@ -50,6 +50,7 @@ type
     function GetValidList(Dictionary: AnsiString): TStringList;
     procedure SetValidList(Dictionary: AnsiString; Value: TStringList);
     function GetValuesFromTable(const DictName: AnsiString): TStringList;
+    function GetForestry(const RegionID: Integer): TStringList;
     function GetLocalForestry(const ForestryName: AnsiString): TStringList;
     function GetIntField(SQLText: AnsiString): Integer;
     //
@@ -61,8 +62,8 @@ type
     function OpenTable(const TableName: AnsiString): Boolean;
     function GetFileRecordsCount: Integer;
     function MathValidateFile: TValidationResult;
-    function StringValidateFile(const ForestryID: Integer;
-      const LocalForestryID: Integer): TValidationResult;
+    function StringValidateFile(const RegionID,
+      ForestryID: Integer): TValidationResult;
     procedure PositionTable;
     function GetResultScript: AnsiString;
     //
@@ -331,6 +332,37 @@ begin
   Result := qryFileSelect.RecordCount;
 end;
 
+//---------------------------------------------------------------------------
+
+function TdmData.GetForestry(const RegionID: Integer): TStringList;
+var
+  AWord: AnsiString;
+
+begin
+  Result := TStringList.Create;
+  Result.Clear();
+
+  try
+    Connect();
+    qryGetTableValues.SQL.Text := Format(S_SQL_GET_FORESTRIES_BY_REGION,
+      [RegionID]);
+    qryGetTableValues.Open();
+
+    qryGetTableValues.First();
+    while not qryGetTableValues.Eof do
+    begin
+      AWord := AnsiUpperCase(Trim(qryGetTableValues.Fields[0].AsString));
+      Result.Add(AWord);
+      qryGetTableValues.Next();
+    end;
+    qryGetTableValues.Close();
+
+  finally
+    qryGetTableValues.Close();
+    Disconnect();
+  end;
+end;
+       
 //---------------------------------------------------------------------------
 
 function TdmData.GetInProgress: Boolean;
@@ -786,8 +818,8 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TdmData.StringValidateFile(const ForestryID: Integer;
-  const LocalForestryID: Integer): TValidationResult;
+function TdmData.StringValidateFile(const RegionID,
+  ForestryID: Integer): TValidationResult;
 var
   RecStatus: string;
   Values: TValuesRec;
@@ -825,7 +857,7 @@ begin
       if (vrMainInvalid in Result) and not FContinueOnError then
         Break;
 
-      FScript.AddInsert(Values);
+      FScript.AddInsert(Values, RegionID, ForestryID);
     end;
 
     FScript.SetScriptFooter();

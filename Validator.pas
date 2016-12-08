@@ -829,7 +829,7 @@ function TValidator.StringValidateRecord(const RecNo: Integer;
   var Values: TValuesRec; var RecordStatus: string): TValidationResult;
 begin
   //  Result := Result + StringValidateField(Values.F1, DictForestries, RecNo, RecordStatus);
-  //  Result := Result + StringValidateField(Values.F2, DictLocalForestries, RecNo, RecordStatus);
+  Result := Result + StringValidateField(Values.F2, DictLocalForestries, RecNo, RecordStatus);
   Result := Result + StringValidateField(Values.F5, DictLanduse, RecNo, RecordStatus);
   Result := Result + StringValidateField(Values.F7, DictSpecies, RecNo, RecordStatus);
   Result := Result + StringValidateField(Values.F8, DictSpecies, RecNo, RecordStatus);
@@ -846,7 +846,6 @@ begin
   RecordStatus := '';
   Result := Result + MainValidateRecord(RecNo, Values, RecordStatus);
   Result := Result + ExtraValidateRecord(RecNo, Values, RecordStatus);
-  //  Result := Result + StringValidateRecord(RecNo, Values, RecordStatus);
 end;
 
 end.

@@ -274,8 +274,7 @@ begin
   PositionTable();
   lblStatus.Caption := S_STATUS_PROCESSING;
   Application.ProcessMessages();
-  dmData.StringValidateFile(frmAskForestry.ForestryID,
-    frmAskForestry.LocalForestryID);
+  dmData.StringValidateFile(frmAskForestry.RegionID, frmAskForestry.ForestryID);
   memQueryText.Text := dmData.GetResultScript();
   ResetFileProcessControls();
 end;
@@ -780,9 +779,16 @@ begin
     lblRecordsCount.Caption := IntToStr(dmData.GetFileRecordsCount());
     pbFileProcess.Max := dmData.GetFileRecordsCount();
     lblStatus.Caption := S_STATUS_READY;
-    AskFileForestry();
-    btnMathValidate.Enabled := True;
-    btnCreateScript.Enabled := True;
+    if AskFileForestry() then
+    begin
+      btnMathValidate.Enabled := True;
+      btnCreateScript.Enabled := True;
+    end
+    else
+    begin
+      btnMathValidate.Enabled := False;
+      btnCreateScript.Enabled := False;
+    end
   end;
 end;
 

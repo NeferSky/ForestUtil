@@ -282,6 +282,8 @@ const
     'select distinct forestry_name from forestries where region_id in (22, 23) order by forestry_name';
   S_SQL_GET_LOCAL_FORESTRIES_DICT: AnsiString =
     'select distinct local_forestry_name from local_forestries where region_id in (22, 23) order by local_forestry_name';
+  S_SQL_GET_FORESTRIES_BY_REGION: AnsiString =
+    'select distinct forestry_name from forestries where region_id = %d order by forestry_name';
   S_SQL_GET_LOCAL_FORESTRIES_BY_FORESTRY: AnsiString =
     'select distinct local_forestry_name from local_forestries where forestry_id = (%d) order by local_forestry_name';
   S_SQL_GET_LANDUSE_DICT: AnsiString =
@@ -289,9 +291,9 @@ const
   S_SQL_GET_SPECIES_DICT: AnsiString =
     'select distinct poroda from species order by poroda';
   S_SQL_GET_DAMAGE_DICT: AnsiString =
-    'select distinct cause_rus_short from damage_causes order by cause_rus';
+    'select distinct cause_rus_short from damage_causes order by cause_rus_short';
   S_SQL_GET_PEST_DICT: AnsiString =
-    'select distinct pest_rus_short from pest_dict order by pest_rus';
+    'select distinct pest_rus_short from pest_dict order by pest_rus_short';
 
   // =)
   S_YES = 'True';
