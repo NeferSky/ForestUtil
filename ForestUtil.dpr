@@ -13,7 +13,7 @@ uses
   SQLQuery in 'SQLQuery.pas',
   Validator in 'Validator.pas',
   ForestConsts in 'ForestConsts.pas',
-  ScrolledMemo in 'ScrolledMemo.pas',
+//  ScrolledMemo in 'ScrolledMemo.pas',
   Edit in 'Edit.pas' {frmEdit},
   Settings in 'Settings.pas' {frmSettings},
   Dicts in 'Dicts.pas' {frmDicts},
