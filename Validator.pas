@@ -431,31 +431,6 @@ begin
   end;
 
   //9
-  if Values.F28 > Values.F27 then
-  begin
-    Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 28, 27]);
-  end;
-  if Values.F29 > Values.F27 then
-  begin
-    Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 29, 27]);
-  end;
-  {  if Values.F30 > Values.F27 then
-    begin
-      Result := [vrMainInvalid];
-      RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-        [RecNo, 30, 27]);
-    end;
-    }
-  if Values.F31 > Values.F27 then
-  begin
-    Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 31, 27]);
-  end;
   if Values.F32 > Values.F27 then
   begin
     Result := [vrMainInvalid];
