@@ -1,6 +1,6 @@
 object frmUI: TfrmUI
-  Left = 360
-  Top = 210
+  Left = 405
+  Top = 160
   Width = 800
   Height = 658
   Caption = 'ForestUtil'
@@ -31,7 +31,7 @@ object frmUI: TfrmUI
     Top = 0
     Width = 784
     Height = 580
-    ActivePage = tsFileWorkspace
+    ActivePage = tsQueryWorkspace
     Align = alClient
     Images = ilUIImages
     TabOrder = 0
@@ -68,7 +68,7 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 407
+          Top = 406
           Width = 147
           Height = 49
           Action = actMathValidate
@@ -112,7 +112,7 @@ object frmUI: TfrmUI
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 323
+          Top = 322
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -191,7 +191,7 @@ object frmUI: TfrmUI
           Width = 147
           Height = 21
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 13
+          ItemHeight = 0
           TabOrder = 0
           OnSelect = cmbFileSheetSelect
         end
@@ -206,7 +206,7 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 467
+          Top = 466
           Width = 145
           Height = 49
           Action = actCreateScript
@@ -266,8 +266,8 @@ object frmUI: TfrmUI
           object lblHint: TLabel
             Left = 1
             Top = 1
-            Width = 609
-            Height = 28
+            Width = 551
+            Height = 26
             Cursor = crHandPoint
             Align = alClient
             Alignment = taCenter
@@ -382,7 +382,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 468
+          Top = 466
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -456,7 +456,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 412
+          Top = 410
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]

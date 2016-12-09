@@ -276,6 +276,7 @@ begin
   Application.ProcessMessages();
   dmData.StringValidateFile(frmAskForestry.RegionID, frmAskForestry.ForestryID);
   memQueryText.Text := dmData.GetResultScript();
+  rgrQueryType.ItemIndex := 1;
   ResetFileProcessControls();
 end;
  
@@ -294,6 +295,9 @@ var
 
 begin
   if dmData.InProgress then
+    Exit;
+
+  if Trim(memQueryText.Text) = '' then
     Exit;
 
   case rgrQueryType.ItemIndex of
@@ -316,6 +320,7 @@ begin
         btnSaveQueryResult.Enabled := True;
         lblRecordsFetched.Caption := IntToStr(dmData.GetQueryRecordsCount);
         gbxRecordsFetched.Visible := True;
+        btnSaveQueryResult.Enabled := dmData.GetQueryRecordsCount > 0;
       end;
     qtCommand:
       begin
@@ -519,7 +524,6 @@ var
   Braked1Count, Braked2Count, EqualCount: Integer;
 
 begin
-  dmData.Log(IntToStr(GetTickCount()));
   Result := qtCommand;
 
   SQLText := memQueryText.Text;
@@ -556,7 +560,6 @@ begin
   // There are ;SELECT
   if DotCommaCount > 0 then
     Result := qtSelect;
-  dmData.Log(IntToStr(GetTickCount()));
 end;
 
 //---------------------------------------------------------------------------
@@ -821,8 +824,8 @@ begin
   mnuSaveQuery.Visible := not FilePageActive;
   mnuSaveQuery.Enabled := not FilePageActive;
   mnuSaveQueryResult.Visible := not FilePageActive;
-  mnuSaveQueryResult.Enabled := not FilePageActive;
-  btnSaveQueryResult.Enabled := not FilePageActive;
+  mnuSaveQueryResult.Enabled := dmData.mtCache.Active and (not FilePageActive);
+  btnSaveQueryResult.Enabled := dmData.mtCache.Active and (not FilePageActive);
   btnExecuteQuery.Enabled := not FilePageActive;
 end;
 

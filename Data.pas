@@ -540,7 +540,7 @@ begin
     CloseFile(F);
   end;
 
-  S := Format('%s %s: %s', [DateTimeToStr(Date()), DateTimeToStr(Time()), S]); 
+  S := Format('%s %s: %s', [DateTimeToStr(Date()), DateTimeToStr(Time()), S]);
   AssignFile(F, 'log.log');
   Append(F);
   WriteLn(F, S);
@@ -637,8 +637,12 @@ end;
 
 procedure TdmData.PositionTable;
 begin
-  if not FindFirstAndLastRow() then
+  try
+    if not FindFirstAndLastRow() then
+      raise Exception.Create(E_FIND_FIRST_CELL);
+  except
     raise Exception.Create(E_FIND_FIRST_CELL);
+  end;
 end;
 
 //---------------------------------------------------------------------------

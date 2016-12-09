@@ -293,7 +293,7 @@ const
   S_SQL_GET_DAMAGE_DICT: AnsiString =
     'select distinct cause_rus_short from damage_causes order by cause_rus_short';
   S_SQL_GET_PEST_DICT: AnsiString =
-    'select distinct pest_rus_short from pest_dict order by pest_rus_short';
+    'select distinct pest_rus from pest_dict order by pest_rus';
 
   // =)
   S_YES = 'True';
