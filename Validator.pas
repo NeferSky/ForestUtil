@@ -14,17 +14,26 @@ type
     DictSpecies: TDictionary;
     DictDamage: TDictionary;
     DictPest: TDictionary;
+    FForceSkipLocalForestries: Boolean;
+    FForceSkipLanduse: Boolean;
+    FForceSkipSpecies: Boolean;
+    FForceSkipDamagedSpecies: Boolean;
+    FForceSkipDamage: Boolean;
+    FForceSkipPest: Boolean;
     function MainValidateRecord(const RecNo: Integer; var Values: TValuesRec;
       var RecordStatus: string): TValidationResult;
     function ExtraValidateRecord(const RecNo: Integer; var Values: TValuesRec;
       var RecordStatus: string): TValidationResult;
     function StringValidateField(var Field: AnsiString;
       const Dict: TDictionary; const RecNo: Integer;
-      var RecordStatus: string): TValidationResult;
-    procedure InputNewWord(OldWord: AnsiString; Dict: TDictionary);
+      var RecordStatus: string; var ForceSkip: Boolean;
+      const Prompt: AnsiString): TValidationResult;
+    procedure InputNewWord(OldWord: AnsiString; Dict: TDictionary;
+      var ForceSkip: Boolean; const Prompt: AnsiString);
   public
     constructor Create(Owner: TObject);
     destructor Destroy; override;
+    procedure InitCheck;
     function MathValidateRecord(const RecNo: Integer; var Values: TValuesRec;
       var RecordStatus: string): TValidationResult;
     function StringValidateRecord(const RecNo: Integer; var Values: TValuesRec;
@@ -165,11 +174,25 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TValidator.InputNewWord(OldWord: AnsiString; Dict: TDictionary);
+procedure TValidator.InitCheck;
+begin
+  FForceSkipLocalForestries := False;
+  FForceSkipLanduse := False;
+  FForceSkipSpecies := False;
+  FForceSkipDamagedSpecies := False;
+  FForceSkipDamage := False;
+  FForceSkipPest := False;
+end;
+   
+//---------------------------------------------------------------------------
+
+procedure TValidator.InputNewWord(OldWord: AnsiString; Dict: TDictionary;
+  var ForceSkip: Boolean; const Prompt: AnsiString);
 begin
   frmEdit.edtWord.Text := OldWord;
   frmEdit.ValuesList := Dict.ValidList;
-  frmEdit.ShowModal();
+  frmEdit.Prompt := Prompt;
+  ForceSkip := frmEdit.ShowModal() = 9; //mrNoToAll
 end;
 
 //---------------------------------------------------------------------------
@@ -721,6 +744,17 @@ begin
     [RecNo, 68, 12]);
   end;
 end;
+    
+//---------------------------------------------------------------------------
+
+function TValidator.MathValidateRecord(const RecNo: Integer;
+  var Values: TValuesRec; var RecordStatus: string): TValidationResult;
+begin
+  Result := [];
+  RecordStatus := '';
+  Result := Result + MainValidateRecord(RecNo, Values, RecordStatus);
+  Result := Result + ExtraValidateRecord(RecNo, Values, RecordStatus);
+end;
 
 //---------------------------------------------------------------------------
 
@@ -755,16 +789,20 @@ end;
 
 function TValidator.StringValidateField(var Field: AnsiString;
   const Dict: TDictionary; const RecNo: Integer;
-  var RecordStatus: string): TValidationResult;
+  var RecordStatus: string; var ForceSkip: Boolean;
+  const Prompt: AnsiString): TValidationResult;
 var
   DictRecord: TDictRecord;
   Magic: AnsiString;
 
 begin
+  if ForceSkip then
+    Exit;
+
   // Empty string - ask to replace and not remember
   if Trim(Field) = '' then
   begin
-    InputNewWord(Field, Dict);
+    InputNewWord(Field, Dict, ForceSkip, Prompt);
     Field := frmEdit.cmbSynonim.Text;
     Exit;
   end;
@@ -782,7 +820,7 @@ begin
     else
     begin
       // here ask...
-      InputNewWord(Field, Dict);
+      InputNewWord(Field, Dict, ForceSkip, Prompt);
       // ...here remember...
       DictRecord.OldWord := Field;
       DictRecord.NewWord := frmEdit.cmbSynonim.Text;
@@ -803,24 +841,20 @@ end;
 function TValidator.StringValidateRecord(const RecNo: Integer;
   var Values: TValuesRec; var RecordStatus: string): TValidationResult;
 begin
-  //  Result := Result + StringValidateField(Values.F1, DictForestries, RecNo, RecordStatus);
-  Result := Result + StringValidateField(Values.F2, DictLocalForestries, RecNo, RecordStatus);
-  Result := Result + StringValidateField(Values.F5, DictLanduse, RecNo, RecordStatus);
-  Result := Result + StringValidateField(Values.F7, DictSpecies, RecNo, RecordStatus);
-  Result := Result + StringValidateField(Values.F8, DictSpecies, RecNo, RecordStatus);
-  Result := Result + StringValidateField(Values.F9, DictDamage, RecNo, RecordStatus);
-  Result := Result + StringValidateField(Values.F58, DictPest, RecNo, RecordStatus);
-end;
-
-//---------------------------------------------------------------------------
-
-function TValidator.MathValidateRecord(const RecNo: Integer;
-  var Values: TValuesRec; var RecordStatus: string): TValidationResult;
-begin
-  Result := [];
-  RecordStatus := '';
-  Result := Result + MainValidateRecord(RecNo, Values, RecordStatus);
-  Result := Result + ExtraValidateRecord(RecNo, Values, RecordStatus);
+  //  Result := Result + StringValidateField(Values.F1, DictForestries, RecNo,
+  //    RecordStatus, FForceSkipForestries);
+  Result := Result + StringValidateField(Values.F2, DictLocalForestries, RecNo,
+    RecordStatus, FForceSkipLocalForestries, ARR_FIELD_NAMES[2]);
+  Result := Result + StringValidateField(Values.F5, DictLanduse, RecNo,
+    RecordStatus, FForceSkipLanduse, ARR_FIELD_NAMES[5]);
+  Result := Result + StringValidateField(Values.F7, DictSpecies, RecNo,
+    RecordStatus, FForceSkipSpecies, ARR_FIELD_NAMES[7]);
+  Result := Result + StringValidateField(Values.F8, DictSpecies, RecNo,
+    RecordStatus, FForceSkipDamagedSpecies, ARR_FIELD_NAMES[8]);
+  Result := Result + StringValidateField(Values.F9, DictDamage, RecNo,
+    RecordStatus, FForceSkipDamage, ARR_FIELD_NAMES[9]);
+  Result := Result + StringValidateField(Values.F58, DictPest, RecNo,
+    RecordStatus, FForceSkipPest, ARR_FIELD_NAMES[58]);
 end;
 
 end.

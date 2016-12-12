@@ -28,7 +28,10 @@ type
     destructor Destroy; override;
     procedure Clear;
     procedure SetScriptHeader;
-    procedure AddInsert(Values: TValuesRec; const RegionID, ForestryID: Integer);
+    procedure AddDelete(const RegionID, ForestryID, ReportQuarter,
+      ReportYear: Integer);
+    procedure AddInsert(Values: TValuesRec; const RegionID, ForestryID,
+      ReportQuarter, ReportYear: Integer);
     procedure SetScriptFooter;
     function GetText: AnsiString;
   end;
@@ -41,8 +44,25 @@ uses
 //---------------------------------------------------------------------------
 { TDBScript }
 
+procedure TDBScript.AddDelete(const RegionID, ForestryID, ReportQuarter,
+  ReportYear: Integer);
+var
+  SQLLine: AnsiString;
+
+begin
+  SQLLine := Format(S_DB_DELETE_SCRIPT_FORMAT, [S_DB_TABLE_NAME, ForestryID,
+    ReportYear]);
+
+  SetLineHeader();
+  FLines.Append('-- Удаление предыдущих отчетов');
+  FLines.Append(SQLLine);
+  SetLineFooter();
+end;
+ 
+//---------------------------------------------------------------------------
+
 procedure TDBScript.AddInsert(Values: TValuesRec; const RegionID,
-  ForestryID: Integer);
+  ForestryID, ReportQuarter, ReportYear: Integer);
 
   function RepairDot(const C: Currency): AnsiString;
   begin
@@ -88,7 +108,7 @@ begin
     S_DB_INSERT_SCRIPT_FORMAT_VAL7 +
     S_DB_INSERT_SCRIPT_FORMAT_END,
 
-    [S_DB_TABLE_NAME, NewID, DateStr,
+    [S_DB_TABLE_NAME, NewID, DateStr, ReportQuarter, ReportYear,
     FForestryID, FLocalForestryID, Values.F3,
       Values.F4, FLandusePurposeCode, Values.F6,
       FSpeciesID, FDamagedSpeciesID, FCauseCode,
@@ -115,6 +135,7 @@ begin
       );
 
   SetLineHeader();
+  FLines.Append('-- Вставка строки нового отчета');
   FLines.Append(SQLLine);
   SetLineFooter();
 end;
@@ -149,6 +170,8 @@ end;
 procedure TDBScript.GetIDs(const LocalForestryName, PestCode,
   LandusePurposeCode, SpeciesID, DamagedSpeciesID, CauseCode: AnsiString);
 begin
+  FLocalForestryID := dmData.GetIntField(Format(
+    S_DB_GET_LOCAL_FORESTRY_ID, [LocalForestryName]));
   FPestCode := dmData.GetIntField(Format(
     S_DB_GET_PEST_CODE, [PestCode]));
   FLandusePurposeCode := dmData.GetIntField(Format(

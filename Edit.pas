@@ -13,6 +13,8 @@ type
     lblSynonim: TLabel;
     cmbSynonim: TComboBox;
     btnSkip: TButton;
+    btnSkipAll: TButton;
+    lblPrompt: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private
@@ -21,9 +23,12 @@ type
     procedure WriteSettings;
     function GetValuesList: TStringList;
     procedure SetValuesList(Value: TStringList);
+    function GetPrompt: AnsiString;
+    procedure SetPrompt(Value: AnsiString);
   public
     { Public declarations }
     property ValuesList: TStringList read GetValuesList write SetValuesList;
+    property Prompt: AnsiString read GetPrompt write SetPrompt;
   end;
 
 var
@@ -51,6 +56,13 @@ begin
   WriteSettings();
 end;
 
+//---------------------------------------------------------------------------
+
+function TfrmEdit.GetPrompt: AnsiString;
+begin
+  Result := lblPrompt.Caption;
+end;
+    
 //---------------------------------------------------------------------------
 
 function TfrmEdit.GetValuesList: TStringList;
@@ -84,8 +96,16 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TfrmEdit.SetValuesList(Value: TStringList);
+procedure TfrmEdit.SetPrompt(Value: AnsiString);
 begin
+  if lblPrompt.Caption <> Value then
+    lblPrompt.Caption := Value;
+end;
+     
+//---------------------------------------------------------------------------
+
+procedure TfrmEdit.SetValuesList(Value: TStringList);
+begin      
   cmbSynonim.Clear();
   cmbSynonim.Items.Assign(Value);
 end;

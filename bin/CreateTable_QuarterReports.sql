@@ -1,7 +1,9 @@
-create table QuarterReports
+сreate table QuarterReports
 (
 id character varying(25),
 input_date date,
+report_quarter integer,
+report_year integer,
 forestry_number integer,
 local_forestry_number integer,
 kv integer,

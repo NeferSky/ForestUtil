@@ -274,7 +274,8 @@ begin
   PositionTable();
   lblStatus.Caption := S_STATUS_PROCESSING;
   Application.ProcessMessages();
-  dmData.StringValidateFile(frmAskForestry.RegionID, frmAskForestry.ForestryID);
+  dmData.StringValidateFile(frmAskForestry.RegionID, frmAskForestry.ForestryID,
+    frmAskForestry.ReportQuarter, frmAskForestry.ReportYear);
   memQueryText.Text := dmData.GetResultScript();
   rgrQueryType.ItemIndex := 1;
   ResetFileProcessControls();
@@ -295,7 +296,10 @@ var
 
 begin
   if dmData.InProgress then
+  begin
+    ShowMessage(S_IN_PROGRESS);
     Exit;
+  end;
 
   if Trim(memQueryText.Text) = '' then
     Exit;

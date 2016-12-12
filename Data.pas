@@ -5,7 +5,7 @@ unit Data;
 interface
 
 uses
-  SysUtils, Classes, DB, ADODB, MemTableDataEh, DataDriverEh, ADODataDriverEh,
+  Windows, SysUtils, Classes, DB, ADODB, MemTableDataEh, DataDriverEh, ADODataDriverEh,
   MemTableEh, Validator, DBScript, ForestTypes;
 
 type
@@ -33,6 +33,8 @@ type
     procedure SearchForDuplicates;
     procedure Connect;
     procedure Disconnect;
+    procedure Commit;
+    procedure Rollback;
     procedure ReadDBString(var Values: TValuesRec);
     function GetDBConnectionString: AnsiString;
     function GetFileConnectionString(const FileName: AnsiString): AnsiString;
@@ -62,8 +64,8 @@ type
     function OpenTable(const TableName: AnsiString): Boolean;
     function GetFileRecordsCount: Integer;
     function MathValidateFile: TValidationResult;
-    function StringValidateFile(const RegionID,
-      ForestryID: Integer): TValidationResult;
+    function StringValidateFile(const RegionID, ForestryID, ReportQuarter,
+      ReportYear: Integer): TValidationResult;
     procedure PositionTable;
     function GetResultScript: AnsiString;
     //
@@ -87,12 +89,19 @@ uses
 //---------------------------------------------------------------------------
 { TdmData }
 
+procedure TdmData.Commit;
+begin
+  connDB.CommitTrans();
+end;
+    
+//---------------------------------------------------------------------------
+
 procedure TdmData.Connect;
 begin
-  if connDB.Connected then
-    connDB.Close();
+  Disconnect();
   connDB.ConnectionString := GetDBConnectionString();
   connDB.Open();
+  connDB.BeginTrans();
 end;
 
 //---------------------------------------------------------------------------
@@ -121,7 +130,8 @@ end;
 
 procedure TdmData.Disconnect;
 begin
-  connDB.Close();
+  if connDB.Connected then
+    connDB.Close();
 end;
 
 //---------------------------------------------------------------------------
@@ -155,12 +165,14 @@ begin
       Connect();
       qryCommand.SQL.Text := SQLText;
       qryCommand.ExecSQL();
+      Commit();
+      MessageBox(Application.Handle, PChar(S_QUERY_EXEC_SUCCESS), PChar(''), 0);
     except
-      raise;
+      Rollback();
+      MessageBox(Application.Handle, PChar(E_QUERY_EXEC_ERROR), PChar(''), 0);
     end;
   finally
     qryCommand.Close();
-    connDB.Close();
     Disconnect();
   end;
 end;
@@ -439,10 +451,11 @@ begin
       qrySelect.SelectSQL.Text := SQLText;
       mtCache.Open();
     except
+      MessageBox(Application.Handle, PChar(S_QUERY_EXEC_SUCCESS), PChar(''), 0);
       raise;
     end;
   finally
-    connDB.Close();
+    Disconnect();
   end;
 end;
 
@@ -568,6 +581,7 @@ begin
 {$IFNDEF DEBUG}
     SearchForDuplicates();
 {$ENDIF}
+    qryFileSelect.EnableControls();
 
     for CurRec := FFirstRow to FLastRow do
     begin
@@ -744,6 +758,13 @@ end;
 
 //---------------------------------------------------------------------------
 
+procedure TdmData.Rollback;
+begin
+  connDB.RollbackTrans();
+end;
+    
+//---------------------------------------------------------------------------
+
 procedure TdmData.SearchForDuplicates;
 var
   CurRec: Integer;
@@ -822,8 +843,8 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TdmData.StringValidateFile(const RegionID,
-  ForestryID: Integer): TValidationResult;
+function TdmData.StringValidateFile(const RegionID, ForestryID, ReportQuarter,
+  ReportYear: Integer): TValidationResult;
 var
   RecStatus: string;
   Values: TValuesRec;
@@ -832,12 +853,13 @@ var
 begin
   FInProgress := True;
   try
-    qryFileSelect.DisableControls();
     Result := [];
 
     FScript.Clear();
     FScript.SetScriptHeader();
-
+    FScript.AddDelete(RegionID, ForestryID, ReportQuarter, ReportYear);
+    vld.InitCheck();
+    
     for CurRec := FFirstRow to FLastRow do
     begin
       Application.ProcessMessages();
@@ -861,7 +883,7 @@ begin
       if (vrMainInvalid in Result) and not FContinueOnError then
         Break;
 
-      FScript.AddInsert(Values, RegionID, ForestryID);
+      FScript.AddInsert(Values, RegionID, ForestryID, ReportQuarter, ReportYear);
     end;
 
     FScript.SetScriptFooter();
@@ -869,7 +891,6 @@ begin
       TimeToStr(Time()) + ' ' + S_LOG_COMPLETED);
 
   finally
-    qryFileSelect.EnableControls();
     FInProgress := False;
   end;
 end;

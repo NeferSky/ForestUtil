@@ -1,6 +1,6 @@
 object frmUI: TfrmUI
-  Left = 405
-  Top = 160
+  Left = 244
+  Top = 214
   Width = 800
   Height = 658
   Caption = 'ForestUtil'
@@ -68,7 +68,7 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 406
+          Top = 411
           Width = 147
           Height = 49
           Action = actMathValidate
@@ -112,7 +112,7 @@ object frmUI: TfrmUI
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 322
+          Top = 327
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -191,7 +191,7 @@ object frmUI: TfrmUI
           Width = 147
           Height = 21
           Anchors = [akLeft, akTop, akRight]
-          ItemHeight = 0
+          ItemHeight = 13
           TabOrder = 0
           OnSelect = cmbFileSheetSelect
         end
@@ -206,7 +206,7 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 466
+          Top = 471
           Width = 145
           Height = 49
           Action = actCreateScript

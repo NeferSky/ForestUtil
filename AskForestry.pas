@@ -3,26 +3,36 @@ unit AskForestry;
 interface
 
 uses
-  SysUtils, Controls, Forms, StdCtrls, Classes;
+  SysUtils, Controls, Forms, StdCtrls, Classes, ComCtrls;
 
 type
   TfrmAskForestry = class(TForm)
-    lblForestry: TLabel;
-    cmbForestry: TComboBox;
     btnOk: TButton;
     btnCancel: TButton;
+    gbxForestry: TGroupBox;
+    lblForestry: TLabel;
     lblRegion: TLabel;
+    cmbForestry: TComboBox;
     cmbRegion: TComboBox;
+    gbxReportPeriod: TGroupBox;
+    cmbQuarter: TComboBox;
+    lblMonth: TLabel;
+    lblYear: TLabel;
+    edtYear: TEdit;
+    udYear: TUpDown;
     procedure cmbRegionSelect(Sender: TObject);
   private
     { Private declarations }
     FRegionID: Integer;
     FForestryID: Integer;
-//    FLocalForestryID: Integer;
+    FReportQuarter: Integer;
+    FReportYear: Integer;
   public
     { Public declarations }
     property RegionID: Integer read FRegionID write FRegionID;
     property ForestryID: Integer read FForestryID write FForestryID;
+    property ReportQuarter: Integer read FReportQuarter write FReportQuarter;
+    property ReportYear: Integer read FReportYear write FReportYear;
   end;
 
   function AskFileForestry: Boolean;
@@ -38,11 +48,38 @@ uses
 {$R *.dfm}
 
 function AskFileForestry: Boolean;
+var
+  AYear, AMonth, ADay: Word;
+
 begin
   frmAskForestry.cmbForestry.Items.Assign(dmData.GetValidList(
     frmDicts.GetFileForDict(S_DICTIONARY_FORESTRIES_NAME)));
 
   frmAskForestry.cmbRegionSelect(Application);
+
+  DecodeDate(Date(), AYear, AMonth, ADay);
+  case AMonth of
+  1..3:
+    begin
+      frmAskForestry.udYear.Position := AYear - 1;
+      frmAskForestry.cmbQuarter.ItemIndex := 3;
+    end;
+  4..6:
+    begin
+      frmAskForestry.udYear.Position := AYear;
+      frmAskForestry.cmbQuarter.ItemIndex := 0;
+    end;
+  7..9:
+    begin
+      frmAskForestry.udYear.Position := AYear;
+      frmAskForestry.cmbQuarter.ItemIndex := 1;
+    end;
+  10..12:
+    begin
+      frmAskForestry.udYear.Position := AYear;
+      frmAskForestry.cmbQuarter.ItemIndex := 2;
+    end;
+  end;
 
   frmAskForestry.ShowModal();
 
@@ -50,6 +87,8 @@ begin
     S_DB_GET_REGION_ID_BY_FORESTRY, [frmAskForestry.cmbForestry.Text]));
   frmAskForestry.ForestryID := dmData.GetIntField(Format(
     S_DB_GET_FORESTRY_ID, [frmAskForestry.cmbForestry.Text]));
+  frmAskForestry.ReportQuarter := frmAskForestry.cmbQuarter.ItemIndex + 1;
+  frmAskForestry.ReportYear := frmAskForestry.udYear.Position;
 
   Result := frmAskForestry.ModalResult = mrOk;
 end;
