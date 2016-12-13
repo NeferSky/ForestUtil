@@ -4,6 +4,9 @@ interface
 
 type
   TQueryType = (qtSelect, qtCommand);
+ 
+type
+  TShowResult = (srReplace, srSkip, srForceSkip, srStop);
 
 type
   TSQLQuery = record
@@ -14,7 +17,7 @@ type
 type
   TValidationRes = (vrDuplicateValid, vrDuplicateInvalid, vrMainValid,
     vrMainInvalid, vrExtraValid, vrExtraInvalid, vrStringValid,
-    vrStringInvalid);
+    vrStringInvalid, vrStop);
   TValidationResult = set of TValidationRes;
 
 type

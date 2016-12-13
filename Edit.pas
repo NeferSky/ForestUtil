@@ -3,7 +3,7 @@ unit Edit;
 interface
 
 uses
-  Windows, Controls, Forms, StdCtrls, Classes;
+  Windows, Controls, Forms, StdCtrls, Classes, ForestTypes;
 
 type
   TfrmEdit = class(TForm)
@@ -15,21 +15,25 @@ type
     btnSkip: TButton;
     btnSkipAll: TButton;
     lblPrompt: TLabel;
+    btnStop: TButton;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure btnOkClick(Sender: TObject);
+    procedure btnSkipClick(Sender: TObject);
+    procedure btnSkipAllClick(Sender: TObject);
+    procedure btnStopClick(Sender: TObject);
   private
     { Private declarations }
+    FWaiting: Boolean;
     procedure ReadSettings;
     procedure WriteSettings;
-    function GetValuesList: TStringList;
-    procedure SetValuesList(Value: TStringList);
-    function GetPrompt: AnsiString;
-    procedure SetPrompt(Value: AnsiString);
   public
     { Public declarations }
-    property ValuesList: TStringList read GetValuesList write SetValuesList;
-    property Prompt: AnsiString read GetPrompt write SetPrompt;
+    ShowResult: TShowResult;
   end;
+
+  function ShowEdit(const OldWord, Prompt: AnsiString;
+    const Dict: TStringList): TShowResult;
 
 var
   frmEdit: TfrmEdit;
@@ -41,8 +45,58 @@ uses
 
 {$R *.dfm}
 
+function ShowEdit(const OldWord, Prompt: AnsiString;
+  const Dict: TStringList): TShowResult;
+begin
+  frmEdit.FWaiting := True;
+  frmEdit.edtWord.Text := OldWord;
+  frmEdit.lblPrompt.Caption := Prompt;
+  frmEdit.cmbSynonim.Clear();
+  frmEdit.cmbSynonim.Items.Assign(Dict);
+  frmEdit.Show();
+  while frmEdit.FWaiting do
+    Application.ProcessMessages();
+  Result := frmEdit.ShowResult;
+end;
+
 //---------------------------------------------------------------------------
 { TfrmEdit }
+
+procedure TfrmEdit.btnOkClick(Sender: TObject);
+begin
+  ShowResult := srReplace;
+  Hide();
+  FWaiting := False;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmEdit.btnSkipAllClick(Sender: TObject);
+begin
+  ShowResult := srForceSkip;
+  Hide();
+  FWaiting := False;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmEdit.btnSkipClick(Sender: TObject);
+begin
+  ShowResult := srSkip;
+  Hide();
+  FWaiting := False;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmEdit.btnStopClick(Sender: TObject);
+begin
+  ShowResult := srStop;
+  Hide();
+  FWaiting := False;
+end;
+
+//---------------------------------------------------------------------------
 
 procedure TfrmEdit.FormCreate(Sender: TObject);
 begin
@@ -54,20 +108,6 @@ end;
 procedure TfrmEdit.FormDestroy(Sender: TObject);
 begin
   WriteSettings();
-end;
-
-//---------------------------------------------------------------------------
-
-function TfrmEdit.GetPrompt: AnsiString;
-begin
-  Result := lblPrompt.Caption;
-end;
-    
-//---------------------------------------------------------------------------
-
-function TfrmEdit.GetValuesList: TStringList;
-begin
-  Result.Assign(cmbSynonim.Items);
 end;
 
 //---------------------------------------------------------------------------
@@ -92,22 +132,6 @@ begin
       CloseKey();
       Free();
     end;
-end;
-
-//---------------------------------------------------------------------------
-
-procedure TfrmEdit.SetPrompt(Value: AnsiString);
-begin
-  if lblPrompt.Caption <> Value then
-    lblPrompt.Caption := Value;
-end;
-     
-//---------------------------------------------------------------------------
-
-procedure TfrmEdit.SetValuesList(Value: TStringList);
-begin      
-  cmbSynonim.Clear();
-  cmbSynonim.Items.Assign(Value);
 end;
 
 //---------------------------------------------------------------------------

@@ -20,8 +20,8 @@ object frmUI: TfrmUI
   TextHeight = 13
   object sbStatus: TStatusBar
     Left = 0
-    Top = 580
-    Width = 784
+    Top = 585
+    Width = 792
     Height = 19
     Panels = <>
     SimplePanel = True
@@ -29,9 +29,9 @@ object frmUI: TfrmUI
   object pcPages: TPageControl
     Left = 0
     Top = 0
-    Width = 784
-    Height = 580
-    ActivePage = tsQueryWorkspace
+    Width = 792
+    Height = 585
+    ActivePage = tsFileWorkspace
     Align = alClient
     Images = ilUIImages
     TabOrder = 0
@@ -40,22 +40,22 @@ object frmUI: TfrmUI
       Caption = 'XLS-'#1092#1072#1081#1083
       ImageIndex = 1
       object splFileActions: TSplitter
-        Left = 613
+        Left = 621
         Top = 0
-        Height = 551
+        Height = 556
         Align = alRight
         OnMoved = splFileActionsMoved
       end
       object pnlFileActions: TPanel
-        Left = 616
+        Left = 624
         Top = 0
         Width = 160
-        Height = 551
+        Height = 556
         Align = alRight
         TabOrder = 1
         DesignSize = (
           160
-          551)
+          556)
         object lblSelectSheet: TLabel
           Left = 8
           Top = 8
@@ -68,7 +68,7 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 411
+          Top = 416
           Width = 147
           Height = 49
           Action = actMathValidate
@@ -112,7 +112,7 @@ object frmUI: TfrmUI
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 327
+          Top = 332
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -178,7 +178,7 @@ object frmUI: TfrmUI
         end
         object pbFileProcess: TProgressBar
           Left = 1
-          Top = 533
+          Top = 538
           Width = 158
           Height = 17
           Align = alBottom
@@ -206,7 +206,7 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 471
+          Top = 476
           Width = 145
           Height = 49
           Action = actCreateScript
@@ -218,14 +218,14 @@ object frmUI: TfrmUI
       object pnlFileWorkspace: TPanel
         Left = 0
         Top = 0
-        Width = 613
-        Height = 551
+        Width = 621
+        Height = 556
         Align = alClient
         TabOrder = 0
         object splLog: TSplitter
           Left = 1
-          Top = 447
-          Width = 611
+          Top = 452
+          Width = 619
           Height = 3
           Cursor = crVSplit
           Align = alBottom
@@ -234,7 +234,7 @@ object frmUI: TfrmUI
         object splHint: TSplitter
           Left = 1
           Top = 31
-          Width = 611
+          Width = 619
           Height = 3
           Cursor = crVSplit
           Align = alTop
@@ -242,11 +242,11 @@ object frmUI: TfrmUI
         object grdFile: TDBGrid
           Left = 1
           Top = 34
-          Width = 611
-          Height = 413
+          Width = 619
+          Height = 418
           Align = alClient
           DataSource = dsFile
-          Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit]
+          Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
           ReadOnly = True
           TabOrder = 1
           TitleFont.Charset = DEFAULT_CHARSET
@@ -259,15 +259,15 @@ object frmUI: TfrmUI
         object pnlHint: TPanel
           Left = 1
           Top = 1
-          Width = 611
+          Width = 619
           Height = 30
           Align = alTop
           TabOrder = 0
           object lblHint: TLabel
             Left = 1
             Top = 1
-            Width = 551
-            Height = 26
+            Width = 617
+            Height = 28
             Cursor = crHandPoint
             Align = alClient
             Alignment = taCenter
@@ -287,8 +287,8 @@ object frmUI: TfrmUI
         end
         object memLog: TScrolledMemo
           Left = 1
-          Top = 450
-          Width = 611
+          Top = 455
+          Width = 619
           Height = 100
           Align = alBottom
           Color = clCream
@@ -302,22 +302,22 @@ object frmUI: TfrmUI
     object tsQueryWorkspace: TTabSheet
       Caption = 'SQL-'#1079#1072#1087#1088#1086#1089
       object splQueryActions: TSplitter
-        Left = 613
+        Left = 621
         Top = 0
-        Height = 551
+        Height = 556
         Align = alRight
       end
       object pnlQueryActions: TPanel
-        Left = 616
+        Left = 624
         Top = 0
         Width = 160
-        Height = 551
+        Height = 556
         Align = alRight
         TabOrder = 1
         OnResize = pnlQueryActionsResize
         DesignSize = (
           160
-          551)
+          556)
         object gbxTemplate: TGroupBox
           Left = 8
           Top = 168
@@ -447,7 +447,7 @@ object frmUI: TfrmUI
         end
         object pbQueryProcess: TProgressBar
           Left = 1
-          Top = 533
+          Top = 538
           Width = 158
           Height = 17
           Align = alBottom
@@ -483,14 +483,14 @@ object frmUI: TfrmUI
       object pnlQueryWorkspace: TPanel
         Left = 0
         Top = 0
-        Width = 613
-        Height = 551
+        Width = 621
+        Height = 556
         Align = alClient
         TabOrder = 0
         object splQueryResult: TSplitter
           Left = 1
-          Top = 247
-          Width = 611
+          Top = 252
+          Width = 619
           Height = 3
           Cursor = crVSplit
           Align = alBottom
@@ -498,8 +498,8 @@ object frmUI: TfrmUI
         end
         object grdQueryResult: TDBGrid
           Left = 1
-          Top = 250
-          Width = 611
+          Top = 255
+          Width = 619
           Height = 300
           Align = alBottom
           Color = clCream
@@ -518,8 +518,8 @@ object frmUI: TfrmUI
         object memQueryText: TScrolledMemo
           Left = 1
           Top = 1
-          Width = 611
-          Height = 246
+          Width = 619
+          Height = 251
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText

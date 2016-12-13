@@ -28,8 +28,6 @@ type
       const Dict: TDictionary; const RecNo: Integer;
       var RecordStatus: string; var ForceSkip: Boolean;
       const Prompt: AnsiString): TValidationResult;
-    procedure InputNewWord(OldWord: AnsiString; Dict: TDictionary;
-      var ForceSkip: Boolean; const Prompt: AnsiString);
   public
     constructor Create(Owner: TObject);
     destructor Destroy; override;
@@ -182,17 +180,6 @@ begin
   FForceSkipDamagedSpecies := False;
   FForceSkipDamage := False;
   FForceSkipPest := False;
-end;
-   
-//---------------------------------------------------------------------------
-
-procedure TValidator.InputNewWord(OldWord: AnsiString; Dict: TDictionary;
-  var ForceSkip: Boolean; const Prompt: AnsiString);
-begin
-  frmEdit.edtWord.Text := OldWord;
-  frmEdit.ValuesList := Dict.ValidList;
-  frmEdit.Prompt := Prompt;
-  ForceSkip := frmEdit.ShowModal() = 9; //mrNoToAll
 end;
 
 //---------------------------------------------------------------------------
@@ -802,8 +789,14 @@ begin
   // Empty string - ask to replace and not remember
   if Trim(Field) = '' then
   begin
-    InputNewWord(Field, Dict, ForceSkip, Prompt);
-    Field := frmEdit.cmbSynonim.Text;
+    case ShowEdit(Field, Prompt, Dict.ValidList) of
+    srReplace:
+      Field := frmEdit.cmbSynonim.Text;
+    srForceSkip:
+      ForceSkip := True;
+    srStop:
+      Result := Result + [vrStop];
+    end;
     Exit;
   end;
 
@@ -820,14 +813,32 @@ begin
     else
     begin
       // here ask...
-      InputNewWord(Field, Dict, ForceSkip, Prompt);
-      // ...here remember...
-      DictRecord.OldWord := Field;
-      DictRecord.NewWord := frmEdit.cmbSynonim.Text;
-      Dict.WriteRecord(DictRecord);
-      // ...here log
-      RecordStatus := RecordStatus + Format(S_LOG_REPLACE_FROM_DICTIONARY,
-        [RecNo, DictRecord.NewWord, Field]);
+      case ShowEdit(Field, Prompt, Dict.ValidList) of
+      srReplace:
+      begin
+        // ...here remember...
+        DictRecord.OldWord := Field;
+        DictRecord.NewWord := frmEdit.cmbSynonim.Text;
+        Dict.WriteRecord(DictRecord);
+        // ...here log...
+        RecordStatus := RecordStatus + Format(S_LOG_REPLACE_FROM_DICTIONARY,
+          [RecNo, DictRecord.NewWord, Field]);
+        // ...here replace
+        Field := frmEdit.cmbSynonim.Text;
+      end;
+
+      srSkip:
+        Exit;
+
+      srForceSkip:
+        ForceSkip := True;
+
+      srStop:
+      begin
+        Result := Result + [vrStop];
+        Exit;
+      end;
+      end;
     end;
 
     // Some magic to set new word into variable
@@ -840,21 +851,57 @@ end;
 
 function TValidator.StringValidateRecord(const RecNo: Integer;
   var Values: TValuesRec; var RecordStatus: string): TValidationResult;
+var
+  Prompt: AnsiString;
+
 begin
+  Result := [];
+  //  Prompt := ARR_FIELD_NAMES[1] + #13#10 + 'Значения близких по смыслу колонок:' +
+  //    #13#10 + ARR_FIELD_NAMES[2] + ': ' + Values.F2;
   //  Result := Result + StringValidateField(Values.F1, DictForestries, RecNo,
-  //    RecordStatus, FForceSkipForestries);
+  //    RecordStatus, FForceSkipForestries, Prompt);
+  //  if vrStop in Result then
+  //    Exit;
+
+  Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[2], S_EDIT_PROMPT,
+    ARR_FIELD_NAMES[1], Values.F1]);
   Result := Result + StringValidateField(Values.F2, DictLocalForestries, RecNo,
-    RecordStatus, FForceSkipLocalForestries, ARR_FIELD_NAMES[2]);
+    RecordStatus, FForceSkipLocalForestries, Prompt);
+  if vrStop in Result then
+    Exit;
+
+  Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[5], S_EDIT_PROMPT,
+    ARR_FIELD_NAMES[6], Values.F6]);
   Result := Result + StringValidateField(Values.F5, DictLanduse, RecNo,
-    RecordStatus, FForceSkipLanduse, ARR_FIELD_NAMES[5]);
+    RecordStatus, FForceSkipLanduse, Prompt);
+  if vrStop in Result then
+    Exit;
+
+  Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[7], S_EDIT_PROMPT,
+    ARR_FIELD_NAMES[8], Values.F8]);
   Result := Result + StringValidateField(Values.F7, DictSpecies, RecNo,
-    RecordStatus, FForceSkipSpecies, ARR_FIELD_NAMES[7]);
+    RecordStatus, FForceSkipSpecies, Prompt);
+  if vrStop in Result then
+    Exit;
+
+  Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[8], S_EDIT_PROMPT,
+    ARR_FIELD_NAMES[7], Values.F7]);
   Result := Result + StringValidateField(Values.F8, DictSpecies, RecNo,
-    RecordStatus, FForceSkipDamagedSpecies, ARR_FIELD_NAMES[8]);
+    RecordStatus, FForceSkipDamagedSpecies, Prompt);
+  if vrStop in Result then
+    Exit;
+
+  Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[9], S_EDIT_PROMPT,
+    ARR_FIELD_NAMES[58], Values.F58]);
   Result := Result + StringValidateField(Values.F9, DictDamage, RecNo,
-    RecordStatus, FForceSkipDamage, ARR_FIELD_NAMES[9]);
+    RecordStatus, FForceSkipDamage, Prompt);
+  if vrStop in Result then
+    Exit;
+
+  Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[58], S_EDIT_PROMPT,
+    ARR_FIELD_NAMES[9], Values.F9]);
   Result := Result + StringValidateField(Values.F58, DictPest, RecNo,
-    RecordStatus, FForceSkipPest, ARR_FIELD_NAMES[58]);
+    RecordStatus, FForceSkipPest, Prompt);
 end;
 
 end.

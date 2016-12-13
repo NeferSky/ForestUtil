@@ -23,6 +23,7 @@ type
     { Private declarations }
     FInProgress: Boolean;
     FContinueOnError: Boolean;
+    FStopValidation: Boolean;
     FFirstRow: Integer;
     FLastRow: Integer;
     FFirstCol: Integer;
@@ -859,7 +860,7 @@ begin
     FScript.SetScriptHeader();
     FScript.AddDelete(RegionID, ForestryID, ReportQuarter, ReportYear);
     vld.InitCheck();
-    
+
     for CurRec := FFirstRow to FLastRow do
     begin
       Application.ProcessMessages();
@@ -875,6 +876,12 @@ begin
       ReadDBString(Values);
       Result := vld.StringValidateRecord(qryFileSelect.RecNo, Values,
         RecStatus);
+
+      if vrStop in Result then
+      begin
+        frmUI.ValidateLog(S_LOG_FORCE_STOP);
+        Break;
+      end;
 
       if (vrDuplicateInvalid in Result) or (vrMainInvalid in Result) or
         (vrExtraInvalid in Result) or (vrStringInvalid in Result) then

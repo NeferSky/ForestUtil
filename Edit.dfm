@@ -15,8 +15,8 @@ object frmEdit: TfrmEdit
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
-    377
-    204)
+    385
+    209)
   PixelsPerInch = 96
   TextHeight = 13
   object lblTableValue: TLabel
@@ -64,7 +64,7 @@ object frmEdit: TfrmEdit
     Text = 'Text'
   end
   object btnOk: TButton
-    Left = 112
+    Left = 24
     Top = 160
     Width = 75
     Height = 33
@@ -73,6 +73,7 @@ object frmEdit: TfrmEdit
     Default = True
     ModalResult = 1
     TabOrder = 2
+    OnClick = btnOkClick
   end
   object cmbSynonim: TComboBox
     Left = 8
@@ -84,7 +85,7 @@ object frmEdit: TfrmEdit
     TabOrder = 1
   end
   object btnSkip: TButton
-    Left = 200
+    Left = 112
     Top = 160
     Width = 75
     Height = 33
@@ -93,9 +94,10 @@ object frmEdit: TfrmEdit
     Caption = #1055#1088#1086#1087#1091#1089#1090#1080#1090#1100
     ModalResult = 7
     TabOrder = 3
+    OnClick = btnSkipClick
   end
   object btnSkipAll: TButton
-    Left = 288
+    Left = 200
     Top = 160
     Width = 75
     Height = 33
@@ -104,5 +106,16 @@ object frmEdit: TfrmEdit
     ModalResult = 9
     TabOrder = 4
     WordWrap = True
+    OnClick = btnSkipAllClick
+  end
+  object btnStop: TButton
+    Left = 288
+    Top = 160
+    Width = 75
+    Height = 33
+    Anchors = [akRight, akBottom]
+    Caption = #1054#1089#1090#1072#1085#1086#1074#1080#1090#1100
+    TabOrder = 5
+    OnClick = btnStopClick
   end
 end

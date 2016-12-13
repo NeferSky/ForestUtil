@@ -145,8 +145,12 @@ const
   S_LOG_REPLACE_FROM_DICTIONARY: AnsiString =
     '' + #13#10 + 'Строка %d: значение "%s" из словаря вместо "%s"';
   S_LOG_COMPLETED: AnsiString = 'Завершено';
+  S_LOG_FORCE_STOP: AnsiString = '' + #13#10 +
+    'Экстренное завершение по требованию';
   S_IN_PROGRESS: AnsiString = 'Похоже, все еще выполняется предыдущий запрос.';
   S_QUERY_EXEC_SUCCESS: AnsiString = 'Успешно!';
+  S_EDIT_PROMPT: AnsiString = '' + #13#10 +
+    'Значения близких по смыслу колонок:' + #13#10;
 
   // Error messages
   E_FIND_FIRST_CELL: AnsiString = 'Не удалось распознать первую строку таблицы';
