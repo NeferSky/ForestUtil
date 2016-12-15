@@ -353,6 +353,9 @@ end;
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.actMathValidateExecute(Sender: TObject);
+var
+  ValRes: TValidationResult;
+
 begin
   if dmData.InProgress then
     Exit;
@@ -361,7 +364,17 @@ begin
   PositionTable();
   lblStatus.Caption := S_STATUS_PROCESSING;
   Application.ProcessMessages();
-  dmData.MathValidateFile();
+
+  ValRes := dmData.MathValidateFile();
+  if vrMainInvalid in ValRes then
+    ShowMessage(S_LOG_MAIN_INVALID)
+  else if vrExtraInvalid in ValRes then
+    ShowMessage(S_LOG_EXTRA_INVALID)
+  else if vrDuplicateInvalid in ValRes then
+    ShowMessage(S_LOG_DUPLICATE_INVALID)
+  else
+    ShowMessage(S_LOG_SUCCESSFULLY);
+
   ResetFileProcessControls();
 end;
      
@@ -715,6 +728,9 @@ end;
 procedure TfrmUI.InitFileProcessControls;
 begin
   pcPages.ActivePageIndex := 0;
+  splLog.Visible := False;
+  memLog.Clear();
+  memLog.Visible := False;
   lblCurrentRecord.Caption := '-';
   lblRecordsCount.Caption := '-';
   lblStatus.Caption := S_STATUS_OFFLINE;

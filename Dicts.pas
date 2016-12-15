@@ -101,6 +101,7 @@ begin
   cmbDicts.Items.Add(S_DICTIONARY_FORESTRIES_NAME);
   cmbDicts.Items.Add(S_DICTIONARY_LOCAL_FORESTRIES_NAME);
   cmbDicts.Items.Add(S_DICTIONARY_LANDUSE_NAME);
+  cmbDicts.Items.Add(S_DICTIONARY_PROTECT_CATEGORY_NAME);
   cmbDicts.Items.Add(S_DICTIONARY_SPECIES_NAME);
   cmbDicts.Items.Add(S_DICTIONARY_DAMAGE_NAME);
   cmbDicts.Items.Add(S_DICTIONARY_PEST_NAME);
@@ -122,6 +123,9 @@ begin
 
   else if Dict = (S_DICTIONARY_LANDUSE_NAME) then
     Result := Result + S_DICTIONARY_LANDUSE_FILE
+   
+  else if Dict = (S_DICTIONARY_PROTECT_CATEGORY_NAME) then
+    Result := Result + S_DICTIONARY_PROTECT_CATEGORY_FILE
 
   else if Dict = (S_DICTIONARY_SPECIES_NAME) then
     Result := Result + S_DICTIONARY_SPECIES_FILE

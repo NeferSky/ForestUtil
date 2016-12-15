@@ -147,6 +147,15 @@ const
   S_LOG_COMPLETED: AnsiString = 'Завершено';
   S_LOG_FORCE_STOP: AnsiString = '' + #13#10 +
     'Экстренное завершение по требованию';
+  S_LOG_SUCCESSFULLY: AnsiString =
+    'Проверка пройдена успешно - файл может быть загружен в БД';
+  S_LOG_EXTRA_INVALID: AnsiString =
+    'Площадь очага больше площади обследования (см. номера строк и колонок в результатах проверки)';
+  S_LOG_MAIN_INVALID: AnsiString =
+    'В таблице присутствуют критические ошибки - необходима проверка или доработка (см. номера строк и колонок в результатах проверки)';
+  S_LOG_DUPLICATE_INVALID: AnsiString =
+    'В таблице присутствуют дубликаты строк, необходима проверка';
+
   S_IN_PROGRESS: AnsiString = 'Похоже, все еще выполняется предыдущий запрос.';
   S_QUERY_EXEC_SUCCESS: AnsiString = 'Успешно!';
   S_EDIT_PROMPT: AnsiString = '' + #13#10 +
@@ -174,6 +183,7 @@ const
   S_DICTIONARY_LOCAL_FORESTRIES_FILE: AnsiString =
     'DictionaryLocalForestry.dic';
   S_DICTIONARY_LANDUSE_FILE: AnsiString = 'DictionaryLanduse.dic';
+  S_DICTIONARY_PROTECT_CATEGORY_FILE: AnsiString = 'DictionaryProtectCategory.dic';
   S_DICTIONARY_SPECIES_FILE: AnsiString = 'DictionarySpecies.dic';
   S_DICTIONARY_DAMAGE_FILE: AnsiString = 'DictionaryDamage.dic';
   S_DICTIONARY_PEST_FILE: AnsiString = 'DictionaryPest.dic';
@@ -182,6 +192,7 @@ const
   S_DICTIONARY_FORESTRIES_NAME: AnsiString = 'Лесничество';
   S_DICTIONARY_LOCAL_FORESTRIES_NAME: AnsiString = 'Участковое лесничество';
   S_DICTIONARY_LANDUSE_NAME: AnsiString = 'Целевое назначение лесов';
+  S_DICTIONARY_PROTECT_CATEGORY_NAME: AnsiString = 'Категория защитных лесов';
   S_DICTIONARY_SPECIES_NAME: AnsiString = 'Порода';
   S_DICTIONARY_DAMAGE_NAME: AnsiString =
     'Основная причина ослабления (усыхания)';
@@ -258,7 +269,7 @@ const
     'pest_eyear_mer, pest_sl, pest_sr, pest_si, pest_sp';
 
   S_DB_INSERT_SCRIPT_FORMAT_VAL1: AnsiString =
-    '''%s'', ''%s'', %d, %d, %d, %d, %d, %d, %d, ''%s'', %d, %d, ';
+    '''%s'', ''%s'', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, ';
   S_DB_INSERT_SCRIPT_FORMAT_VAL2: AnsiString =
     '%d, %d, %d, %s, %s, %s, %s, %s, %s, %s, ';
   S_DB_INSERT_SCRIPT_FORMAT_VAL3: AnsiString =
@@ -282,6 +293,8 @@ const
     'select pest_code from pest_dict where upper(pest_rus) like ''%s''';
   S_DB_GET_LANDUSE_PURPOSE_CODE: AnsiString =
     'select landuse_purpose_code from landuse_purposes where upper(landuse_purpose) like ''%s''';
+  S_DB_GET_PROTECT_CATEGORY_CODE: AnsiString =
+    'select protect_category_code from protect_category where upper(protect_category_rus) like ''%s''';
   S_DB_GET_SPECIES_ID: AnsiString =
     'select species_id from species where upper(species_name_russian) like ''%s''';
   S_DB_GET_CAUSE_CODE: AnsiString =
@@ -300,7 +313,9 @@ const
   S_SQL_GET_LOCAL_FORESTRIES_BY_FORESTRY: AnsiString =
     'select distinct local_forestry_name from local_forestries where forestry_id = (%d) order by local_forestry_name';
   S_SQL_GET_LANDUSE_DICT: AnsiString =
-    'select distinct landuse_purpose from landuse_purposes order by landuse_purpose';
+    'select distinct landuse_purpose from landuse_purposes order by landuse_purpose';          
+  S_SQL_GET_PROTECT_CATEGORY_DICT: AnsiString =
+    'select distinct protect_category_rus from protect_category order by protect_category_rus';
   S_SQL_GET_SPECIES_DICT: AnsiString =
     'select distinct poroda from species order by poroda';
   S_SQL_GET_DAMAGE_DICT: AnsiString =

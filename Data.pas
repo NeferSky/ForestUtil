@@ -192,7 +192,7 @@ begin
   Result := False;
 
   // loop for horizontal shift for cells checking
-  for ColShift := 0 to (qryFileSelect.FieldCount - I_COL_COUNT - 1) do
+  for ColShift := 0 to (qryFileSelect.FieldCount - I_COL_COUNT) do
   begin
 
     qryFileSelect.First();
@@ -203,7 +203,7 @@ begin
       Weight := 0;
 
       // cells checking
-      for I := 2 to I_COL_COUNT do
+      for I := 0 to I_COL_COUNT - 1 do
         if qryFileSelect.Fields[I + ColShift].AsString = IntToStr(I + 1) then
           Inc(Weight);
 
@@ -482,6 +482,10 @@ begin
   else if DictName = S_DICTIONARY_VALID_PREFIX +
     S_DICTIONARY_LANDUSE_FILE then
     Result := S_SQL_GET_LANDUSE_DICT
+      
+  else if DictName = S_DICTIONARY_VALID_PREFIX +
+    S_DICTIONARY_PROTECT_CATEGORY_FILE then
+    Result := S_SQL_GET_PROTECT_CATEGORY_DICT
 
   else if DictName = S_DICTIONARY_VALID_PREFIX +
     S_DICTIONARY_SPECIES_FILE then
@@ -568,9 +572,12 @@ var
   RecStatus: string;
   Values: TValuesRec;
   CurRec: Integer;
+  ValRes: TValidationResult;
 
 begin
   FInProgress := True;
+
+  Result := [vrDuplicateValid, vrMainValid, vrExtraValid, vrStringValid];
 
   try
     qryFileSelect.DisableControls();
@@ -597,13 +604,16 @@ begin
       end;
 
       ReadDBString(Values);
-      Result := vld.MathValidateRecord(qryFileSelect.RecNo, Values, RecStatus);
+      ValRes := vld.MathValidateRecord(qryFileSelect.RecNo, Values, RecStatus);
 
-      if (vrDuplicateInvalid in Result) or (vrMainInvalid in Result) or
-        (vrExtraInvalid in Result) or (vrStringInvalid in Result) then
-        frmUI.ValidateLog(RecStatus);
+      if (vrDuplicateInvalid in ValRes) or (vrMainInvalid in ValRes) or
+        (vrExtraInvalid in ValRes) or (vrStringInvalid in ValRes) then
+        begin
+          frmUI.ValidateLog(RecStatus);
+          Result := Result + ValRes;
+        end;
 
-      if (vrMainInvalid in Result) and not FContinueOnError then
+      if (vrMainInvalid in ValRes) and not FContinueOnError then
         Break;
     end;
 
@@ -619,6 +629,9 @@ end;
 //---------------------------------------------------------------------------
 
 function TdmData.OpenFile(const FileName: AnsiString): Boolean;
+var
+  I: Integer;
+
 begin
   if qryFileSelect.Active then
     qryFileSelect.Close();
@@ -629,6 +642,11 @@ begin
   try
     connFile.Open();
     connFile.GetTableNames(FTableList);
+
+    for I := FTableList.Count - 1 downto 0 do
+      if AnsiPos('#_FilterDatabase', FTableList.Strings[I]) > 0 then
+        FTableList.Delete(I);
+
     Result := connFile.Connected;
   except
     raise;

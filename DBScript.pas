@@ -14,6 +14,7 @@ type
     FLocalForestryID: Integer;
     FPestCode: Integer;
     FLandusePurposeCode: Integer;
+    FProtectCategoryCode: Integer;
     FSpeciesID: Integer;
     FDamagedSpeciesID: Integer;
     FCauseCode: Integer;
@@ -21,8 +22,9 @@ type
     procedure SetLineFooter;
     function GetNewID(const Quarter: AnsiString;
       const Land: AnsiString): AnsiString;
-    procedure GetIDs(const LocalForestryName, PestCode,
-      LandusePurposeCode, SpeciesID, DamagedSpeciesID, CauseCode: AnsiString);
+    procedure GetIDs(const LocalForestryName, PestName, LandusePurposeName,
+      ProtectCategoryName, SpeciesName, DamagedSpeciesName,
+      CauseName: AnsiString);
   public
     constructor Create;
     destructor Destroy; override;
@@ -77,7 +79,8 @@ var
 
 begin
   DateTimeToString(DateStr, 'dd.mm.yyyy', Date());
-  GetIDs(Values.F2, Values.F58, Values.F5, Values.F7, Values.F8, Values.F9);
+  GetIDs(Values.F2, Values.F58, Values.F5, Values.F6, Values.F7, Values.F8,
+    Values.F9);
   FRegionID := RegionID;
   FForestryID := ForestryID;
   NewID := GetNewID(IntToStr(Values.F3), IntToStr(Values.F4));
@@ -110,7 +113,7 @@ begin
 
     [S_DB_TABLE_NAME, NewID, DateStr, ReportQuarter, ReportYear,
     FForestryID, FLocalForestryID, Values.F3,
-      Values.F4, FLandusePurposeCode, Values.F6,
+      Values.F4, FLandusePurposeCode, FProtectCategoryCode,
       FSpeciesID, FDamagedSpeciesID, FCauseCode,
       Values.F10, Values.F11, RepairDot(Values.F12),
       RepairDot(Values.F13), RepairDot(Values.F14), RepairDot(Values.F15),
@@ -167,21 +170,24 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TDBScript.GetIDs(const LocalForestryName, PestCode,
-  LandusePurposeCode, SpeciesID, DamagedSpeciesID, CauseCode: AnsiString);
+procedure TDBScript.GetIDs(const LocalForestryName, PestName,
+  LandusePurposeName, ProtectCategoryName, SpeciesName, DamagedSpeciesName,
+  CauseName: AnsiString);
 begin
   FLocalForestryID := dmData.GetIntField(Format(
     S_DB_GET_LOCAL_FORESTRY_ID, [LocalForestryName]));
   FPestCode := dmData.GetIntField(Format(
-    S_DB_GET_PEST_CODE, [PestCode]));
+    S_DB_GET_PEST_CODE, [PestName]));
   FLandusePurposeCode := dmData.GetIntField(Format(
-    S_DB_GET_LANDUSE_PURPOSE_CODE, [LandusePurposeCode]));
+    S_DB_GET_LANDUSE_PURPOSE_CODE, [LandusePurposeName]));
+  FProtectCategoryCode := dmData.GetIntField(Format(
+    S_DB_GET_PROTECT_CATEGORY_CODE, [ProtectCategoryName]));
   FSpeciesID := dmData.GetIntField(Format(
-    S_DB_GET_SPECIES_ID, [SpeciesID]));
+    S_DB_GET_SPECIES_ID, [SpeciesName]));
   FDamagedSpeciesID := dmData.GetIntField(Format(
-    S_DB_GET_SPECIES_ID, [DamagedSpeciesID]));
+    S_DB_GET_SPECIES_ID, [DamagedSpeciesName]));
   FCauseCode := dmData.GetIntField(Format(
-    S_DB_GET_CAUSE_CODE, [CauseCode]));
+    S_DB_GET_CAUSE_CODE, [CauseName]));
 end;
 
 //---------------------------------------------------------------------------

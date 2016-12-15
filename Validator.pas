@@ -11,11 +11,13 @@ type
     DictForestries: TDictionary;
     DictLocalForestries: TDictionary;
     DictLanduse: TDictionary;
+    DictProtectCategory: TDictionary;
     DictSpecies: TDictionary;
     DictDamage: TDictionary;
     DictPest: TDictionary;
     FForceSkipLocalForestries: Boolean;
     FForceSkipLanduse: Boolean;
+    FForceSkipProtectCategory: Boolean;
     FForceSkipSpecies: Boolean;
     FForceSkipDamagedSpecies: Boolean;
     FForceSkipDamage: Boolean;
@@ -53,6 +55,7 @@ begin
   DictForestries := TDictionary.Create(S_DICTIONARY_FORESTRIES_FILE);
   DictLocalForestries := TDictionary.Create(S_DICTIONARY_LOCAL_FORESTRIES_FILE);
   DictLanduse := TDictionary.Create(S_DICTIONARY_LANDUSE_FILE);
+  DictProtectCategory := TDictionary.Create(S_DICTIONARY_PROTECT_CATEGORY_FILE);
   DictSpecies := TDictionary.Create(S_DICTIONARY_SPECIES_FILE);
   DictDamage := TDictionary.Create(S_DICTIONARY_DAMAGE_FILE);
   DictPest := TDictionary.Create(S_DICTIONARY_PEST_FILE);
@@ -65,6 +68,7 @@ begin
   DictForestries.Free();
   DictLocalForestries.Free();
   DictLanduse.Free();
+  DictProtectCategory.Free();
   DictSpecies.Free();
   DictDamage.Free();
   DictPest.Free();
@@ -156,6 +160,10 @@ begin
   else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
     S_DICTIONARY_LANDUSE_FILE) then
     Result := DictLanduse.ValidList
+     
+  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
+    S_DICTIONARY_PROTECT_CATEGORY_FILE) then
+    Result := DictProtectCategory.ValidList
 
   else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
     S_DICTIONARY_SPECIES_FILE) then
@@ -176,6 +184,7 @@ procedure TValidator.InitCheck;
 begin
   FForceSkipLocalForestries := False;
   FForceSkipLanduse := False;
+  FForceSkipProtectCategory := False;
   FForceSkipSpecies := False;
   FForceSkipDamagedSpecies := False;
   FForceSkipDamage := False;
@@ -758,6 +767,10 @@ begin
   else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
     S_DICTIONARY_LANDUSE_FILE) then
     DictLanduse.ValidList := Value
+       
+  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
+    S_DICTIONARY_PROTECT_CATEGORY_FILE) then
+    DictProtectCategory.ValidList := Value
 
   else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
     S_DICTIONARY_SPECIES_FILE) then
@@ -874,6 +887,11 @@ begin
     ARR_FIELD_NAMES[6], Values.F6]);
   Result := Result + StringValidateField(Values.F5, DictLanduse, RecNo,
     RecordStatus, FForceSkipLanduse, Prompt);
+  if vrStop in Result then
+    Exit;
+            
+  Result := Result + StringValidateField(Values.F6, DictProtectCategory, RecNo,
+    RecordStatus, FForceSkipProtectCategory, ARR_FIELD_NAMES[6]);
   if vrStop in Result then
     Exit;
 

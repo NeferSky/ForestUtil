@@ -1,6 +1,6 @@
 object frmUI: TfrmUI
-  Left = 244
-  Top = 214
+  Left = 243
+  Top = 174
   Width = 800
   Height = 658
   Caption = 'ForestUtil'
@@ -68,7 +68,7 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 416
+          Top = 415
           Width = 147
           Height = 49
           Action = actMathValidate
@@ -112,7 +112,7 @@ object frmUI: TfrmUI
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 332
+          Top = 331
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -206,7 +206,7 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 476
+          Top = 475
           Width = 145
           Height = 49
           Action = actCreateScript
@@ -382,7 +382,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 466
+          Top = 465
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -456,7 +456,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 410
+          Top = 409
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]
