@@ -1,6 +1,10 @@
 unit ForestTypes;
 
 interface
+  
+type
+  TOnValidationLog = procedure(Msg: AnsiString) of object;
+  TOnProgress = procedure(CurrentIteration: Integer) of object;
 
 type
   TQueryType = (qtSelect, qtCommand);
@@ -17,7 +21,7 @@ type
 type
   TValidationRes = (vrDuplicateValid, vrDuplicateInvalid, vrMainValid,
     vrMainInvalid, vrExtraValid, vrExtraInvalid, vrStringValid,
-    vrStringInvalid, vrStop);
+    vrStringInvalid, vrStop, vrRelationValid, vrRelationInvalid);
   TValidationResult = set of TValidationRes;
 
 type
@@ -111,6 +115,13 @@ type
   TDictRecord = record
     OldWord: string[255];
     NewWord: string[255];
+  end;
+
+type
+  TReportSums = record
+    DamagedArea: Currency;
+    LostArea: Currency;
+    PestArea: Currency;
   end;
 
 implementation

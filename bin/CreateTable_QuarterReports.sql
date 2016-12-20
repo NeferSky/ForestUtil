@@ -1,4 +1,4 @@
-сreate table QuarterReports
+create table QuarterReports
 (
 id character varying(25),
 input_date date,

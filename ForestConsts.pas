@@ -134,16 +134,16 @@ const
   S_LOG_ONE_MORE_THAN_TWO: AnsiString = '' + #13#10 +
     'Строка %d: Значение в колонке %d больше значения в колонке %d';
   S_LOG_SUM_ONE_DIFF_THAN_TWO: AnsiString = '' + #13#10 +
-      'Строка %d: Сумма значений в колонках %s не равна значению в колонке %d';
+    'Строка %d: Сумма значений в колонках %s не равна значению в колонке %d';
   S_LOG_ONE_DIFF_THAN_SUM_TWO: AnsiString = '' + #13#10 +
-      'Строка %d: Значение в колонке %d больше суммы значений в колонках %s';
+    'Строка %d: Значение в колонке %d больше суммы значений в колонках %s';
   S_LOG_FORMULA_ONE_DIFF_THAN_TWO: AnsiString = '' + #13#10 +
-      'Строка %d: Значения в колонках (%s) не равно значению в колонке %d';
+    'Строка %d: Значения в колонках (%s) не равно значению в колонке %d';
   S_CONFIRM_REPLACE: AnsiString = 'Изменить "%s" на "%s"? %s';
   S_LOG_EMPTY_ROW: AnsiString = '' + #13#10 + 'Пустая строка: ';
   S_LOG_DUPLICATE_ROW: AnsiString = 'Дублирование строк: %d и %d';
-  S_LOG_REPLACE_FROM_DICTIONARY: AnsiString =
-    '' + #13#10 + 'Строка %d: значение "%s" из словаря вместо "%s"';
+  S_LOG_REPLACE_FROM_DICTIONARY: AnsiString = '' + #13#10 +
+    'Строка %d: значение "%s" из словаря вместо "%s"';
   S_LOG_COMPLETED: AnsiString = 'Завершено';
   S_LOG_FORCE_STOP: AnsiString = '' + #13#10 +
     'Экстренное завершение по требованию';
@@ -155,6 +155,14 @@ const
     'В таблице присутствуют критические ошибки - необходима проверка или доработка (см. номера строк и колонок в результатах проверки)';
   S_LOG_DUPLICATE_INVALID: AnsiString =
     'В таблице присутствуют дубликаты строк, необходима проверка';
+  S_LOG_NO_SPECIES_RELATION: AnsiString = '' + #13#10 +
+    'Строка %d: Повреждаемая порода не соответствует причине повреждения';
+  S_LOG_NO_CAUSE_RELATION: AnsiString = '' + #13#10 +
+    'Строка %d: Причина повреждения не соответствует году повреждения';
+  S_LOG_RELATION_INVALID: AnsiString =
+    'В таблице присутствуют ошибки соответствия полей';
+  S_LOG_INVALID_SUM_PREV_REPORT: AnsiString =
+    'Сумма значений в колонке %d не сходится с суммой из предыдущего отчета';
 
   S_IN_PROGRESS: AnsiString = 'Похоже, все еще выполняется предыдущий запрос.';
   S_QUERY_EXEC_SUCCESS: AnsiString = 'Успешно!';
@@ -165,14 +173,14 @@ const
   E_FIND_FIRST_CELL: AnsiString = 'Не удалось распознать первую строку таблицы';
   E_FIND_LAST_CELL: AnsiString =
     'Не удалось распознать последнюю строку таблицы';
-  E_WRITE_QUERY: AnsiString = 'Ошибка при попытке запомнить SQL-запрос' +
-    #13#10 + 'Значения счетчиков:' + #13#10 +
+  E_WRITE_QUERY: AnsiString = 'Ошибка при попытке запомнить SQL-запрос' + #13#10 +
+    'Значения счетчиков:' + #13#10 +
     'MaxQueriesCount: %d, FActualCount: %d, FWritingIndex: %d, FReadingIndex: %d';
-  E_READ_QUERY: AnsiString = 'Ошибка при попытке прочитать SQL-запрос' +
-    #13#10 + 'Значения счетчиков:' + #13#10 +
+  E_READ_QUERY: AnsiString = 'Ошибка при попытке прочитать SQL-запрос' + #13#10 +
+    'Значения счетчиков:' + #13#10 +
     'MaxQueriesCount: %d, FActualCount: %d, FWritingIndex: %d, FReadingIndex: %d';
-  E_QUERY_EXEC_ERROR: AnsiString = '!!! Ошибка при выполнении запроса. !!!' +
-    #13#10 + 'Изменения отменены.';
+  E_QUERY_EXEC_ERROR: AnsiString = '!!! Ошибка при выполнении запроса. !!!' + #13#10 +
+    'Изменения отменены.';
 
   // File names
   S_DICTIONARY_VALID_PREFIX: AnsiString = 'Valid';
@@ -232,8 +240,8 @@ const
 
   S_DB_DELETE_SCRIPT_FORMAT: AnsiString =
     'DELETE FROM %s WHERE (forestry_number = %d) ' +
-    'AND (report_quarter <> 4) ' +
-    'AND (report_year <> %d);';
+    'AND (report_quarter = %d) ' +
+    'AND (report_year = %d);';
 
   S_DB_INSERT_SCRIPT_FORMAT_BEGIN: AnsiString = 'INSERT INTO %s (';
   S_DB_INSERT_SCRIPT_FORMAT_MIDDLE: AnsiString = ') VALUES (';
@@ -303,6 +311,16 @@ const
     'select date_part(''month'', current_timestamp)';
   S_DB_GET_CURRENT_YEAR: AnsiString =
     'select date_part(''year'', current_timestamp)';
+  S_DB_GET_REPORT_ROW_COUNT: AnsiString =
+    'select count(*) from %s where forestry_number = %d and report_quarter = %d and report_year = %d';
+  S_DB_GET_SPECIES_RELATION: AnsiString =
+    'select count(*) from species_causes sc join species s on s.species_id = sc.species_code join damage_causes c on c.cause_code = sc.cause_code where Upper(Trim(s.poroda)) like ''%s'' and Upper(c.cause_rus) like ''%s''';
+  S_DB_GET_CAUSE_CODE_BY_NAME: AnsiString =
+    'select cause_code from damage_causes where cause_rus like ''%s''';
+  S_DB_GET_PREV_YEAR_SUMS: AnsiString =
+    'select sum(dam_eyear), sum(lost_eyear), sum(pest_on_eyear), from %s where forestry_number = %d and report_year = %d - 1 and report_quarter = 4';
+  S_DB_GET_PREV_QUARTER_SUMS: AnsiString =
+    'select sum(dam_byear), sum(lost_byear), sum(pest_on_byear), from %s where forestry_number = %d and report_year = %d and report_quarter = %d';
 
   S_SQL_GET_FORESTRIES_DICT: AnsiString =
     'select distinct forestry_name from forestries where region_id in (22, 23) order by forestry_name';
@@ -313,7 +331,7 @@ const
   S_SQL_GET_LOCAL_FORESTRIES_BY_FORESTRY: AnsiString =
     'select distinct local_forestry_name from local_forestries where forestry_id = (%d) order by local_forestry_name';
   S_SQL_GET_LANDUSE_DICT: AnsiString =
-    'select distinct landuse_purpose from landuse_purposes order by landuse_purpose';          
+    'select distinct landuse_purpose from landuse_purposes order by landuse_purpose';
   S_SQL_GET_PROTECT_CATEGORY_DICT: AnsiString =
     'select distinct protect_category_rus from protect_category order by protect_category_rus';
   S_SQL_GET_SPECIES_DICT: AnsiString =

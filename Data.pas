@@ -5,8 +5,8 @@ unit Data;
 interface
 
 uses
-  Windows, SysUtils, Classes, DB, ADODB, MemTableDataEh, DataDriverEh, ADODataDriverEh,
-  MemTableEh, Validator, DBScript, ForestTypes;
+  Windows, SysUtils, Classes, DB, ADODB, MemTableDataEh, DataDriverEh,
+  ADODataDriverEh, MemTableEh, Validator, DBScript, ForestTypes;
 
 type
   TdmData = class(TDataModule)
@@ -23,12 +23,13 @@ type
     { Private declarations }
     FInProgress: Boolean;
     FContinueOnError: Boolean;
-    FStopValidation: Boolean;
     FFirstRow: Integer;
     FLastRow: Integer;
     FFirstCol: Integer;
     FTableList: TStringList;
     FScript: TDBScript;
+    FOnValidationLog: TOnValidationLog;
+    FOnProgress: TOnProgress;
     procedure ReadSettings;
     procedure WriteSettings;
     procedure SearchForDuplicates;
@@ -40,13 +41,20 @@ type
     function GetDBConnectionString: AnsiString;
     function GetFileConnectionString(const FileName: AnsiString): AnsiString;
     function GetSQLByDictName(const DictName: AnsiString): AnsiString;
-    function FindFirstAndLastRow: Boolean;
+    function FindFirstRow: Boolean;
+    function FindLastRow: Boolean;
     function EmptyRec: Boolean;
     function GetTableList: TStringList;
     function GetInProgress: Boolean;
     function GetContinueOnError: Boolean;
     procedure SetContinueOnError(Value: Boolean);
-    function SetPosition(DataSet: TDataSet; Position: Integer): Boolean;
+    function SetPosition(const DataSet: TDataSet; const Position: Integer): Boolean;
+    function ExistsSameReport(const ForestryID, ReportQuarter,
+      ReportYear: Integer): Boolean;
+    procedure ValidationLog(Msg: AnsiString);
+    procedure Progress(CurrentIteration: Integer);
+    function GetPrevReportSums(const ForestryID, ReportYear,
+      ReportQuarter: Integer; const PrevYear: Boolean): TReportSums;
   public
     procedure Log(S: string);
     { Public declarations }
@@ -56,6 +64,8 @@ type
     function GetForestry(const RegionID: Integer): TStringList;
     function GetLocalForestry(const ForestryName: AnsiString): TStringList;
     function GetIntField(SQLText: AnsiString): Integer;
+    function CheckSpeciesRelation(const SpeciesName,
+      CauseName: AnsiString): Boolean;
     //
     procedure ExecuteQuery(const SQLText: AnsiString);
     procedure GetQueryResult(const SQLText: AnsiString);
@@ -64,7 +74,8 @@ type
     function OpenFile(const FileName: AnsiString): Boolean;
     function OpenTable(const TableName: AnsiString): Boolean;
     function GetFileRecordsCount: Integer;
-    function MathValidateFile: TValidationResult;
+    function MathValidateFile(const ForestryID, ReportYear,
+      ReportQuarter: Integer): TValidationResult;
     function StringValidateFile(const RegionID, ForestryID, ReportQuarter,
       ReportYear: Integer): TValidationResult;
     procedure PositionTable;
@@ -74,6 +85,9 @@ type
     property ContinueOnError: Boolean read GetContinueOnError write
       SetContinueOnError;
     property InProgress: Boolean read GetInProgress;
+    property OnValidationLog: TOnValidationLog read FOnValidationLog
+      write FOnValidationLog;
+    property OnProgress: TOnProgress read FOnProgress write FOnProgress;
   end;
 
 var
@@ -83,18 +97,27 @@ var
 implementation
 
 uses
-  UI, ForestConsts, IniFiles, Forms, NsUtils;
+  ForestConsts, IniFiles, Forms, NsUtils;
 
 {$R *.dfm}
 
 //---------------------------------------------------------------------------
 { TdmData }
 
+function TdmData.CheckSpeciesRelation(const SpeciesName,
+  CauseName: AnsiString): Boolean;
+begin
+  Result := GetIntField(Format(S_DB_GET_SPECIES_RELATION,
+    [SpeciesName, CauseName])) > 0
+end;
+  
+//---------------------------------------------------------------------------
+
 procedure TdmData.Commit;
 begin
   connDB.CommitTrans();
 end;
-    
+
 //---------------------------------------------------------------------------
 
 procedure TdmData.Connect;
@@ -147,8 +170,17 @@ begin
 
   for I := 0 to I_COLS_TO_FIND_LAST_ROW - 1 do
   begin
+    // If cell is empty...
     if Trim(qryFileSelect.Fields[I + FFirstCol].AsString) = '' then
-      Inc(Weight);
+      Inc(Weight)
+    // ...else if digit cells contains non-digit values
+    else
+      if ((I = 2) or (I = 3) or (I = 9) or (I = 10)) then
+        try
+          StrToInt(Trim(qryFileSelect.Fields[I + FFirstCol].AsString));
+        except
+          Inc(Weight);
+        end
   end;
 
   Result := Weight > I_WEIGHT_TO_FIND_LAST_ROW;
@@ -180,16 +212,24 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TdmData.FindFirstAndLastRow: Boolean;
+function TdmData.ExistsSameReport(const ForestryID, ReportQuarter,
+  ReportYear: Integer): Boolean;
+begin
+  Result := GetIntField(Format(S_DB_GET_REPORT_ROW_COUNT, [S_DB_TABLE_NAME,
+    ForestryID, ReportQuarter, ReportYear])) > 0;
+end;
+
+//---------------------------------------------------------------------------
+
+function TdmData.FindFirstRow: Boolean;
 var
   Weight: Integer;
   I: Integer;
   ColShift: Integer;
-  CurRec: Integer;
 
 begin
-  //////// Find first cell
   Result := False;
+  qryFileSelect.DisableControls();
 
   // loop for horizontal shift for cells checking
   for ColShift := 0 to (qryFileSelect.FieldCount - I_COL_COUNT) do
@@ -199,7 +239,7 @@ begin
     // main "vertical" loop
     while not qryFileSelect.Eof do
     begin
-      frmUI.StepProcess(qryFileSelect.RecNo);
+      Progress(qryFileSelect.RecNo);
       Weight := 0;
 
       // cells checking
@@ -208,12 +248,11 @@ begin
           Inc(Weight);
 
       // if check sucessfull - break main "vertical" loop
-      if Weight>(I_COL_COUNT div 2) then
+      if Weight > (I_COL_COUNT div 2) then
       begin
         FFirstRow := qryFileSelect.RecNo + 1;
         FFirstCol := ColShift;
         Result := True;
-        qryFileSelect.Next();
         Break;
       end;
 
@@ -225,71 +264,34 @@ begin
       Break;
   end;
 
-  SetPosition(qryFileSelect, FFirstRow);
+  qryFileSelect.First();
+  qryFileSelect.EnableControls();
+end;
 
-  //////// Find last cell
+//---------------------------------------------------------------------------
+
+function TdmData.FindLastRow: Boolean;
+begin
   Result := False;
+  qryFileSelect.DisableControls();
 
-  // main loop by recordset
-  while not qryFileSelect.Eof do
+  qryFileSelect.Last();
+
+  while not qryFileSelect.Bof do
   begin
-    CurRec := qryFileSelect.RecNo;
 
-    // if current record is "empty" - okay. it can be just empty row in the
-    // file. next row can be "contains data", "empty" or "eof".
-    if EmptyRec() then
+    if (not EmptyRec()) or (qryFileSelect.RecNo = FFirstRow - 1) then
     begin
-      qryFileSelect.Next();
-
-      // if next record is eof - well, prev.CurRec is last row.
-      if qryFileSelect.Eof then
-      begin
-        FLastRow := CurRec - 1;
-        Result := True;
-        Break;
-      end;
-
-      // if next record is "empty" - okay. it can be just empty row in the
-      // file. post-next row can be "contains data", "empty" or "eof".
-      if EmptyRec() then
-      begin
-        qryFileSelect.Next();
-
-        // if post-next record is eof - well, prev.CurRec is last row.
-        if qryFileSelect.Eof then
-        begin
-          FLastRow := CurRec - 1;
-          Result := True;
-          Break;
-        end;
-
-        // if post-next record is "empty" - this is the third consecutive empty
-        // record! i think, it is end of records and prev.CurRec is last row.
-        if EmptyRec() then
-        begin
-          FLastRow := CurRec - 1;
-          Result := True;
-          Break;
-        end;
-      end;
+      FLastRow := qryFileSelect.RecNo;
+      Result := True;
+      Break;
     end;
 
-    if Result then
-      Break;
-
-    SetPosition(qryFileSelect, CurRec);
-    qryFileSelect.Next();
+    qryFileSelect.Prior();
   end;
-
-  // if "eof" goes right after "data records". correctly, after prev.FFirstRow.
-  // well, first row is "eof".
-  if qryFileSelect.Eof then
-  begin
-    Result := True;
-    FLastRow := CurRec - 1;
-  end;
-
-  SetPosition(qryFileSelect, FFirstRow);
+  
+  qryFileSelect.First();
+  qryFileSelect.EnableControls();
 end;
 
 //---------------------------------------------------------------------------
@@ -434,6 +436,32 @@ end;
 
 //---------------------------------------------------------------------------
 
+function TdmData.GetPrevReportSums(const ForestryID, ReportYear,
+  ReportQuarter: Integer; const PrevYear: Boolean): TReportSums;
+begin
+  try
+    Connect();
+
+    if PrevYear then
+      qryGetTableValues.SQL.Text := Format(S_DB_GET_PREV_YEAR_SUMS,
+        [S_DB_TABLE_NAME, ForestryID, ReportYear])
+    else
+      qryGetTableValues.SQL.Text := Format(S_DB_GET_PREV_QUARTER_SUMS,
+        [S_DB_TABLE_NAME, ForestryID, ReportYear, ReportQuarter]);
+
+    qryGetTableValues.Open();
+    Result.DamagedArea := qryGetTableValues.Fields[0].AsCurrency;
+    Result.LostArea := qryGetTableValues.Fields[1].AsCurrency;
+    Result.PestArea := qryGetTableValues.Fields[2].AsCurrency;
+
+  finally
+    qryGetTableValues.Close();
+    Disconnect();
+  end;
+end;
+
+//---------------------------------------------------------------------------
+
 function TdmData.GetQueryRecordsCount: Integer;
 begin
   Result := mtCache.RecordCount;
@@ -567,17 +595,22 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TdmData.MathValidateFile: TValidationResult;
+function TdmData.MathValidateFile(const ForestryID, ReportYear,
+  ReportQuarter: Integer): TValidationResult;
 var
   RecStatus: string;
   Values: TValuesRec;
   CurRec: Integer;
   ValRes: TValidationResult;
+  CurReportSums, PrevReportSums: TReportSums;
 
 begin
   FInProgress := True;
 
   Result := [vrDuplicateValid, vrMainValid, vrExtraValid, vrStringValid];
+  CurReportSums.DamagedArea := 0;
+  CurReportSums.LostArea := 0;
+  CurReportSums.PestArea := 0;
 
   try
     qryFileSelect.DisableControls();
@@ -595,21 +628,26 @@ begin
     begin
       Application.ProcessMessages();
       SetPosition(qryFileSelect, CurRec);
-      frmUI.StepProcess(qryFileSelect.RecNo);
+      Progress(qryFileSelect.RecNo);
 
       if EmptyRec() then
       begin
-        frmUI.ValidateLog(S_LOG_EMPTY_ROW + IntToStr(qryFileSelect.RecNo));
+        ValidationLog(S_LOG_EMPTY_ROW + IntToStr(qryFileSelect.RecNo));
         Continue;
       end;
 
       ReadDBString(Values);
       ValRes := vld.MathValidateRecord(qryFileSelect.RecNo, Values, RecStatus);
 
+      CurReportSums.DamagedArea := CurReportSums.DamagedArea + Values.F17;
+      CurReportSums.LostArea := CurReportSums.LostArea + Values.F24;
+      CurReportSums.PestArea := CurReportSums.PestArea + Values.F59;
+
       if (vrDuplicateInvalid in ValRes) or (vrMainInvalid in ValRes) or
         (vrExtraInvalid in ValRes) or (vrStringInvalid in ValRes) then
         begin
-          frmUI.ValidateLog(RecStatus);
+          if Assigned(FOnValidationLog) then
+            FOnValidationLog(RecStatus);
           Result := Result + ValRes;
         end;
 
@@ -617,8 +655,31 @@ begin
         Break;
     end;
 
-    frmUI.ValidateLog(#13#10 + DateToStr(Date()) + ' ' +
-      TimeToStr(Time()) + ' ' + S_LOG_COMPLETED);
+    case ReportQuarter of
+    1:
+      begin
+        PrevReportSums := GetPrevReportSums(ForestryID, ReportYear,
+          ReportQuarter, True);
+      end;
+
+    2, 3, 4:
+      begin
+        PrevReportSums := GetPrevReportSums(ForestryID, ReportYear,
+          ReportQuarter, True);
+      end;
+    end;
+
+    if CurReportSums.DamagedArea <> PrevReportSums.DamagedArea then
+      ValidationLog(Format(S_LOG_INVALID_SUM_PREV_REPORT, [17]));
+
+    if CurReportSums.LostArea <> PrevReportSums.LostArea then
+      ValidationLog(Format(S_LOG_INVALID_SUM_PREV_REPORT, [24]));
+
+    if CurReportSums.PestArea <> PrevReportSums.PestArea then
+      ValidationLog(Format(S_LOG_INVALID_SUM_PREV_REPORT, [59]));
+
+    ValidationLog(#13#10 + DateToStr(Date()) + ' ' + TimeToStr(Time()) + ' ' +
+      S_LOG_COMPLETED);
 
   finally
     qryFileSelect.EnableControls();
@@ -644,9 +705,12 @@ begin
     connFile.GetTableNames(FTableList);
 
     for I := FTableList.Count - 1 downto 0 do
+    begin
       if AnsiPos('#_FilterDatabase', FTableList.Strings[I]) > 0 then
         FTableList.Delete(I);
-
+      if AnsiPos('_xlnm#Print_Area', FTableList.Strings[I]) > 0 then
+        FTableList.Delete(I);
+    end;
     Result := connFile.Connected;
   except
     raise;
@@ -671,13 +735,21 @@ end;
 procedure TdmData.PositionTable;
 begin
   try
-    if not FindFirstAndLastRow() then
+    if not (FindFirstRow() and FindLastRow()) then
       raise Exception.Create(E_FIND_FIRST_CELL);
   except
     raise Exception.Create(E_FIND_FIRST_CELL);
   end;
 end;
 
+//---------------------------------------------------------------------------
+
+procedure TdmData.Progress(CurrentIteration: Integer);
+begin
+  if Assigned(FOnProgress) then
+    FOnProgress(CurrentIteration);
+end;
+     
 //---------------------------------------------------------------------------
 
 procedure TdmData.ReadDBString(var Values: TValuesRec);
@@ -826,7 +898,7 @@ begin
         (UniqueKey.LocationArea =
         DefCurrency(qryFileSelect.Fields[11 + FFirstCol].AsVariant)) then
       begin
-        frmUI.ValidateLog(Format(S_LOG_DUPLICATE_ROW, [UniqueKey.RecNo,
+        ValidationLog(Format(S_LOG_DUPLICATE_ROW, [UniqueKey.RecNo,
           qryFileSelect.RecNo]));
       end;
       qryFileSelect.Next();
@@ -847,7 +919,8 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TdmData.SetPosition(DataSet: TDataSet; Position: Integer): Boolean;
+function TdmData.SetPosition(const DataSet: TDataSet;
+  const Position: Integer): Boolean;
 begin
   DataSet.First();
   Result := DataSet.MoveBy(Position - 1) = (Position - 1);
@@ -876,50 +949,63 @@ begin
 
     FScript.Clear();
     FScript.SetScriptHeader();
-    FScript.AddDelete(RegionID, ForestryID, ReportQuarter, ReportYear);
     vld.InitCheck();
+
+    if ExistsSameReport(ForestryID, ReportQuarter, ReportYear) then
+      FScript.AddDelete(RegionID, ForestryID, ReportQuarter, ReportYear);
 
     for CurRec := FFirstRow to FLastRow do
     begin
       Application.ProcessMessages();
       SetPosition(qryFileSelect, CurRec);
-      frmUI.StepProcess(qryFileSelect.RecNo);
+      Progress(qryFileSelect.RecNo);
 
       if EmptyRec() then
       begin
-        frmUI.ValidateLog(S_LOG_EMPTY_ROW + IntToStr(qryFileSelect.RecNo));
+        ValidationLog(S_LOG_EMPTY_ROW + IntToStr(qryFileSelect.RecNo));
         Continue;
       end;
 
       ReadDBString(Values);
-      Result := vld.StringValidateRecord(qryFileSelect.RecNo, Values,
-        RecStatus);
+      Result := Result + vld.StringValidateRecord(qryFileSelect.RecNo, Values,
+        RecStatus, ReportYear);
 
       if vrStop in Result then
       begin
-        frmUI.ValidateLog(S_LOG_FORCE_STOP);
+        ValidationLog(S_LOG_FORCE_STOP);
         Break;
       end;
 
       if (vrDuplicateInvalid in Result) or (vrMainInvalid in Result) or
-        (vrExtraInvalid in Result) or (vrStringInvalid in Result) then
-        frmUI.ValidateLog(RecStatus);
+        (vrExtraInvalid in Result) or (vrStringInvalid in Result)  or
+        (vrRelationInvalid in Result) then
+          ValidationLog(RecStatus);
 
-      if (vrMainInvalid in Result) and not FContinueOnError then
-        Break;
+      if ((vrMainInvalid in Result) or (vrExtraInvalid in Result) or
+        (vrStringInvalid in Result) or (vrRelationInvalid in Result))
+        and not FContinueOnError then
+          Break;
 
       FScript.AddInsert(Values, RegionID, ForestryID, ReportQuarter, ReportYear);
     end;
 
     FScript.SetScriptFooter();
-    frmUI.ValidateLog(#13#10 + DateToStr(Date()) + ' ' +
-      TimeToStr(Time()) + ' ' + S_LOG_COMPLETED);
+    ValidationLog(#13#10 + DateToStr(Date()) + ' ' + TimeToStr(Time()) + ' ' +
+      S_LOG_COMPLETED);
 
   finally
     FInProgress := False;
   end;
 end;
 
+//---------------------------------------------------------------------------
+
+procedure TdmData.ValidationLog(Msg: AnsiString);
+begin
+  if Assigned(FOnValidationLog) then
+    FOnValidationLog(Msg);
+end;
+ 
 //---------------------------------------------------------------------------
 
 procedure TdmData.WriteSettings;

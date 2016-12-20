@@ -20,8 +20,8 @@ type
     FCauseCode: Integer;
     procedure SetLineHeader;
     procedure SetLineFooter;
-    function GetNewID(const Quarter: AnsiString;
-      const Land: AnsiString): AnsiString;
+    function GetNewID(const LandQuarter: AnsiString;
+  const Land: AnsiString; const YearQuarter: Integer): AnsiString;
     procedure GetIDs(const LocalForestryName, PestName, LandusePurposeName,
       ProtectCategoryName, SpeciesName, DamagedSpeciesName,
       CauseName: AnsiString);
@@ -53,10 +53,10 @@ var
 
 begin
   SQLLine := Format(S_DB_DELETE_SCRIPT_FORMAT, [S_DB_TABLE_NAME, ForestryID,
-    ReportYear]);
+    ReportQuarter, ReportYear]);
 
   SetLineHeader();
-  FLines.Append('-- Удаление предыдущих отчетов');
+  FLines.Append('-- Удаление строк отчета');
   FLines.Append(SQLLine);
   SetLineFooter();
 end;
@@ -83,7 +83,7 @@ begin
     Values.F9);
   FRegionID := RegionID;
   FForestryID := ForestryID;
-  NewID := GetNewID(IntToStr(Values.F3), IntToStr(Values.F4));
+  NewID := GetNewID(IntToStr(Values.F3), IntToStr(Values.F4), ReportQuarter);
 
   SQLLine := Format(
     S_DB_INSERT_SCRIPT_FORMAT_BEGIN +
@@ -192,8 +192,8 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TDBScript.GetNewID(const Quarter: AnsiString;
-  const Land: AnsiString): AnsiString;
+function TDBScript.GetNewID(const LandQuarter: AnsiString;
+  const Land: AnsiString; const YearQuarter: Integer): AnsiString;
 var
   DatePart: Integer;
 
@@ -203,8 +203,10 @@ begin
   Result := Result + ExtendLeft(IntToStr(FRegionID), 3, '0');
   Result := Result + ExtendLeft(IntToStr(FForestryID), 3, '0');
   Result := Result + ExtendLeft(IntToStr(FLocalForestryID), 3, '0');
-  Result := Result + ExtendLeft(Quarter, 3, '0');
+  Result := Result + ExtendLeft(LandQuarter, 3, '0');
   Result := Result + ExtendLeft(Land, 3, '0');
+
+  Result := Result + IntToStr(YearQuarter);
 
   DatePart := dmData.GetIntField(S_DB_GET_CURRENT_MOUNTH);
   Result := Result + ExtendLeft(IntToStr(DatePart), 3, '0');

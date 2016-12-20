@@ -68,7 +68,7 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 415
+          Top = 413
           Width = 147
           Height = 49
           Action = actMathValidate
@@ -112,7 +112,7 @@ object frmUI: TfrmUI
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 331
+          Top = 329
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -206,7 +206,7 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 475
+          Top = 473
           Width = 145
           Height = 49
           Action = actCreateScript
@@ -382,7 +382,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 465
+          Top = 463
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -456,7 +456,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 409
+          Top = 407
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]

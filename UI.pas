@@ -200,12 +200,10 @@ type
     procedure ControlWindow(var Msg: TMessage); message WM_SYSCOMMAND;
     procedure IconMouse(var Msg: TMessage); message WM_USER + 1;
     procedure Tray(n: Integer; Icon: TIcon);
+    procedure ValidationLog(Msg: AnsiString);
+    procedure StepProcess(CurrentIteration: Integer);
   public
     { Public declarations }
-    function ConfirmReplace(const OldWord: AnsiString; var NewWord: AnsiString;
-      const DictionaryWord: Boolean): TConfirmResults;
-    procedure StepProcess(CurrentIteration: Integer);
-    procedure ValidateLog(Msg: AnsiString);
   end;
 
 var
@@ -266,6 +264,9 @@ end;
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.actCreateScriptExecute(Sender: TObject);
+var
+  ValRes: TValidationResult;
+
 begin
   if dmData.InProgress then
     Exit;
@@ -274,8 +275,14 @@ begin
   PositionTable();
   lblStatus.Caption := S_STATUS_PROCESSING;
   Application.ProcessMessages();
-  dmData.StringValidateFile(frmAskForestry.RegionID, frmAskForestry.ForestryID,
+
+  ValRes := dmData.StringValidateFile(frmAskForestry.RegionID, frmAskForestry.ForestryID,
     frmAskForestry.ReportQuarter, frmAskForestry.ReportYear);
+  if vrRelationInvalid in ValRes then
+    ShowMessage(S_LOG_RELATION_INVALID)
+  else
+    ShowMessage(S_LOG_SUCCESSFULLY);
+
   memQueryText.Text := dmData.GetResultScript();
   rgrQueryType.ItemIndex := 1;
   ResetFileProcessControls();
@@ -365,7 +372,9 @@ begin
   lblStatus.Caption := S_STATUS_PROCESSING;
   Application.ProcessMessages();
 
-  ValRes := dmData.MathValidateFile();
+  ValRes := dmData.MathValidateFile(frmAskForestry.ForestryID,
+    frmAskForestry.ReportYear, frmAskForestry.ReportQuarter);
+    
   if vrMainInvalid in ValRes then
     ShowMessage(S_LOG_MAIN_INVALID)
   else if vrExtraInvalid in ValRes then
@@ -588,36 +597,6 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TfrmUI.ConfirmReplace(const OldWord: AnsiString;
-  var NewWord: AnsiString; const DictionaryWord: Boolean): TConfirmResults;
-var
-  Res: TConfirmResults;
-
-begin
-  if chbManualConfirm.Checked then
-  begin
-    Result := [crConfirmed];
-    Exit;
-  end;
-
-  frmEdit.edtWord.Text := OldWord;
-
-  case frmEdit.ShowModal() of
-    mrYes:
-      Include(Res, crConfirmed);
-    mrNo:
-      Include(Res, crSkip);
-    mrCancel:
-      Include(Res, crStop);
-  end;
-
-  if crConfirmed in Res then
-    NewWord := frmEdit.cmbSynonim.Text;
-  Result := Res;
-end;
-
-//---------------------------------------------------------------------------
-
 procedure TfrmUI.ControlWindow(var Msg: TMessage);
 begin
   if (Msg.WParam = SC_MINIMIZE) and TrayEnabled then
@@ -667,6 +646,8 @@ begin
   ShowQueriesCount();
   sbStatus.SimpleText := Application.Title + ' v.' +
     GetFullFileVersion(Application.ExeName);
+  dmData.OnValidationLog := ValidationLog;
+  dmData.OnProgress := StepProcess;
 end;
 
 //---------------------------------------------------------------------------
@@ -1096,7 +1077,7 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TfrmUI.ValidateLog(Msg: AnsiString);
+procedure TfrmUI.ValidationLog(Msg: AnsiString);
 begin
   if not memLog.Visible then
     memLog.Visible := True;

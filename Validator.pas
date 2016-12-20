@@ -30,14 +30,16 @@ type
       const Dict: TDictionary; const RecNo: Integer;
       var RecordStatus: string; var ForceSkip: Boolean;
       const Prompt: AnsiString): TValidationResult;
+    function RelationValidate(const RecNo: Integer; const Values: TValuesRec;
+      var RecordStatus: AnsiString; const ReportYear: Integer): TValidationResult;
   public
     constructor Create(Owner: TObject);
     destructor Destroy; override;
     procedure InitCheck;
     function MathValidateRecord(const RecNo: Integer; var Values: TValuesRec;
-      var RecordStatus: string): TValidationResult;
+      var RecordStatus: AnsiString): TValidationResult;
     function StringValidateRecord(const RecNo: Integer; var Values: TValuesRec;
-      var RecordStatus: string): TValidationResult;
+      var RecordStatus: AnsiString; const ReportYear: Integer): TValidationResult;
     function GetValidList(Dictionary: AnsiString): TStringList;
     procedure SetValidList(Dictionary: AnsiString; Value: TStringList);
   end;
@@ -45,7 +47,7 @@ type
 implementation
 
 uses
-  SysUtils, Edit, ForestConsts;
+  SysUtils, Edit, ForestConsts, Data;
 
 //---------------------------------------------------------------------------
 { TValidator }
@@ -754,6 +756,60 @@ end;
 
 //---------------------------------------------------------------------------
 
+function TValidator.RelationValidate(const RecNo: Integer;
+  const Values: TValuesRec; var RecordStatus: AnsiString;
+  const ReportYear: Integer): TValidationResult;
+var
+  CauseCode: Integer;
+  AYear, AMonth, ADay: Word;
+
+begin
+  // Species relation check
+  if not dmData.CheckSpeciesRelation(Values.F8, Values.F9) then
+  begin
+    Result := Result + [vrRelationInvalid];
+    RecordStatus := RecordStatus + Format(S_LOG_NO_SPECIES_RELATION, [RecNo]);
+  end;
+
+  // Cause relation check
+  CauseCode := dmData.GetIntField(Format(S_DB_GET_CAUSE_CODE_BY_NAME, [Values.F9]));
+
+  case CauseCode of
+  881, 882, 883, 870, 871, 872, 873, 874, 875:
+    if Values.F10 <> ReportYear then
+    begin
+      Result := Result + [vrRelationInvalid];
+      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+    end;
+  821, 822, 823:
+    if Values.F10 >= ReportYear then
+    begin
+      Result := Result + [vrRelationInvalid];
+      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+    end;
+  851, 854, 856, 863, 864, 865:
+    if (Values.F10 > ReportYear - 1) or (Values.F10 < ReportYear - 3) then
+    begin
+      Result := Result + [vrRelationInvalid];
+      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+    end;
+  852, 855, 857, 866, 867, 868:
+    if (Values.F10 > ReportYear - 4) or (Values.F10 < ReportYear - 10) then
+    begin
+      Result := Result + [vrRelationInvalid];
+      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+    end;
+  853, 858, 869:
+    if (Values.F10 > ReportYear - 10) then
+    begin
+      Result := Result + [vrRelationInvalid];
+      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+    end;
+  end;
+end;
+
+//---------------------------------------------------------------------------
+
 procedure TValidator.SetValidList(Dictionary: AnsiString; Value: TStringList);
 begin
   if Dictionary = (S_DICTIONARY_VALID_PREFIX +
@@ -863,12 +919,15 @@ end;
 //---------------------------------------------------------------------------
 
 function TValidator.StringValidateRecord(const RecNo: Integer;
-  var Values: TValuesRec; var RecordStatus: string): TValidationResult;
+  var Values: TValuesRec; var RecordStatus: AnsiString;
+  const ReportYear: Integer): TValidationResult;
 var
   Prompt: AnsiString;
 
 begin
   Result := [];
+  RecordStatus := '';
+  
   //  Prompt := ARR_FIELD_NAMES[1] + #13#10 + 'Значения близких по смыслу колонок:' +
   //    #13#10 + ARR_FIELD_NAMES[2] + ': ' + Values.F2;
   //  Result := Result + StringValidateField(Values.F1, DictForestries, RecNo,
@@ -920,6 +979,8 @@ begin
     ARR_FIELD_NAMES[9], Values.F9]);
   Result := Result + StringValidateField(Values.F58, DictPest, RecNo,
     RecordStatus, FForceSkipPest, Prompt);
+
+  Result := Result + RelationValidate(RecNo, Values, RecordStatus, ReportYear);
 end;
 
 end.
