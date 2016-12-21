@@ -10,23 +10,28 @@ type
   private
     FDictionaryName: AnsiString;
     FDictArray: array of TDictRecord;
-    FValidList: TStringList;
+    FValidArray: TValidArr;
+    FForceSkip: Boolean;
     function Equal(const A: TDictRecord; const B: TDictRecord): Boolean;
-    function GetValidList: TStringList;
-    procedure SetValidList(Value: TStringList);
+    function GetValidArray: TValidArr;
+    procedure SetValidArray(Value: TValidArr);
+    function GetForceSkip: Boolean;
+    procedure SetForceSkip(Value: Boolean);
   public
-    function Validate(const AWord: AnsiString): Boolean;
-    function FindRecord(const AWord: AnsiString; var WordRecord: TDictRecord):
-      Boolean;
+    function Validate(const AWord: AnsiString): Integer;
+    function FindRecord(const AWord: AnsiString;
+      var WordRecord: TDictRecord): Boolean;
     procedure WriteRecord(const WordRecord: TDictRecord);
     procedure Clear;
     constructor Create(AFile: AnsiString);
     destructor Destroy; override;
-    property ValidList: TStringList read GetValidList write SetValidList;
+    property ValidList: TValidArr read GetValidArray write SetValidArray;
+    property ForceSkip: Boolean read GetForceSkip write SetForceSkip;
   end;
 
 var
   DictionaryFile: file of TDictRecord;
+  ValidFile: file of TValidRecord;
 
 implementation
 
@@ -67,11 +72,20 @@ begin
     CloseFile(DictionaryFile);
   end;
 
-  FValidList := TStringList.Create();
-  ValidDictFile := Format('%s%s%s', [GetAppPath,
-    S_DICTIONARY_VALID_PREFIX, FDictionaryName]);
+  ValidDictFile := Format('%s%s%s', [GetAppPath, S_DICTIONARY_VALID_PREFIX,
+    FDictionaryName]);
   if FileExists(ValidDictFile) then
-    FValidList.LoadFromFile(ValidDictFile);
+  begin
+    Assign(ValidFile, ValidDictFile);
+    Reset(ValidFile);
+    while not Eof(ValidFile) do
+    begin
+      I := Length(FValidArray);
+      SetLength(FValidArray, I + 1);
+      Read(ValidFile, FValidArray[I]);
+    end;
+    CloseFile(ValidFile);
+  end;
 end;
 
 //---------------------------------------------------------------------------
@@ -80,6 +94,7 @@ destructor TDictionary.Destroy;
 var
   DictFile, ValidDictFile: AnsiString;
   I: Integer;
+  ValidRecord: TValidRecord;
 
 begin
   DictFile := Format('%s%s', [GetAppPath, FDictionaryName]);
@@ -91,11 +106,13 @@ begin
 
   Clear();
 
-  ValidDictFile := Format('%s%s%s', [GetAppPath,
-    S_DICTIONARY_VALID_PREFIX, FDictionaryName]);
-  FValidList.SaveToFile(ValidDictFile);
-  FValidList.Clear();
-  FValidList.Free();
+  ValidDictFile := Format('%s%s%s', [GetAppPath, S_DICTIONARY_VALID_PREFIX,
+    FDictionaryName]);
+  Assign(ValidFile, ValidDictFile);
+  Rewrite(ValidFile);
+  for I := 0 to (Length(FValidArray) - 1) do
+    Write(ValidFile, FValidArray[I]);
+  CloseFile(ValidFile);
 
   inherited;
 end;
@@ -128,23 +145,48 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TDictionary.GetValidList: TStringList;
+function TDictionary.GetForceSkip: Boolean;
 begin
-  Result := FValidList;
+  Result := FForceSkip;
+end;
+ 
+//---------------------------------------------------------------------------
+
+function TDictionary.GetValidArray: TValidArr;
+begin
+  Result := FValidArray;
 end;
 
 //---------------------------------------------------------------------------
 
-procedure TDictionary.SetValidList(Value: TStringList);
+procedure TDictionary.SetForceSkip(Value: Boolean);
 begin
-  FValidList.Assign(Value);
+  if Value <> FForceSkip then
+    FForceSkip := Value;
+end;
+   
+//---------------------------------------------------------------------------
+
+procedure TDictionary.SetValidArray(Value: TValidArr);
+begin
+  FValidArray := Value;
 end;
 
 //---------------------------------------------------------------------------
 
-function TDictionary.Validate(const AWord: AnsiString): Boolean;
+function TDictionary.Validate(const AWord: AnsiString): Integer;
+var
+  I: Integer;
+
 begin
-  Result := FValidList.IndexOf(UpperCase(Trim(AWord))) <> -1;
+  Result := 0;
+
+  for I := 0 to Length(FValidArray) - 1 do
+    if FValidArray[I].WordValue = Uppercase(AWord) then
+    begin
+      Result := FValidArray[I].WordIndex;
+      Break;
+    end;
 end;
 
 //---------------------------------------------------------------------------

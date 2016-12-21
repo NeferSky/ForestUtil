@@ -17,7 +17,7 @@ const
   S_EDIT_HEIGHT: AnsiString = 'EditHeight';
   S_EDIT_WIDTH: AnsiString = 'EditWidth';
   S_COMPRESS_COLUMNS: AnsiString = 'CompressColumns';
-  S_CONTINUE_ON_ERROR: AnsiString = 'ContinueOnError';
+//  S_CONTINUE_ON_ERROR: AnsiString = 'ContinueOnError';
 
   S_INI_GUI: AnsiString = 'GUI';
   S_TRAY_ENABLED: AnsiString = 'TrayEnabled';
@@ -131,6 +131,7 @@ const
   S_STATUS_READY: AnsiString = 'Готово к работе';
   S_STATUS_PROCESSING: AnsiString = 'Выполняется:';
   S_STATUS_OFFLINE: AnsiString = 'Отключено';
+
   S_LOG_ONE_MORE_THAN_TWO: AnsiString = '' + #13#10 +
     'Строка %d: Значение в колонке %d больше значения в колонке %d';
   S_LOG_SUM_ONE_DIFF_THAN_TWO: AnsiString = '' + #13#10 +
@@ -139,14 +140,21 @@ const
     'Строка %d: Значение в колонке %d больше суммы значений в колонках %s';
   S_LOG_FORMULA_ONE_DIFF_THAN_TWO: AnsiString = '' + #13#10 +
     'Строка %d: Значения в колонках (%s) не равно значению в колонке %d';
-  S_CONFIRM_REPLACE: AnsiString = 'Изменить "%s" на "%s"? %s';
-  S_LOG_EMPTY_ROW: AnsiString = '' + #13#10 + 'Пустая строка: ';
-  S_LOG_DUPLICATE_ROW: AnsiString = 'Дублирование строк: %d и %d';
+  S_LOG_EMPTY_ROW: AnsiString = '' + #13#10 + 'Пустая строка: %d';
+  S_LOG_DUPLICATE_ROW: AnsiString = '' + #13#10 + 'Дублирование строк: %d и %d';
   S_LOG_REPLACE_FROM_DICTIONARY: AnsiString = '' + #13#10 +
     'Строка %d: значение "%s" из словаря вместо "%s"';
+  S_LOG_NO_SPECIES_RELATION: AnsiString = '' + #13#10 +
+    'Строка %d: Повреждаемая порода не соответствует причине повреждения';
+  S_LOG_NO_CAUSE_RELATION: AnsiString = '' + #13#10 +
+    'Строка %d: Причина повреждения не соответствует году повреждения';
+  S_LOG_INVALID_SUM_PREV_REPORT: AnsiString = '' + #13#10 +
+    'Сумма значений в колонке %d не сходится с суммой из предыдущего отчета';
+  S_LOG_PREV_REPORT_NOT_FOUND: AnsiString = '' + #13#10 +
+    'Предыдущий отчет для сравнения не найден';
+
   S_LOG_COMPLETED: AnsiString = 'Завершено';
-  S_LOG_FORCE_STOP: AnsiString = '' + #13#10 +
-    'Экстренное завершение по требованию';
+  S_LOG_FORCE_STOP: AnsiString = 'Экстренное завершение по требованию';
   S_LOG_SUCCESSFULLY: AnsiString =
     'Проверка пройдена успешно - файл может быть загружен в БД';
   S_LOG_EXTRA_INVALID: AnsiString =
@@ -155,14 +163,8 @@ const
     'В таблице присутствуют критические ошибки - необходима проверка или доработка (см. номера строк и колонок в результатах проверки)';
   S_LOG_DUPLICATE_INVALID: AnsiString =
     'В таблице присутствуют дубликаты строк, необходима проверка';
-  S_LOG_NO_SPECIES_RELATION: AnsiString = '' + #13#10 +
-    'Строка %d: Повреждаемая порода не соответствует причине повреждения';
-  S_LOG_NO_CAUSE_RELATION: AnsiString = '' + #13#10 +
-    'Строка %d: Причина повреждения не соответствует году повреждения';
   S_LOG_RELATION_INVALID: AnsiString =
     'В таблице присутствуют ошибки соответствия полей';
-  S_LOG_INVALID_SUM_PREV_REPORT: AnsiString =
-    'Сумма значений в колонке %d не сходится с суммой из предыдущего отчета';
 
   S_IN_PROGRESS: AnsiString = 'Похоже, все еще выполняется предыдущий запрос.';
   S_QUERY_EXEC_SUCCESS: AnsiString = 'Успешно!';
@@ -295,51 +297,33 @@ const
     'select region_id from forestries where upper(forestry_name) like ''%s''';
   S_DB_GET_FORESTRY_ID: AnsiString =
     'select forestry_id from forestries where upper(forestry_name) like ''%s''';
-  S_DB_GET_LOCAL_FORESTRY_ID: AnsiString =
-    'select local_forestry_id from local_forestries where upper(local_forestry_name) like ''%s''';
-  S_DB_GET_PEST_CODE: AnsiString =
-    'select pest_code from pest_dict where upper(pest_rus) like ''%s''';
-  S_DB_GET_LANDUSE_PURPOSE_CODE: AnsiString =
-    'select landuse_purpose_code from landuse_purposes where upper(landuse_purpose) like ''%s''';
-  S_DB_GET_PROTECT_CATEGORY_CODE: AnsiString =
-    'select protect_category_code from protect_category where upper(protect_category_rus) like ''%s''';
-  S_DB_GET_SPECIES_ID: AnsiString =
-    'select species_id from species where upper(species_name_russian) like ''%s''';
-  S_DB_GET_CAUSE_CODE: AnsiString =
-    'select cause_code from damage_causes where upper(cause_rus) like ''%s''';
-  S_DB_GET_CURRENT_MOUNTH: AnsiString =
-    'select date_part(''month'', current_timestamp)';
-  S_DB_GET_CURRENT_YEAR: AnsiString =
-    'select date_part(''year'', current_timestamp)';
+
   S_DB_GET_REPORT_ROW_COUNT: AnsiString =
     'select count(*) from %s where forestry_number = %d and report_quarter = %d and report_year = %d';
   S_DB_GET_SPECIES_RELATION: AnsiString =
     'select count(*) from species_causes sc join species s on s.species_id = sc.species_code join damage_causes c on c.cause_code = sc.cause_code where Upper(Trim(s.poroda)) like ''%s'' and Upper(c.cause_rus) like ''%s''';
-  S_DB_GET_CAUSE_CODE_BY_NAME: AnsiString =
-    'select cause_code from damage_causes where cause_rus like ''%s''';
+
   S_DB_GET_PREV_YEAR_SUMS: AnsiString =
-    'select sum(dam_eyear), sum(lost_eyear), sum(pest_on_eyear), from %s where forestry_number = %d and report_year = %d - 1 and report_quarter = 4';
+    'select sum(dam_eyear), sum(lost_eyear), sum(pest_eyear) from %s where forestry_number = %d and report_year = %d - 1 and report_quarter = 4';
   S_DB_GET_PREV_QUARTER_SUMS: AnsiString =
-    'select sum(dam_byear), sum(lost_byear), sum(pest_on_byear), from %s where forestry_number = %d and report_year = %d and report_quarter = %d';
+    'select sum(dam_byear), sum(lost_byear), sum(pest_on_byear) from %s where forestry_number = %d and report_year = %d and report_quarter = %d';
 
   S_SQL_GET_FORESTRIES_DICT: AnsiString =
-    'select distinct forestry_name from forestries where region_id in (22, 23) order by forestry_name';
+    'select distinct forestry_id, forestry_name from forestries where region_id in (22, 23) order by forestry_name';
   S_SQL_GET_LOCAL_FORESTRIES_DICT: AnsiString =
-    'select distinct local_forestry_name from local_forestries where region_id in (22, 23) order by local_forestry_name';
+    'select distinct local_forestry_id, local_forestry_name from local_forestries where region_id in (22, 23) order by local_forestry_name';
   S_SQL_GET_FORESTRIES_BY_REGION: AnsiString =
     'select distinct forestry_name from forestries where region_id = %d order by forestry_name';
-  S_SQL_GET_LOCAL_FORESTRIES_BY_FORESTRY: AnsiString =
-    'select distinct local_forestry_name from local_forestries where forestry_id = (%d) order by local_forestry_name';
   S_SQL_GET_LANDUSE_DICT: AnsiString =
-    'select distinct landuse_purpose from landuse_purposes order by landuse_purpose';
+    'select distinct landuse_purpose_code, landuse_purpose from landuse_purposes order by landuse_purpose';
   S_SQL_GET_PROTECT_CATEGORY_DICT: AnsiString =
-    'select distinct protect_category_rus from protect_category order by protect_category_rus';
+    'select distinct protect_category_code, protect_category_rus from protect_category order by protect_category_rus';
   S_SQL_GET_SPECIES_DICT: AnsiString =
-    'select distinct poroda from species order by poroda';
+    'select distinct species_id, poroda from species order by poroda';
   S_SQL_GET_DAMAGE_DICT: AnsiString =
-    'select distinct cause_rus from damage_causes order by cause_rus';
+    'select distinct cause_code, cause_rus from damage_causes order by cause_rus';
   S_SQL_GET_PEST_DICT: AnsiString =
-    'select distinct pest_rus from pest_dict order by pest_rus';
+    'select distinct pest_code, pest_rus from pest_dict order by pest_rus';
 
   ARR_FIELD_NAMES: Array[1..68] of AnsiString = (
     'Лесничество',

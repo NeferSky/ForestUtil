@@ -3,7 +3,7 @@ unit AskForestry;
 interface
 
 uses
-  SysUtils, Controls, Forms, StdCtrls, Classes, ComCtrls;
+  SysUtils, Controls, Forms, StdCtrls, Classes, ComCtrls, ForestTypes;
 
 type
   TfrmAskForestry = class(TForm)
@@ -22,11 +22,16 @@ type
     udYear: TUpDown;
     procedure cmbRegionSelect(Sender: TObject);
   private
+    function GetDictArray: TValidArr;
+    procedure SetDictArray(const Value: TValidArr);
+  private
     { Private declarations }
     FRegionID: Integer;
     FForestryID: Integer;
     FReportQuarter: Integer;
     FReportYear: Integer;
+    FDictArray: TValidArr;
+    property DictArray: TValidArr read GetDictArray write SetDictArray;
   public
     { Public declarations }
     property RegionID: Integer read FRegionID write FRegionID;
@@ -50,10 +55,15 @@ uses
 function AskFileForestry: Boolean;
 var
   AYear, AMonth, ADay: Word;
+  I: Integer;
+  Dict: TValidArr;
 
 begin
-  frmAskForestry.cmbForestry.Items.Assign(dmData.GetValidList(
-    frmDicts.GetFileForDict(S_DICTIONARY_FORESTRIES_NAME)));
+  Dict := dmData.GetValidList(frmDicts.GetFileForDict(
+    S_DICTIONARY_FORESTRIES_NAME));
+
+  for I := 0 to Length(Dict) - 1 do
+    frmAskForestry.cmbForestry.Items.Add(Dict[I].WordValue);
 
   frmAskForestry.cmbRegionSelect(Application);
 
@@ -87,6 +97,7 @@ begin
     S_DB_GET_REGION_ID_BY_FORESTRY, [frmAskForestry.cmbForestry.Text]));
   frmAskForestry.ForestryID := dmData.GetIntField(Format(
     S_DB_GET_FORESTRY_ID, [frmAskForestry.cmbForestry.Text]));
+
   frmAskForestry.ReportQuarter := frmAskForestry.cmbQuarter.ItemIndex + 1;
   frmAskForestry.ReportYear := frmAskForestry.udYear.Position;
 
@@ -98,11 +109,31 @@ end;
 procedure TfrmAskForestry.cmbRegionSelect(Sender: TObject);
 begin
   case cmbRegion.ItemIndex of
-  0: cmbForestry.Items.Assign(dmData.GetForestry(22));
-  1: cmbForestry.Items.Assign(dmData.GetForestry(23));
+  0: cmbForestry.Items.Assign(dmData.GetForestryByRegion(22));
+  1: cmbForestry.Items.Assign(dmData.GetForestryByRegion(23));
   end;
 
   cmbForestry.ItemIndex := 0;
+end;
+
+//---------------------------------------------------------------------------
+
+function TfrmAskForestry.GetDictArray: TValidArr;
+begin
+  Result := FDictArray;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmAskForestry.SetDictArray(const Value: TValidArr);
+var
+  I: Integer;
+
+begin
+  FDictArray := Value;
+  
+  for I := 0 to Length(Value) - 1 do
+    cmbForestry.Items.Add(Value[I].WordValue);
 end;
 
 end.

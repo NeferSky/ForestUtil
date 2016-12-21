@@ -19,22 +19,27 @@ type
   end;
 
 type
-  TValidationRes = (vrDuplicateValid, vrDuplicateInvalid, vrMainValid,
-    vrMainInvalid, vrExtraValid, vrExtraInvalid, vrStringValid,
-    vrStringInvalid, vrStop, vrRelationValid, vrRelationInvalid);
+  TValidationRes = (vrDuplicateInvalid, vrMainInvalid, vrExtraInvalid,
+    vrStringInvalid, vrRelationInvalid, vrStop);
   TValidationResult = set of TValidationRes;
 
 type
   TValuesRec = record
     F1: AnsiString;
     F2: AnsiString;
+    I2: Integer;
     F3: Integer;
     F4: Integer;
     F5: AnsiString;
+    I5: Integer;
     F6: AnsiString;
+    I6: Integer;
     F7: AnsiString;
+    I7: Integer;
     F8: AnsiString;
+    I8: Integer;
     F9: AnsiString;
+    I9: Integer;
     F10: Integer;
     F11: Integer;
     F12: Currency;
@@ -84,6 +89,7 @@ type
     F56: Currency;
     F57: AnsiString;
     F58: AnsiString;
+    I58: Integer;
     F59: Currency;
     F60: Currency;
     F61: Currency;
@@ -115,7 +121,17 @@ type
   TDictRecord = record
     OldWord: string[255];
     NewWord: string[255];
+    NewIndex: Integer;
   end;
+
+type
+  TValidRecord = record
+    WordIndex: Integer;
+    WordValue: string[255];
+  end;
+
+type
+  TValidArr = array of TValidRecord;
 
 type
   TReportSums = record

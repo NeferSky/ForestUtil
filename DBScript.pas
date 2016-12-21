@@ -112,9 +112,9 @@ begin
     S_DB_INSERT_SCRIPT_FORMAT_END,
 
     [S_DB_TABLE_NAME, NewID, DateStr, ReportQuarter, ReportYear,
-    FForestryID, FLocalForestryID, Values.F3,
-      Values.F4, FLandusePurposeCode, FProtectCategoryCode,
-      FSpeciesID, FDamagedSpeciesID, FCauseCode,
+    FForestryID, Values.I2, Values.F3,
+      Values.F4, Values.I5, Values.I6,
+      Values.I7, Values.I8, Values.I9,
       Values.F10, Values.F11, RepairDot(Values.F12),
       RepairDot(Values.F13), RepairDot(Values.F14), RepairDot(Values.F15),
       RepairDot(Values.F16), RepairDot(Values.F17), RepairDot(Values.F18),
@@ -131,7 +131,7 @@ begin
       RepairDot(Values.F49), Values.F50, RepairDot(Values.F51),
       RepairDot(Values.F52), RepairDot(Values.F53), RepairDot(Values.F54),
       RepairDot(Values.F55), RepairDot(Values.F56), Values.F57,
-      FPestCode, RepairDot(Values.F59), RepairDot(Values.F60),
+      Values.I58, RepairDot(Values.F59), RepairDot(Values.F60),
       RepairDot(Values.F61), RepairDot(Values.F62), RepairDot(Values.F63),
       RepairDot(Values.F64), RepairDot(Values.F65), RepairDot(Values.F66),
       RepairDot(Values.F67), RepairDot(Values.F68)]
@@ -174,7 +174,8 @@ procedure TDBScript.GetIDs(const LocalForestryName, PestName,
   LandusePurposeName, ProtectCategoryName, SpeciesName, DamagedSpeciesName,
   CauseName: AnsiString);
 begin
-  FLocalForestryID := dmData.GetIntField(Format(
+
+{  FLocalForestryID := dmData.GetIntField(Format(
     S_DB_GET_LOCAL_FORESTRY_ID, [LocalForestryName]));
   FPestCode := dmData.GetIntField(Format(
     S_DB_GET_PEST_CODE, [PestName]));
@@ -188,6 +189,7 @@ begin
     S_DB_GET_SPECIES_ID, [DamagedSpeciesName]));
   FCauseCode := dmData.GetIntField(Format(
     S_DB_GET_CAUSE_CODE, [CauseName]));
+    }
 end;
 
 //---------------------------------------------------------------------------
@@ -195,10 +197,12 @@ end;
 function TDBScript.GetNewID(const LandQuarter: AnsiString;
   const Land: AnsiString; const YearQuarter: Integer): AnsiString;
 var
-  DatePart: Integer;
+  ADay, AMonth, AYear: Word;
 
 begin
   Result := '';
+
+  DecodeDate(Date(), AYear, AMonth, ADay);
 
   Result := Result + ExtendLeft(IntToStr(FRegionID), 3, '0');
   Result := Result + ExtendLeft(IntToStr(FForestryID), 3, '0');
@@ -208,11 +212,8 @@ begin
 
   Result := Result + IntToStr(YearQuarter);
 
-  DatePart := dmData.GetIntField(S_DB_GET_CURRENT_MOUNTH);
-  Result := Result + ExtendLeft(IntToStr(DatePart), 3, '0');
-
-  DatePart := dmData.GetIntField(S_DB_GET_CURRENT_YEAR);
-  Result := Result + ExtendLeft(IntToStr(DatePart), 3, '0');
+  Result := Result + ExtendLeft(IntToStr(AMonth), 3, '0');
+  Result := Result + ExtendLeft(IntToStr(AYear), 3, '0');
 end;
 
 //---------------------------------------------------------------------------

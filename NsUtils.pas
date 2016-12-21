@@ -73,7 +73,7 @@ type
   TCharArray = array[0..255] of Char;
   TCharDynArray = array of Char;
 
-  // CMD utils
+// CMD utils
 function HasCmdParam(const ParamName: string; SkipParamCount: Integer = 0):
   Boolean;
 procedure RunApp(const CmdLine: string; const DefaultDir: string = '';
@@ -83,6 +83,7 @@ procedure gsShellExecute(const hWindow: HWND; const Operation, FileName: string;
   const Parameters: string = ''; const Directory: string = '';
   const ShowCmd: Integer = SW_SHOWNORMAL);
 function GetAppPath: AnsiString;
+procedure ShowMsg(Msg: AnsiString);
 
 // SysInfo utils
 function GetCPUInfo: string;
@@ -263,6 +264,13 @@ end;
 function GetAppPath: AnsiString;
 begin
   Result := ExtractFilePath(Application.ExeName);
+end;
+
+//---------------------------------------------------------------------------
+
+procedure ShowMsg(Msg: AnsiString);
+begin
+  MessageBox(Application.Handle, PChar(Msg), PChar(''), 0);
 end;
 
 //---------------------------------------------------------------------------

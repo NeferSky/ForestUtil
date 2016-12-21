@@ -22,18 +22,25 @@ type
     procedure btnSkipClick(Sender: TObject);
     procedure btnSkipAllClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
+    procedure cmbSynonimChange(Sender: TObject);
   private
     { Private declarations }
     FWaiting: Boolean;
+    FDictArray: TValidArr;
+    FCurrentIndex: Integer;
     procedure ReadSettings;
     procedure WriteSettings;
+    function GetDictArray: TValidArr;
+    procedure SetDictArray(const Value: TValidArr);
   public
     { Public declarations }
     ShowResult: TShowResult;
+    property DictArray: TValidArr read GetDictArray write SetDictArray;
+    property CurrentIndex: Integer read FCurrentIndex;
   end;
 
   function ShowEdit(const OldWord, Prompt: AnsiString;
-    const Dict: TStringList): TShowResult;
+    const Dict: TValidArr): TShowResult;
 
 var
   frmEdit: TfrmEdit;
@@ -46,13 +53,13 @@ uses
 {$R *.dfm}
 
 function ShowEdit(const OldWord, Prompt: AnsiString;
-  const Dict: TStringList): TShowResult;
+  const Dict: TValidArr): TShowResult;
 begin
   frmEdit.FWaiting := True;
   frmEdit.edtWord.Text := OldWord;
   frmEdit.lblPrompt.Caption := Prompt;
   frmEdit.cmbSynonim.Clear();
-  frmEdit.cmbSynonim.Items.Assign(Dict);
+  frmEdit.DictArray := Dict;
   frmEdit.Show();
   while frmEdit.FWaiting do
     Application.ProcessMessages();
@@ -152,6 +159,33 @@ begin
       CloseKey();
       Free();
     end;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmEdit.cmbSynonimChange(Sender: TObject);
+begin
+  FCurrentIndex := FDictArray[cmbSynonim.ItemIndex].WordIndex;
+end;
+
+//---------------------------------------------------------------------------
+
+function TfrmEdit.GetDictArray: TValidArr;
+begin
+  Result := FDictArray;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmEdit.SetDictArray(const Value: TValidArr);
+var
+  I: Integer;
+
+begin
+  FDictArray := Value;
+  
+  for I := 0 to Length(Value) - 1 do
+    cmbSynonim.Items.Add(Value[I].WordValue);
 end;
 
 end.

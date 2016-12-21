@@ -15,33 +15,29 @@ type
     DictSpecies: TDictionary;
     DictDamage: TDictionary;
     DictPest: TDictionary;
-    FForceSkipLocalForestries: Boolean;
-    FForceSkipLanduse: Boolean;
-    FForceSkipProtectCategory: Boolean;
-    FForceSkipSpecies: Boolean;
-    FForceSkipDamagedSpecies: Boolean;
-    FForceSkipDamage: Boolean;
-    FForceSkipPest: Boolean;
-    function MainValidateRecord(const RecNo: Integer; var Values: TValuesRec;
-      var RecordStatus: string): TValidationResult;
-    function ExtraValidateRecord(const RecNo: Integer; var Values: TValuesRec;
-      var RecordStatus: string): TValidationResult;
-    function StringValidateField(var Field: AnsiString;
-      const Dict: TDictionary; const RecNo: Integer;
-      var RecordStatus: string; var ForceSkip: Boolean;
-      const Prompt: AnsiString): TValidationResult;
-    function RelationValidate(const RecNo: Integer; const Values: TValuesRec;
-      var RecordStatus: AnsiString; const ReportYear: Integer): TValidationResult;
+
+    FRecNo: Integer;
+    FRecordStatus: AnsiString;
+
+    function MainValidateRecord(var CurrentRecord: TValuesRec): TValidationResult;
+    function ExtraValidateRecord(var CurrentRecord: TValuesRec): TValidationResult;
+    function StringValidateField(var Field: AnsiString; var FieldID: Integer;
+      const Dict: TDictionary; const Prompt: AnsiString): TValidationResult;
+    function RelationValidateRecord(var CurrentRecord: TValuesRec;
+      const ReportYear: Integer): TValidationResult;
   public
     constructor Create(Owner: TObject);
     destructor Destroy; override;
     procedure InitCheck;
-    function MathValidateRecord(const RecNo: Integer; var Values: TValuesRec;
-      var RecordStatus: AnsiString): TValidationResult;
-    function StringValidateRecord(const RecNo: Integer; var Values: TValuesRec;
-      var RecordStatus: AnsiString; const ReportYear: Integer): TValidationResult;
-    function GetValidList(Dictionary: AnsiString): TStringList;
-    procedure SetValidList(Dictionary: AnsiString; Value: TStringList);
+    function GetValidList(Dictionary: AnsiString): TValidArr;
+    procedure SetValidList(Dictionary: AnsiString; Value: TValidArr);
+
+    function MathValidateRecord(const RecNo: Integer;
+      var CurrentRecord: TValuesRec): TValidationResult;
+    function StringValidateRecord(const RecNo: Integer;
+      var CurrentRecord: TValuesRec; const ReportYear: Integer): TValidationResult;
+
+    property RecordStatus: AnsiString read FRecordStatus;
   end;
 
 implementation
@@ -80,103 +76,93 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TValidator.ExtraValidateRecord(const RecNo: Integer;
-  var Values: TValuesRec; var RecordStatus: string): TValidationResult;
+function TValidator.ExtraValidateRecord(var CurrentRecord: TValuesRec): TValidationResult;
 begin
-  Result := [vrExtraValid];
-
-  if Values.F59 > Values.F13 then
+  if CurrentRecord.F59 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 59, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 59, 13]);
   end;
-  if Values.F60 > Values.F13 then
+  if CurrentRecord.F60 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 60, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 60, 13]);
   end;
-  if Values.F61 > Values.F13 then
+  if CurrentRecord.F61 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 61, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 61, 13]);
   end;
-  if Values.F62 > Values.F13 then
+  if CurrentRecord.F62 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 62, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 62, 13]);
   end;
-  if Values.F63 > Values.F13 then
+  if CurrentRecord.F63 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 63, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 63, 13]);
   end;
-  if Values.F64 > Values.F13 then
+  if CurrentRecord.F64 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 64, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 64, 13]);
   end;
-  if Values.F65 > Values.F13 then
+  if CurrentRecord.F65 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 65, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 65, 13]);
   end;
-  if Values.F66 > Values.F13 then
+  if CurrentRecord.F66 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 66, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 66, 13]);
   end;
-  if Values.F67 > Values.F13 then
+  if CurrentRecord.F67 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 67, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 67, 13]);
   end;
-  if Values.F68 > Values.F13 then
+  if CurrentRecord.F68 > CurrentRecord.F13 then
   begin
     Result := [vrExtraInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-      [RecNo, 68, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+      [FRecNo, 68, 13]);
   end;
 end;
 
 //---------------------------------------------------------------------------
 
-function TValidator.GetValidList(Dictionary: AnsiString): TStringList;
+function TValidator.GetValidList(Dictionary: AnsiString): TValidArr;
 begin
-  if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_FORESTRIES_FILE) then
+  if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_FORESTRIES_FILE) then
     Result := DictForestries.ValidList
 
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_LOCAL_FORESTRIES_FILE) then
+  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_LOCAL_FORESTRIES_FILE) then
     Result := DictLocalForestries.ValidList
 
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_LANDUSE_FILE) then
+  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_LANDUSE_FILE) then
     Result := DictLanduse.ValidList
-     
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_PROTECT_CATEGORY_FILE) then
+
+  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_PROTECT_CATEGORY_FILE) then
     Result := DictProtectCategory.ValidList
 
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_SPECIES_FILE) then
+  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_SPECIES_FILE) then
     Result := DictSpecies.ValidList
 
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_DAMAGE_FILE) then
+  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_DAMAGE_FILE) then
     Result := DictDamage.ValidList
 
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_PEST_FILE) then
+  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_PEST_FILE) then
     Result := DictPest.ValidList;
 end;
 
@@ -184,633 +170,636 @@ end;
 
 procedure TValidator.InitCheck;
 begin
-  FForceSkipLocalForestries := False;
-  FForceSkipLanduse := False;
-  FForceSkipProtectCategory := False;
-  FForceSkipSpecies := False;
-  FForceSkipDamagedSpecies := False;
-  FForceSkipDamage := False;
-  FForceSkipPest := False;
+  DictForestries.ForceSkip := False;
+  DictLocalForestries.ForceSkip := False;
+  DictLanduse.ForceSkip := False;
+  DictProtectCategory.ForceSkip := False;
+  DictSpecies.ForceSkip := False;
+  DictDamage.ForceSkip := False;
+  DictPest.ForceSkip := False;
 end;
 
 //---------------------------------------------------------------------------
 
-function TValidator.MainValidateRecord(const RecNo: Integer;
-  var Values: TValuesRec; var RecordStatus: string): TValidationResult;
+function TValidator.MainValidateRecord(var CurrentRecord: TValuesRec): TValidationResult;
 var
   Tmp: Currency;
 
 begin
-  Result := [vrMainValid];
-  RecordStatus := '';
+  Result := [];
+  FRecordStatus := '';
 
   // 2
-  if Values.F13 > Values.F12 then
+  if CurrentRecord.F13 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 13, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 13, 12]);
   end;
 
   // 3
-  if (Values.F14 + Values.F15 + Values.F16
-    <> Values.F13) then
+  if (CurrentRecord.F14 + CurrentRecord.F15 + CurrentRecord.F16
+    <> CurrentRecord.F13) then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_SUM_ONE_DIFF_THAN_TWO,
-    [RecNo, '14-16', 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_SUM_ONE_DIFF_THAN_TWO,
+    [FRecNo, '14-16', 12]);
   end;
 
   // 4
-  if Values.F17 > Values.F13 then
+  if CurrentRecord.F17 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 17, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 17, 13]);
   end;
-  if Values.F18 > Values.F13 then
+  if CurrentRecord.F18 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 18, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 18, 13]);
   end;
-  if Values.F19 > Values.F13 then
+  if CurrentRecord.F19 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 19, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 19, 13]);
   end;
-  if Values.F20 > Values.F13 then
+  if CurrentRecord.F20 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 20, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 20, 13]);
   end;
-  if Values.F21 > Values.F13 then
+  if CurrentRecord.F21 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 21, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 21, 13]);
   end;
-  if Values.F22 > Values.F13 then
+  if CurrentRecord.F22 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 22, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 22, 13]);
   end;
-  if Values.F23 > Values.F13 then
+  if CurrentRecord.F23 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 23, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 23, 13]);
   end;
-  if Values.F24 > Values.F13 then
+  if CurrentRecord.F24 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 24, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 24, 13]);
   end;
-  if Values.F25 > Values.F13 then
+  if CurrentRecord.F25 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 25, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 25, 13]);
   end;
-  if Values.F26 > Values.F13 then
+  if CurrentRecord.F26 > CurrentRecord.F13 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 26, 13]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 26, 13]);
   end;
 
   // 5
-  if (Values.F17 + Values.F18 - Values.F34 - Values.F40 - Values.F46 -
-    Values.F53) <> Values.F19 then
+  if (CurrentRecord.F17 + CurrentRecord.F18 - CurrentRecord.F34 -
+    CurrentRecord.F40 - CurrentRecord.F46 - CurrentRecord.F53) <>
+    CurrentRecord.F19 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_FORMULA_ONE_DIFF_THAN_TWO,
-      [RecNo, '17+18-34-40-46-53', 19]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_FORMULA_ONE_DIFF_THAN_TWO,
+      [FRecNo, '17+18-34-40-46-53', 19]);
   end;
 
   // 6
-  if (Values.F20 + Values.F21 + Values.F22 +
-    Values.F23) <> Values.F19 then
+  if (CurrentRecord.F20 + CurrentRecord.F21 + CurrentRecord.F22 +
+    CurrentRecord.F23) <> CurrentRecord.F19 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_SUM_ONE_DIFF_THAN_TWO,
-    [RecNo, '20-23', 19]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_SUM_ONE_DIFF_THAN_TWO,
+    [FRecNo, '20-23', 19]);
   end;
 
   // 7
-  if Values.F24 > Values.F17 then
+  if CurrentRecord.F24 > CurrentRecord.F17 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 24, 17]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 24, 17]);
   end;
-  if Values.F25 > Values.F18 then
+  if CurrentRecord.F25 > CurrentRecord.F18 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 25, 18]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 25, 18]);
   end;
-  if Values.F26 > Values.F19 then
+  if CurrentRecord.F26 > CurrentRecord.F19 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 26, 19]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 26, 19]);
   end;
 
   // 8
-  Tmp := Values.F17 + Values.F18;
-  if Values.F27 > Tmp then
+  Tmp := CurrentRecord.F17 + CurrentRecord.F18;
+  if CurrentRecord.F27 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 27, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 27, '17-18']);
   end;
-  if Values.F28 > Tmp then
+  if CurrentRecord.F28 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 28, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 28, '17-18']);
   end;
-  if Values.F29 > Tmp then
+  if CurrentRecord.F29 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 29, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 29, '17-18']);
   end;
-  {  if Values.F30 > Tmp then
+  {  if CurrentRecord.F30 > Tmp then
     begin
       Result := [vrMainInvalid];
-      RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-        [RecNo, 30, '17-18']);
+      FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+        [FRecNo, 30, '17-18']);
     end;
     }
-  if Values.F31 > Tmp then
+  if CurrentRecord.F31 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-      [RecNo, 31, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+      [FRecNo, 31, '17-18']);
   end;
-  if Values.F32 > Tmp then
+  if CurrentRecord.F32 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 32, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 32, '17-18']);
   end;
-  if Values.F33 > Tmp then
+  if CurrentRecord.F33 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 33, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 33, '17-18']);
   end;
-  if Values.F34 > Tmp then
+  if CurrentRecord.F34 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 34, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 34, '17-18']);
   end;
-  if Values.F35 > Tmp then
+  if CurrentRecord.F35 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 35, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 35, '17-18']);
   end;
-  if Values.F38 > Tmp then
+  if CurrentRecord.F38 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 38, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 38, '17-18']);
   end;
-  if Values.F39 > Tmp then
+  if CurrentRecord.F39 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 39, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 39, '17-18']);
   end;
-  if Values.F40 > Tmp then
+  if CurrentRecord.F40 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 40, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 40, '17-18']);
   end;
-  if Values.F41 > Tmp then
+  if CurrentRecord.F41 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 41, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 41, '17-18']);
   end;
-  if Values.F44 > Tmp then
+  if CurrentRecord.F44 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 44, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 44, '17-18']);
   end;
-  if Values.F45 > Tmp then
+  if CurrentRecord.F45 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 45, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 45, '17-18']);
   end;
-  if Values.F46 > Tmp then
+  if CurrentRecord.F46 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 46, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 46, '17-18']);
   end;
-  if Values.F47 > Tmp then
+  if CurrentRecord.F47 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 47, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 47, '17-18']);
   end;
-  if Values.F51 > Tmp then
+  if CurrentRecord.F51 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 51, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 51, '17-18']);
   end;
-  if Values.F52 > Tmp then
+  if CurrentRecord.F52 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 52, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 52, '17-18']);
   end;
-  if Values.F53 > Tmp then
+  if CurrentRecord.F53 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 53, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 53, '17-18']);
   end;
-  if Values.F54 > Tmp then
+  if CurrentRecord.F54 > Tmp then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
-    [RecNo, 54, '17-18']);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_DIFF_THAN_SUM_TWO,
+    [FRecNo, 54, '17-18']);
   end;
 
   //9
-  if Values.F32 > Values.F27 then
+  if CurrentRecord.F32 > CurrentRecord.F27 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 32, 27]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 32, 27]);
   end;
-  if Values.F33 > Values.F27 then
+  if CurrentRecord.F33 > CurrentRecord.F27 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 33, 27]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 33, 27]);
   end;
-  if Values.F34 > Values.F27 then
+  if CurrentRecord.F34 > CurrentRecord.F27 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 34, 27]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 34, 27]);
   end;
-  if Values.F35 > Values.F27 then
+  if CurrentRecord.F35 > CurrentRecord.F27 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 35, 27]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 35, 27]);
   end;
-  if Values.F38 > Values.F28 then
+  if CurrentRecord.F38 > CurrentRecord.F28 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 38, 28]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 38, 28]);
   end;
-  if Values.F39 > Values.F28 then
+  if CurrentRecord.F39 > CurrentRecord.F28 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 39, 28]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 39, 28]);
   end;
-  if Values.F40 > Values.F28 then
+  if CurrentRecord.F40 > CurrentRecord.F28 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 40, 28]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 40, 28]);
   end;
-  if Values.F41 > Values.F28 then
+  if CurrentRecord.F41 > CurrentRecord.F28 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 41, 28]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 41, 28]);
   end;
-  if Values.F44 > Values.F29 then
+  if CurrentRecord.F44 > CurrentRecord.F29 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 44, 29]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 44, 29]);
   end;
-  if Values.F45 > Values.F29 then
+  if CurrentRecord.F45 > CurrentRecord.F29 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 45, 29]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 45, 29]);
   end;
-  if Values.F46 > Values.F29 then
+  if CurrentRecord.F46 > CurrentRecord.F29 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 46, 29]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 46, 29]);
   end;
-  if Values.F47 > Values.F29 then
+  if CurrentRecord.F47 > CurrentRecord.F29 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 47, 29]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 47, 29]);
   end;
-  if Values.F51 > Values.F31 then
+  if CurrentRecord.F51 > CurrentRecord.F31 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 51, 31]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 51, 31]);
   end;
-  if Values.F52 > Values.F31 then
+  if CurrentRecord.F52 > CurrentRecord.F31 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 52, 31]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 52, 31]);
   end;
-  if Values.F53 > Values.F31 then
+  if CurrentRecord.F53 > CurrentRecord.F31 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 53, 31]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 53, 31]);
   end;
-  if Values.F54 > Values.F31 then
+  if CurrentRecord.F54 > CurrentRecord.F31 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 54, 31]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 54, 31]);
   end;
 
   //10
-  if Values.F32 > Values.F34 then
+  if CurrentRecord.F32 > CurrentRecord.F34 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 32, 34]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 32, 34]);
   end;
-  if Values.F33 > Values.F35 then
+  if CurrentRecord.F33 > CurrentRecord.F35 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 33, 35]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 33, 35]);
   end;
 
   //11
-  if Values.F38 > Values.F40 then
+  if CurrentRecord.F38 > CurrentRecord.F40 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 38, 40]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 38, 40]);
   end;
-  if Values.F39 > Values.F41 then
+  if CurrentRecord.F39 > CurrentRecord.F41 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 39, 41]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 39, 41]);
   end;
 
   //12
-  if Values.F44 > Values.F46 then
+  if CurrentRecord.F44 > CurrentRecord.F46 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 44, 46]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 44, 46]);
   end;
-  if Values.F45 > Values.F47 then
+  if CurrentRecord.F45 > CurrentRecord.F47 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 45, 47]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 45, 47]);
   end;
 
   //13
-  if Values.F51 > Values.F53 then
+  if CurrentRecord.F51 > CurrentRecord.F53 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 51, 53]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 51, 53]);
   end;
-  if Values.F52 > Values.F54 then
+  if CurrentRecord.F52 > CurrentRecord.F54 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 52, 54]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 52, 54]);
   end;
 
   //14
-  if Values.F33 > Values.F32 then
+  if CurrentRecord.F33 > CurrentRecord.F32 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 33, 32]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 33, 32]);
   end;
-  if Values.F35 > Values.F34 then
+  if CurrentRecord.F35 > CurrentRecord.F34 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 35, 34]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 35, 34]);
   end;
-  if Values.F39 > Values.F38 then
+  if CurrentRecord.F39 > CurrentRecord.F38 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 39, 38]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 39, 38]);
   end;
-  if Values.F41 > Values.F40 then
+  if CurrentRecord.F41 > CurrentRecord.F40 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 41, 40]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 41, 40]);
   end;
-  if Values.F45 > Values.F44 then
+  if CurrentRecord.F45 > CurrentRecord.F44 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 45, 44]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 45, 44]);
   end;
-  if Values.F47 > Values.F46 then
+  if CurrentRecord.F47 > CurrentRecord.F46 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 47, 46]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 47, 46]);
   end;
-  if Values.F52 > Values.F51 then
+  if CurrentRecord.F52 > CurrentRecord.F51 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 52, 51]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 52, 51]);
   end;
-  if Values.F54 > Values.F53 then
+  if CurrentRecord.F54 > CurrentRecord.F53 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 54, 53]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 54, 53]);
   end;
 
   //15
-  if (Values.F59 + Values.F60 - Values.F61 - Values.F62) > Values.F63 then
+  if (CurrentRecord.F59 + CurrentRecord.F60 - CurrentRecord.F61 -
+    CurrentRecord.F62) > CurrentRecord.F63 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_FORMULA_ONE_DIFF_THAN_TWO,
-      [RecNo, '59+60-61-62', 63]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_FORMULA_ONE_DIFF_THAN_TWO,
+      [FRecNo, '59+60-61-62', 63]);
   end;
 
   //16
-  if Values.F64 > Values.F63 then
+  if CurrentRecord.F64 > CurrentRecord.F63 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 64, 63]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 64, 63]);
   end;
 
   // 17
-  if (Values.F65 + Values.F66 + Values.F67 +
-    Values.F68 <> Values.F63) then
+  if (CurrentRecord.F65 + CurrentRecord.F66 + CurrentRecord.F67 +
+    CurrentRecord.F68 <> CurrentRecord.F63) then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_SUM_ONE_DIFF_THAN_TWO,
-    [RecNo, '65-68', 63]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_SUM_ONE_DIFF_THAN_TWO,
+    [FRecNo, '65-68', 63]);
   end;
 
   //18
-  if Values.F59 > Values.F12 then
+  if CurrentRecord.F59 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 59, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 59, 12]);
   end;
-  if Values.F60 > Values.F12 then
+  if CurrentRecord.F60 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 60, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 60, 12]);
   end;
-  if Values.F61 > Values.F12 then
+  if CurrentRecord.F61 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 61, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 61, 12]);
   end;
-  if Values.F62 > Values.F12 then
+  if CurrentRecord.F62 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 62, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 62, 12]);
   end;
-  if Values.F63 > Values.F12 then
+  if CurrentRecord.F63 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 63, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 63, 12]);
   end;
-  if Values.F64 > Values.F12 then
+  if CurrentRecord.F64 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 64, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 64, 12]);
   end;
-  if Values.F65 > Values.F12 then
+  if CurrentRecord.F65 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 65, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 65, 12]);
   end;
-  if Values.F66 > Values.F12 then
+  if CurrentRecord.F66 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 66, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 66, 12]);
   end;
-  if Values.F67 > Values.F12 then
+  if CurrentRecord.F67 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 67, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 67, 12]);
   end;
-  if Values.F68 > Values.F12 then
+  if CurrentRecord.F68 > CurrentRecord.F12 then
   begin
     Result := [vrMainInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
-    [RecNo, 68, 12]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 68, 12]);
   end;
 end;
     
 //---------------------------------------------------------------------------
 
 function TValidator.MathValidateRecord(const RecNo: Integer;
-  var Values: TValuesRec; var RecordStatus: string): TValidationResult;
+  var CurrentRecord: TValuesRec): TValidationResult;
 begin
   Result := [];
-  RecordStatus := '';
-  Result := Result + MainValidateRecord(RecNo, Values, RecordStatus);
-  Result := Result + ExtraValidateRecord(RecNo, Values, RecordStatus);
+  FRecordStatus := '';
+  FRecNo := RecNo;
+
+  Result := Result + MainValidateRecord(CurrentRecord);
+  Result := Result + ExtraValidateRecord(CurrentRecord);
 end;
 
 //---------------------------------------------------------------------------
 
-function TValidator.RelationValidate(const RecNo: Integer;
-  const Values: TValuesRec; var RecordStatus: AnsiString;
+function TValidator.RelationValidateRecord(var CurrentRecord: TValuesRec;
   const ReportYear: Integer): TValidationResult;
 var
   CauseCode: Integer;
-  AYear, AMonth, ADay: Word;
 
 begin
   // Species relation check
-  if not dmData.CheckSpeciesRelation(Values.F8, Values.F9) then
+  if not dmData.CheckSpeciesRelation(CurrentRecord.F8, CurrentRecord.F9) then
   begin
     Result := Result + [vrRelationInvalid];
-    RecordStatus := RecordStatus + Format(S_LOG_NO_SPECIES_RELATION, [RecNo]);
+    FRecordStatus := FRecordStatus + Format(S_LOG_NO_SPECIES_RELATION, [FRecNo]);
   end;
 
   // Cause relation check
-  CauseCode := dmData.GetIntField(Format(S_DB_GET_CAUSE_CODE_BY_NAME, [Values.F9]));
+//  CauseCode := dmData.GetIntField(Format(S_DB_GET_CAUSE_CODE, [CurrentRecord.F9]));
 
   case CauseCode of
   881, 882, 883, 870, 871, 872, 873, 874, 875:
-    if Values.F10 <> ReportYear then
+    if CurrentRecord.F10 <> ReportYear then
     begin
       Result := Result + [vrRelationInvalid];
-      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+      FRecordStatus := FRecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [FRecNo]);
     end;
   821, 822, 823:
-    if Values.F10 >= ReportYear then
+    if CurrentRecord.F10 >= ReportYear then
     begin
       Result := Result + [vrRelationInvalid];
-      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+      FRecordStatus := FRecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [FRecNo]);
     end;
   851, 854, 856, 863, 864, 865:
-    if (Values.F10 > ReportYear - 1) or (Values.F10 < ReportYear - 3) then
+    if (CurrentRecord.F10 > ReportYear - 1) or
+    (CurrentRecord.F10 < ReportYear - 3) then
     begin
       Result := Result + [vrRelationInvalid];
-      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+      FRecordStatus := FRecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [FRecNo]);
     end;
   852, 855, 857, 866, 867, 868:
-    if (Values.F10 > ReportYear - 4) or (Values.F10 < ReportYear - 10) then
+    if (CurrentRecord.F10 > ReportYear - 4) or
+    (CurrentRecord.F10 < ReportYear - 10) then
     begin
       Result := Result + [vrRelationInvalid];
-      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+      FRecordStatus := FRecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [FRecNo]);
     end;
   853, 858, 869:
-    if (Values.F10 > ReportYear - 10) then
+    if (CurrentRecord.F10 > ReportYear - 10) then
     begin
       Result := Result + [vrRelationInvalid];
-      RecordStatus := RecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [RecNo]);
+      FRecordStatus := FRecordStatus + Format(S_LOG_NO_CAUSE_RELATION, [FRecNo]);
     end;
   end;
 end;
 
 //---------------------------------------------------------------------------
 
-procedure TValidator.SetValidList(Dictionary: AnsiString; Value: TStringList);
+procedure TValidator.SetValidList(Dictionary: AnsiString; Value: TValidArr);
 begin
   if Dictionary = (S_DICTIONARY_VALID_PREFIX +
     S_DICTIONARY_FORESTRIES_FILE) then
@@ -823,7 +812,7 @@ begin
   else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
     S_DICTIONARY_LANDUSE_FILE) then
     DictLanduse.ValidList := Value
-       
+
   else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
     S_DICTIONARY_PROTECT_CATEGORY_FILE) then
     DictProtectCategory.ValidList := Value
@@ -844,15 +833,15 @@ end;
 //---------------------------------------------------------------------------
 
 function TValidator.StringValidateField(var Field: AnsiString;
-  const Dict: TDictionary; const RecNo: Integer;
-  var RecordStatus: string; var ForceSkip: Boolean;
+  var FieldID: Integer; const Dict: TDictionary;
   const Prompt: AnsiString): TValidationResult;
 var
   DictRecord: TDictRecord;
   Magic: AnsiString;
+  WordIndex: Integer;
 
 begin
-  if ForceSkip then
+  if Dict.ForceSkip then
     Exit;
 
   // Empty string - ask to replace and not remember
@@ -860,25 +849,29 @@ begin
   begin
     case ShowEdit(Field, Prompt, Dict.ValidList) of
     srReplace:
+    begin
       Field := frmEdit.cmbSynonim.Text;
+      FieldID := frmEdit.CurrentIndex;
+    end;
     srForceSkip:
-      ForceSkip := True;
+      Dict.ForceSkip := True;
     srStop:
       Result := Result + [vrStop];
     end;
     Exit;
   end;
 
-  if not Dict.Validate(Field) then
+  WordIndex := Dict.Validate(Field);
+  if WordIndex = 0 then
   begin
     // Found in dictionary - autoreplace, log only
     if Dict.FindRecord(Field, DictRecord) then
     begin
-      RecordStatus := RecordStatus + Format(S_LOG_REPLACE_FROM_DICTIONARY,
-        [RecNo, DictRecord.NewWord, Field]);
+      FRecordStatus := FRecordStatus + Format(S_LOG_REPLACE_FROM_DICTIONARY,
+        [FRecNo, DictRecord.NewWord, Field]);
     end
 
-      // Not found in dictionary - ask to replace, remember and log
+    // Not found in dictionary - ask to replace, remember and log
     else
     begin
       // here ask...
@@ -888,99 +881,94 @@ begin
         // ...here remember...
         DictRecord.OldWord := Field;
         DictRecord.NewWord := frmEdit.cmbSynonim.Text;
+        DictRecord.NewIndex := frmEdit.CurrentIndex;
         Dict.WriteRecord(DictRecord);
         // ...here log...
-        RecordStatus := RecordStatus + Format(S_LOG_REPLACE_FROM_DICTIONARY,
-          [RecNo, DictRecord.NewWord, Field]);
+        FRecordStatus := FRecordStatus + Format(S_LOG_REPLACE_FROM_DICTIONARY,
+          [FRecNo, DictRecord.NewWord, Field]);
         // ...here replace
         Field := frmEdit.cmbSynonim.Text;
+        FieldID := frmEdit.CurrentIndex;
       end;
-
-      srSkip:
-        Exit;
-
-      srForceSkip:
-        ForceSkip := True;
-
       srStop:
       begin
         Result := Result + [vrStop];
         Exit;
       end;
+      srSkip:
+        Exit;
+      srForceSkip:
+        Dict.ForceSkip := True;
       end;
     end;
 
     // Some magic to set new word into variable
+    FieldID := DictRecord.NewIndex;
     Magic := DictRecord.NewWord;
     Field := Magic;
-  end;
+  end
+  else
+    FieldID := WordIndex;
 end;
 
 //---------------------------------------------------------------------------
 
 function TValidator.StringValidateRecord(const RecNo: Integer;
-  var Values: TValuesRec; var RecordStatus: AnsiString;
-  const ReportYear: Integer): TValidationResult;
+  var CurrentRecord: TValuesRec; const ReportYear: Integer): TValidationResult;
 var
   Prompt: AnsiString;
 
 begin
   Result := [];
-  RecordStatus := '';
-  
-  //  Prompt := ARR_FIELD_NAMES[1] + #13#10 + 'Значения близких по смыслу колонок:' +
-  //    #13#10 + ARR_FIELD_NAMES[2] + ': ' + Values.F2;
-  //  Result := Result + StringValidateField(Values.F1, DictForestries, RecNo,
-  //    RecordStatus, FForceSkipForestries, Prompt);
-  //  if vrStop in Result then
-  //    Exit;
-
+  FRecordStatus := '';
+  FRecNo := RecNo;
+{
   Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[2], S_EDIT_PROMPT,
-    ARR_FIELD_NAMES[1], Values.F1]);
-  Result := Result + StringValidateField(Values.F2, DictLocalForestries, RecNo,
-    RecordStatus, FForceSkipLocalForestries, Prompt);
+    ARR_FIELD_NAMES[1], CurrentRecord.F1]);
+  Result := Result + StringValidateField(CurrentRecord.F2, CurrentRecord.I2,
+    DictLocalForestries, Prompt);
+  if vrStop in Result then
+    Exit;
+ }
+  Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[5], S_EDIT_PROMPT,
+    ARR_FIELD_NAMES[6], CurrentRecord.F6]);
+  Result := Result + StringValidateField(CurrentRecord.F5, CurrentRecord.I5,
+    DictLanduse, Prompt);
   if vrStop in Result then
     Exit;
 
-  Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[5], S_EDIT_PROMPT,
-    ARR_FIELD_NAMES[6], Values.F6]);
-  Result := Result + StringValidateField(Values.F5, DictLanduse, RecNo,
-    RecordStatus, FForceSkipLanduse, Prompt);
-  if vrStop in Result then
-    Exit;
-            
-  Result := Result + StringValidateField(Values.F6, DictProtectCategory, RecNo,
-    RecordStatus, FForceSkipProtectCategory, ARR_FIELD_NAMES[6]);
+  Result := Result + StringValidateField(CurrentRecord.F6, CurrentRecord.I6,
+    DictProtectCategory, ARR_FIELD_NAMES[6]);
   if vrStop in Result then
     Exit;
 
   Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[7], S_EDIT_PROMPT,
-    ARR_FIELD_NAMES[8], Values.F8]);
-  Result := Result + StringValidateField(Values.F7, DictSpecies, RecNo,
-    RecordStatus, FForceSkipSpecies, Prompt);
+    ARR_FIELD_NAMES[8], CurrentRecord.F8]);
+  Result := Result + StringValidateField(CurrentRecord.F7, CurrentRecord.I7,
+    DictSpecies, Prompt);
   if vrStop in Result then
     Exit;
 
   Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[8], S_EDIT_PROMPT,
-    ARR_FIELD_NAMES[7], Values.F7]);
-  Result := Result + StringValidateField(Values.F8, DictSpecies, RecNo,
-    RecordStatus, FForceSkipDamagedSpecies, Prompt);
+    ARR_FIELD_NAMES[7], CurrentRecord.F7]);
+  Result := Result + StringValidateField(CurrentRecord.F8, CurrentRecord.I8,
+    DictSpecies, Prompt);
   if vrStop in Result then
     Exit;
 
   Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[9], S_EDIT_PROMPT,
-    ARR_FIELD_NAMES[58], Values.F58]);
-  Result := Result + StringValidateField(Values.F9, DictDamage, RecNo,
-    RecordStatus, FForceSkipDamage, Prompt);
+    ARR_FIELD_NAMES[58], CurrentRecord.F58]);
+  Result := Result + StringValidateField(CurrentRecord.F9, CurrentRecord.I9,
+    DictDamage, Prompt);
   if vrStop in Result then
     Exit;
 
   Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[58], S_EDIT_PROMPT,
-    ARR_FIELD_NAMES[9], Values.F9]);
-  Result := Result + StringValidateField(Values.F58, DictPest, RecNo,
-    RecordStatus, FForceSkipPest, Prompt);
+    ARR_FIELD_NAMES[9], CurrentRecord.F9]);
+  Result := Result + StringValidateField(CurrentRecord.F58, CurrentRecord.I58,
+    DictPest, Prompt);
 
-  Result := Result + RelationValidate(RecNo, Values, RecordStatus, ReportYear);
+  Result := Result + RelationValidateRecord(CurrentRecord, ReportYear);
 end;
 
 end.

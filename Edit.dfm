@@ -83,6 +83,8 @@ object frmEdit: TfrmEdit
     Anchors = [akLeft, akRight, akBottom]
     ItemHeight = 13
     TabOrder = 1
+    OnChange = cmbSynonimChange
+    OnSelect = cmbSynonimChange
   end
   object btnSkip: TButton
     Left = 112

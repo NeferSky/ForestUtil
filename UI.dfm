@@ -68,60 +68,25 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 413
+          Top = 411
           Width = 147
           Height = 49
           Action = actMathValidate
           Anchors = [akLeft, akRight, akBottom]
-          TabOrder = 3
-        end
-        object grbParams: TGroupBox
-          Left = 8
-          Top = 56
-          Width = 147
-          Height = 105
-          Anchors = [akLeft, akTop, akRight]
-          Caption = #1055#1072#1088#1072#1084#1077#1090#1088#1099' '#1087#1088#1086#1074#1077#1088#1082#1080
-          TabOrder = 1
-          DesignSize = (
-            147
-            105)
-          object chbManualConfirm: TCheckBox
-            Left = 8
-            Top = 56
-            Width = 123
-            Height = 41
-            Anchors = [akLeft, akTop, akRight]
-            Caption = #1055#1086#1076#1090#1074#1077#1088#1078#1076#1072#1090#1100' '#1079#1072#1084#1077#1085#1099' '#1074#1088#1091#1095#1085#1091#1102
-            TabOrder = 1
-            WordWrap = True
-          end
-          object chbContinueOnError: TCheckBox
-            Left = 8
-            Top = 16
-            Width = 131
-            Height = 41
-            Anchors = [akLeft, akTop, akRight]
-            Caption = #1055#1088#1086#1076#1086#1083#1078#1072#1090#1100' '#1087#1088#1086#1074#1077#1088#1082#1091' '#1087#1088#1080' '#1086#1096#1080#1073#1082#1072#1093
-            Checked = True
-            State = cbChecked
-            TabOrder = 0
-            WordWrap = True
-            OnClick = chbContinueOnErrorClick
-          end
+          TabOrder = 2
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 329
+          Top = 327
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
           Caption = #1057#1086#1089#1090#1086#1103#1085#1080#1077
-          TabOrder = 2
+          TabOrder = 1
           DesignSize = (
             147
             77)
-          object lblCurrentRecord: TLabel
+          object lblCurrentRecordNo: TLabel
             Left = 13
             Top = 40
             Width = 49
@@ -183,7 +148,7 @@ object frmUI: TfrmUI
           Height = 17
           Align = alBottom
           Step = 1
-          TabOrder = 4
+          TabOrder = 3
         end
         object cmbFileSheet: TComboBox
           Left = 8
@@ -197,21 +162,21 @@ object frmUI: TfrmUI
         end
         object btnSaveLog: TButton
           Left = 8
-          Top = 168
+          Top = 56
           Width = 145
           Height = 33
           Action = actSaveLog
-          TabOrder = 5
+          TabOrder = 4
           WordWrap = True
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 473
+          Top = 471
           Width = 145
           Height = 49
           Action = actCreateScript
           Anchors = [akLeft, akRight, akBottom]
-          TabOrder = 6
+          TabOrder = 5
           WordWrap = True
         end
       end
@@ -382,7 +347,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 463
+          Top = 461
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -456,7 +421,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 407
+          Top = 405
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]
@@ -1328,12 +1293,6 @@ object frmUI: TfrmUI
       Caption = #1042#1086#1089#1089#1090#1072#1085#1086#1074#1080#1090#1100
       ImageIndex = 7
       OnExecute = actRestoreExecute
-    end
-    object actRefresh: TAction
-      Caption = #1054#1073#1085#1086#1074#1080#1090#1100
-      ImageIndex = 2
-      ShortCut = 116
-      OnExecute = actRefreshExecute
     end
     object actSettings: TAction
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080

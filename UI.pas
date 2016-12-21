@@ -29,7 +29,6 @@ type
     actPasteDeleteTemplate: TAction;
     actExecuteQuery: TAction;
     actMathValidate: TAction;
-    actRefresh: TAction;
     actSettings: TAction;
     actExit: TAction;
     actRestore: TAction;
@@ -82,13 +81,10 @@ type
     pnlFileActions: TPanel;
     lblSelectSheet: TLabel;
     cmbFileSheet: TComboBox;
-    grbParams: TGroupBox;
-    chbManualConfirm: TCheckBox;
-    chbContinueOnError: TCheckBox;
 
     gbxStatus: TGroupBox;
     lblStatus: TLabel;
-    lblCurrentRecord: TLabel;
+    lblCurrentRecordNo: TLabel;
     lblSlash: TLabel;
     lblRecordsCount: TLabel;
 
@@ -143,7 +139,6 @@ type
     procedure OpenTable(const TableName: AnsiString);
     procedure lblHintClick(Sender: TObject);
     procedure pcPagesChange(Sender: TObject);
-    procedure chbContinueOnErrorClick(Sender: TObject);
     procedure cmbFileSheetSelect(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure pnlQueryActionsResize(Sender: TObject);
@@ -163,7 +158,6 @@ type
     procedure actExecuteQueryExecute(Sender: TObject);
     procedure actMathValidateExecute(Sender: TObject);
     procedure actRestoreExecute(Sender: TObject);
-    procedure actRefreshExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
     procedure actNextQueryExecute(Sender: TObject);
@@ -264,9 +258,6 @@ end;
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.actCreateScriptExecute(Sender: TObject);
-var
-  ValRes: TValidationResult;
-
 begin
   if dmData.InProgress then
     Exit;
@@ -276,9 +267,10 @@ begin
   lblStatus.Caption := S_STATUS_PROCESSING;
   Application.ProcessMessages();
 
-  ValRes := dmData.StringValidateFile(frmAskForestry.RegionID, frmAskForestry.ForestryID,
+  dmData.StringValidateFile(frmAskForestry.RegionID, frmAskForestry.ForestryID,
     frmAskForestry.ReportQuarter, frmAskForestry.ReportYear);
-  if vrRelationInvalid in ValRes then
+
+  if vrRelationInvalid in dmData.ValidationResult then
     ShowMessage(S_LOG_RELATION_INVALID)
   else
     ShowMessage(S_LOG_SUCCESSFULLY);
@@ -318,11 +310,10 @@ begin
   end;
 
   // If I not sure that QueryType is correct - I'll ask user about it
-  if QueryType <> CheckQueryType() then
-    if MessageDlg(S_QUERY_TYPE_CONFIRM, mtConfirmation, mbOkCancel, 0) <> mrOk
-      then
+{  if QueryType <> CheckQueryType() then
+    if MessageDlg(S_QUERY_TYPE_CONFIRM, mtConfirmation, mbOkCancel, 0) <> mrOk then
       Exit;
-
+}
   case QueryType of
     qtSelect:
       begin
@@ -360,9 +351,6 @@ end;
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.actMathValidateExecute(Sender: TObject);
-var
-  ValRes: TValidationResult;
-
 begin
   if dmData.InProgress then
     Exit;
@@ -372,14 +360,14 @@ begin
   lblStatus.Caption := S_STATUS_PROCESSING;
   Application.ProcessMessages();
 
-  ValRes := dmData.MathValidateFile(frmAskForestry.ForestryID,
-    frmAskForestry.ReportYear, frmAskForestry.ReportQuarter);
-    
-  if vrMainInvalid in ValRes then
+  dmData.MathValidateFile(frmAskForestry.ForestryID, frmAskForestry.ReportYear,
+    frmAskForestry.ReportQuarter);
+
+  if vrMainInvalid in dmData.ValidationResult then
     ShowMessage(S_LOG_MAIN_INVALID)
-  else if vrExtraInvalid in ValRes then
+  else if vrExtraInvalid in dmData.ValidationResult then
     ShowMessage(S_LOG_EXTRA_INVALID)
-  else if vrDuplicateInvalid in ValRes then
+  else if vrDuplicateInvalid in dmData.ValidationResult then
     ShowMessage(S_LOG_DUPLICATE_INVALID)
   else
     ShowMessage(S_LOG_SUCCESSFULLY);
@@ -474,13 +462,6 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TfrmUI.actRefreshExecute(Sender: TObject);
-begin
-  // Refresh();
-end;
-
-//---------------------------------------------------------------------------
-
 procedure TfrmUI.actRestoreExecute(Sender: TObject);
 begin
   Tray(2, Application.Icon);
@@ -532,13 +513,6 @@ end;
 procedure TfrmUI.actSettingsExecute(Sender: TObject);
 begin
   frmSettings.ShowModal();
-end;
-
-//---------------------------------------------------------------------------
-
-procedure TfrmUI.chbContinueOnErrorClick(Sender: TObject);
-begin
-  dmData.ContinueOnError := chbContinueOnError.Checked;
 end;
 
 //---------------------------------------------------------------------------
@@ -712,7 +686,7 @@ begin
   splLog.Visible := False;
   memLog.Clear();
   memLog.Visible := False;
-  lblCurrentRecord.Caption := '-';
+  lblCurrentRecordNo.Caption := '-';
   lblRecordsCount.Caption := '-';
   lblStatus.Caption := S_STATUS_OFFLINE;
 end;
@@ -909,12 +883,6 @@ begin
         mnuCompressColumns.Checked := FCompressColumns;
       end;
 
-      if ValueExists(S_CONTINUE_ON_ERROR) then
-      begin
-        dmData.ContinueOnError := ReadBool(S_CONTINUE_ON_ERROR);
-        chbContinueOnError.Checked := dmData.ContinueOnError;
-      end;
-
     finally
       CloseKey();
       Free();
@@ -985,7 +953,7 @@ end;
 procedure TfrmUI.ResetFileProcessControls;
 begin
   pbFileProcess.Position := 0;
-  lblCurrentRecord.Caption := '0';
+  lblCurrentRecordNo.Caption := '0';
   btnSaveLog.Enabled := memLog.Visible;
 end;
 
@@ -1023,7 +991,7 @@ end;
 procedure TfrmUI.StepProcess(CurrentIteration: Integer);
 begin
   pbFileProcess.StepIt();
-  lblCurrentRecord.Caption := IntToStr(CurrentIteration);
+  lblCurrentRecordNo.Caption := IntToStr(CurrentIteration);
 end;
 
 //---------------------------------------------------------------------------
@@ -1135,7 +1103,6 @@ begin
       WriteInteger(S_FORM_HEIGHT, frmUI.Height);
       WriteInteger(S_FORM_WIDTH, frmUI.Width);
       WriteBool(S_COMPRESS_COLUMNS, FCompressColumns);
-      WriteBool(S_CONTINUE_ON_ERROR, dmData.ContinueOnError);
 
     finally
       CloseKey();

@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls;
+  Dialogs, StdCtrls, ExtCtrls, ForestTypes;
 
 type
   TfrmDicts = class(TForm)
@@ -26,6 +26,7 @@ type
     procedure btnFillFromDBClick(Sender: TObject);
   private
     { Private declarations }
+    FWordsArr: TValidArr;
   public
     { Public declarations }
     function GetFileForDict(const Dict: AnsiString): AnsiString;
@@ -45,16 +46,8 @@ uses
 { TfrmDicts }
 
 procedure TfrmDicts.Apply;
-var
-  WordsList: TStringList;
-
 begin
-  WordsList := TStringList.Create;
-  WordsList.Assign(memValues.Lines);
-
-  dmData.SetValidList(GetFileForDict(cmbDicts.Text), WordsList);
-
-  WordsList.Free();
+  dmData.SetValidList(GetFileForDict(cmbDicts.Text), FWordsArr);
 end;
 
 //---------------------------------------------------------------------------
@@ -74,8 +67,16 @@ end;
 //---------------------------------------------------------------------------
 
 procedure TfrmDicts.btnFillFromDBClick(Sender: TObject);
+var
+  I: Integer;
+
 begin
-  memValues.Lines.Assign(dmData.GetValuesFromTable(GetFileForDict(cmbDicts.Text)));
+  memValues.Lines.Clear();
+
+  FWordsArr := dmData.GetValuesFromTable(GetFileForDict(cmbDicts.Text));
+
+  for I := 0 to Length(FWordsArr) - 1 do
+    memValues.Lines.Add(FWordsArr[I].WordValue);
 end;
 
 //---------------------------------------------------------------------------
@@ -88,9 +89,16 @@ end;
 //---------------------------------------------------------------------------
 
 procedure TfrmDicts.cmbDictsSelect(Sender: TObject);
+var
+  I: Integer;
+
 begin
   memValues.Lines.Clear();
-  memValues.Lines.Assign(dmData.GetValidList(GetFileForDict(cmbDicts.Text)));
+
+  FWordsArr := dmData.GetValidList(GetFileForDict(cmbDicts.Text));
+
+  for I := 0 to Length(FWordsArr) - 1 do
+    memValues.Lines.Add(FWordsArr[I].WordValue);
 end;
 
 //---------------------------------------------------------------------------
