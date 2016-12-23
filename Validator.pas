@@ -203,7 +203,25 @@ begin
   begin
     Result := [vrMainInvalid];
     FRecordStatus := FRecordStatus + Format(S_LOG_SUM_ONE_DIFF_THAN_TWO,
-    [FRecNo, '14-16', 12]);
+    [FRecNo, '14-16', 13]);
+  end;
+  if CurrentRecord.F14 > CurrentRecord.F13 then
+  begin
+    Result := [vrMainInvalid];
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 14, 13]);
+  end;
+  if CurrentRecord.F15 > CurrentRecord.F13 then
+  begin
+    Result := [vrMainInvalid];
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 15, 13]);
+  end;
+  if CurrentRecord.F16 > CurrentRecord.F13 then
+  begin
+    Result := [vrMainInvalid];
+    FRecordStatus := FRecordStatus + Format(S_LOG_ONE_MORE_THAN_TWO,
+    [FRecNo, 16, 13]);
   end;
 
   // 4
