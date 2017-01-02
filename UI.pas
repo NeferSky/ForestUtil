@@ -28,7 +28,7 @@ type
     actPasteUpdateTemplate: TAction;
     actPasteDeleteTemplate: TAction;
     actExecuteQuery: TAction;
-    actMathValidate: TAction;
+    actValidateTable: TAction;
     actSettings: TAction;
     actExit: TAction;
     actRestore: TAction;
@@ -41,6 +41,12 @@ type
     actSaveQuery: TAction;
     actOpenQuery: TAction;
     actClearQueryText: TAction;
+    actHelp: TAction;
+    actAbout: TAction;
+    actCreateScript: TAction;
+    actPrevSkippedRec: TAction;
+    actNextSkippedRec: TAction;
+    actValidateRecord: TAction;
 
     // Menu
     mmnuMain: TMainMenu;
@@ -50,6 +56,7 @@ type
     mnuFile: TMenuItem;
     mnuOpenFile: TMenuItem;
     mnuValidateFile: TMenuItem;
+    mnuCreateScript: TMenuItem;
     mnuExecuteQuery: TMenuItem;
     mnuOpenQuery: TMenuItem;
     mnuSaveQuery: TMenuItem;
@@ -59,6 +66,9 @@ type
     mnuAllSettings: TMenuItem;
     mnuParams: TMenuItem;
     mnuDictionaryEdit: TMenuItem;
+    mnuHelp: TMenuItem;
+    mnuShowHelp: TMenuItem;
+    mnuAbout: TMenuItem;
 
     pmnuMain: TPopupMenu;
 
@@ -89,7 +99,22 @@ type
     lblRecordsCount: TLabel;
 
     btnSaveLog: TButton;
+
+    grbLogDetails: TGroupBox;
+    chbMathErrors: TCheckBox;
+    chbDuplicates: TCheckBox;
+    chbRelationErrors: TCheckBox;
+    chbDictReplaces: TCheckBox;
+    chbEmptyRecords: TCheckBox;
+    chbPrevReportSum: TCheckBox;
+
+    gbxSkippedRecs: TGroupBox;
+    sbtnPrevRec: TSpeedButton;
+    sbtnNextRec: TSpeedButton;
+    btnValidateRecord: TButton;
+
     btnMathValidate: TButton;
+    btnCreateScript: TButton;
     pbFileProcess: TProgressBar;
 
     tsQueryWorkspace: TTabSheet;
@@ -120,14 +145,6 @@ type
     pbQueryProcess: TProgressBar;
 
     sbStatus: TStatusBar;
-    actHelp: TAction;
-    mnuHelp: TMenuItem;
-    mnuShowHelp: TMenuItem;
-    mnuAbout: TMenuItem;
-    actAbout: TAction;
-    btnCreateScript: TButton;
-    actCreateScript: TAction;
-    mnuCreateScript: TMenuItem;
 
     // Components Events
     procedure FormCreate(Sender: TObject);
@@ -142,13 +159,17 @@ type
     procedure cmbFileSheetSelect(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure pnlQueryActionsResize(Sender: TObject);
+    procedure pnlFileActionsResize(Sender: TObject);
     procedure grdFileTitleClick(Column: TColumn);
     procedure splFileActionsMoved(Sender: TObject);
     procedure mnuCompressColumnsClick(Sender: TObject);
-    procedure MouseWheelDown(Sender: TObject; Shift: TShiftState;
-      MousePos: TPoint; var Handled: Boolean);
-    procedure MouseWheelUp(Sender: TObject; Shift: TShiftState;
-      MousePos: TPoint; var Handled: Boolean);
+    procedure chbLogDetailClick(Sender: TObject);
+    procedure MouseWheelDown(Sender: TObject; Shift: TShiftState; MousePos:
+      TPoint; var Handled: Boolean);
+    procedure MouseWheelUp(Sender: TObject; Shift: TShiftState; MousePos:
+      TPoint; var Handled: Boolean);
+    procedure grdFileDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol:
+      Integer; Column: TColumn; State: TGridDrawState);
     // Actions
     procedure actOpenFileExecute(Sender: TObject);
     procedure actPasteSelectTemplateExecute(Sender: TObject);
@@ -156,7 +177,7 @@ type
     procedure actPasteUpdateTemplateExecute(Sender: TObject);
     procedure actPasteDeleteTemplateExecute(Sender: TObject);
     procedure actExecuteQueryExecute(Sender: TObject);
-    procedure actMathValidateExecute(Sender: TObject);
+    procedure actValidateTableExecute(Sender: TObject);
     procedure actRestoreExecute(Sender: TObject);
     procedure actSettingsExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
@@ -173,6 +194,9 @@ type
     procedure actAboutExecute(Sender: TObject);
     procedure actHelpExecute(Sender: TObject);
     procedure actCreateScriptExecute(Sender: TObject);
+    procedure actPrevSkippedRecExecute(Sender: TObject);
+    procedure actNextSkippedRecExecute(Sender: TObject);
+    procedure actValidateRecordExecute(Sender: TObject);
     procedure ImageClick(Sender: TObject);
   private
     { Private declarations }
@@ -189,7 +213,7 @@ type
     procedure InitFileProcessControls;
     procedure ResetFileProcessControls;
     procedure ShowQueriesCount;
-    function CheckQueryType: TQueryType;
+    //    function CheckQueryType: TQueryType;
     procedure ShowQueryResultGrid;
     procedure ControlWindow(var Msg: TMessage); message WM_SYSCOMMAND;
     procedure IconMouse(var Msg: TMessage); message WM_USER + 1;
@@ -259,27 +283,15 @@ end;
 
 procedure TfrmUI.actCreateScriptExecute(Sender: TObject);
 begin
-  if dmData.InProgress then
-    Exit;
-
-  ResetFileProcessControls();
-  PositionTable();
-  lblStatus.Caption := S_STATUS_PROCESSING;
-  Application.ProcessMessages();
-
-  dmData.StringValidateFile(frmAskForestry.RegionID, frmAskForestry.ForestryID,
-    frmAskForestry.ReportQuarter, frmAskForestry.ReportYear);
-
-  if vrRelationInvalid in dmData.ValidationResult then
-    ShowMessage(S_LOG_RELATION_INVALID)
+  if vrSkip in dmData.ValidationResult then
+    ShowMessage(S_LOG_SKIPPED_LINES)
   else
-    ShowMessage(S_LOG_SUCCESSFULLY);
-
-  memQueryText.Text := dmData.GetResultScript();
-  rgrQueryType.ItemIndex := 1;
-  ResetFileProcessControls();
+  begin
+    memQueryText.Text := dmData.GetResultScript();
+    rgrQueryType.ItemIndex := 1;
+  end;
 end;
- 
+
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.actDictSettingsExecute(Sender: TObject);
@@ -350,31 +362,6 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TfrmUI.actMathValidateExecute(Sender: TObject);
-begin
-  if dmData.InProgress then
-    Exit;
-
-  ResetFileProcessControls();
-  PositionTable();
-  lblStatus.Caption := S_STATUS_PROCESSING;
-  Application.ProcessMessages();
-
-  dmData.MathValidateFile(frmAskForestry.ForestryID, frmAskForestry.ReportYear,
-    frmAskForestry.ReportQuarter);
-
-  if vrMainInvalid in dmData.ValidationResult then
-    ShowMessage(S_LOG_MAIN_INVALID)
-  else if vrExtraInvalid in dmData.ValidationResult then
-    ShowMessage(S_LOG_EXTRA_INVALID)
-  else if vrDuplicateInvalid in dmData.ValidationResult then
-    ShowMessage(S_LOG_DUPLICATE_INVALID)
-  else
-    ShowMessage(S_LOG_SUCCESSFULLY);
-
-  ResetFileProcessControls();
-end;
-     
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.actNextQueryExecute(Sender: TObject);
@@ -390,6 +377,13 @@ begin
     memQueryText.Text := S;
     ShowQueriesCount();
   end;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmUI.actNextSkippedRecExecute(Sender: TObject);
+begin
+  dmData.MoveNextSkipped;
 end;
 
 //---------------------------------------------------------------------------
@@ -462,6 +456,13 @@ end;
 
 //---------------------------------------------------------------------------
 
+procedure TfrmUI.actPrevSkippedRecExecute(Sender: TObject);
+begin
+  dmData.MovePrevSkipped;
+end;
+
+//---------------------------------------------------------------------------
+
 procedure TfrmUI.actRestoreExecute(Sender: TObject);
 begin
   Tray(2, Application.Icon);
@@ -504,6 +505,7 @@ begin
   begin
     for Col := 1 to grdQueryResult.FieldCount do
       Sheet.Cells[Row, Col] := grdQueryResult.Fields[Col - 1].AsString;
+
     dsQuery.DataSet.Next();
   end;
 end;
@@ -517,6 +519,83 @@ end;
 
 //---------------------------------------------------------------------------
 
+procedure TfrmUI.actValidateRecordExecute(Sender: TObject);
+begin
+  dmData.ValidateRecord(frmAskForestry.RegionID, frmAskForestry.ForestryID,
+    frmAskForestry.ReportYear, frmAskForestry.ReportQuarter);
+  gbxSkippedRecs.Enabled := Length(dmData.SkippedRecs) > 0
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmUI.actValidateTableExecute(Sender: TObject);
+begin
+  if dmData.InProgress then
+    Exit;
+
+  memLog.Clear();
+  ResetFileProcessControls();
+  PositionTable();
+  lblStatus.Caption := S_STATUS_PROCESSING;
+  Application.ProcessMessages();
+
+  dmData.ValidateTable(frmAskForestry.RegionID, frmAskForestry.ForestryID,
+    frmAskForestry.ReportYear, frmAskForestry.ReportQuarter);
+
+  if (vrMainInvalid in dmData.ValidationResult) and (ldMathErrors in
+    dmData.LogDetails) then
+    ShowMessage(S_LOG_MAIN_INVALID)
+  else if (vrExtraInvalid in dmData.ValidationResult) and (ldMathErrors in
+    dmData.LogDetails) then
+    ShowMessage(S_LOG_EXTRA_INVALID)
+  else if (vrDuplicateInvalid in dmData.ValidationResult) and (ldDuplicates in
+    dmData.LogDetails) then
+    ShowMessage(S_LOG_DUPLICATE_INVALID)
+  else if (vrRelationInvalid in dmData.ValidationResult) and (ldRelationErrors in
+    dmData.LogDetails) then
+    ShowMessage(S_LOG_RELATION_INVALID)
+  else if vrStop in dmData.ValidationResult then
+    Application.ProcessMessages() // Do nothing
+  else
+    ShowMessage(S_LOG_SUCCESSFULLY);
+
+  ResetFileProcessControls();
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmUI.chbLogDetailClick(Sender: TObject);
+var
+  LogDetails: TLogDetails;
+
+begin
+  // A kind of magic - set property via local variable
+  LogDetails := dmData.LogDetails;
+
+  if (Sender as TCheckBox).Checked then
+    case (Sender as TCheckBox).Tag of
+      0: Include(LogDetails, ldMathErrors);
+      1: Include(LogDetails, ldDuplicates);
+      2: Include(LogDetails, ldRelationErrors);
+      3: Include(LogDetails, ldDictReplaces);
+      4: Include(LogDetails, ldEmptyRecords);
+      5: Include(LogDetails, ldPrevReportSum);
+    end
+  else
+    case (Sender as TCheckBox).Tag of
+      0: Exclude(LogDetails, ldMathErrors);
+      1: Exclude(LogDetails, ldDuplicates);
+      2: Exclude(LogDetails, ldRelationErrors);
+      3: Exclude(LogDetails, ldDictReplaces);
+      4: Exclude(LogDetails, ldEmptyRecords);
+      5: Exclude(LogDetails, ldPrevReportSum);
+    end;
+
+  dmData.LogDetails := LogDetails;
+end;
+
+//---------------------------------------------------------------------------
+{
 function TfrmUI.CheckQueryType: TQueryType;
 var
   SQLText: AnsiString;
@@ -529,7 +608,7 @@ begin
   SQLText := memQueryText.Text;
   SQLText := StringReplace(SQLText, #13#10, '', [rfReplaceAll]);
   SQLText := StringReplace(SQLText, ' ', '', [rfReplaceAll]);
-  SQLText := UpperCase(SQLText);
+  SQLText := AnsiUpperCase(SQLText);
 
   // if 'SELECT' is first word
   if AnsiPos(S_FREE_SELECT, SQLText) = 1 then
@@ -561,7 +640,7 @@ begin
   if DotCommaCount > 0 then
     Result := qtSelect;
 end;
-
+ }
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.cmbFileSheetSelect(Sender: TObject);
@@ -593,6 +672,7 @@ begin
   for I := 0 to pnlFileActions.ControlCount - 1 do
     pnlFileActions.Controls[I].Enabled := Active;
 
+  gbxSkippedRecs.Enabled := False;
   btnSaveLog.Enabled := memLog.Visible;
   btnMathValidate.Enabled := False;
   btnCreateScript.Enabled := False;
@@ -639,6 +719,45 @@ end;
 procedure TfrmUI.FormResize(Sender: TObject);
 begin
   RecalcFileGridCols();
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmUI.grdFileDrawColumnCell(Sender: TObject; const Rect: TRect;
+  DataCol: Integer; Column: TColumn; State: TGridDrawState);
+var
+  SelectedFontStyle: TFontStyles;
+
+begin
+  if (grdFile.DataSource.DataSet.RecNo < dmData.FirstRecNo) or
+    (grdFile.DataSource.DataSet.RecNo > dmData.LastRecNo) then
+  begin
+    grdFile.Canvas.Brush.Color := clSilver;
+    grdFile.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+  if dmData.SkippedRow(grdFile.DataSource.DataSet.RecNo) then
+  begin
+    grdFile.Canvas.Brush.Color := clYellow;
+    grdFile.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+  if dmData.InvalidRow(grdFile.DataSource.DataSet.RecNo) and (ldMathErrors in
+    dmData.LogDetails) then
+  begin
+    grdFile.Canvas.Brush.Color := clRed;
+    grdFile.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
+
+  // Selected grid row
+  if gdSelected in State then
+  begin
+    SelectedFontStyle := grdFile.Canvas.Font.Style;
+    Include(SelectedFontStyle, fsBold);
+    grdFile.Canvas.Font.Style := SelectedFontStyle;
+    grdFile.Canvas.Font.Color := clBlack;
+    grdFile.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+  end;
 end;
 
 //---------------------------------------------------------------------------
@@ -757,6 +876,7 @@ begin
     lblRecordsCount.Caption := IntToStr(dmData.GetFileRecordsCount());
     pbFileProcess.Max := dmData.GetFileRecordsCount();
     lblStatus.Caption := S_STATUS_READY;
+
     if AskFileForestry() then
     begin
       btnMathValidate.Enabled := True;
@@ -806,15 +926,30 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TfrmUI.pnlQueryActionsResize(Sender: TObject);
+procedure TfrmUI.pnlFileActionsResize(Sender: TObject);
 var
-  W: Integer;
+  Wid: Integer;
 
 begin
-  W := (gbxQueryHistory.Width - 15) div 2;
+  Wid := (gbxSkippedRecs.Width - 15) div 2;
 
-  sbtnPrevQuery.Width := W;
-  sbtnNextQuery.Width := W;
+  sbtnPrevRec.Width := Wid;
+  sbtnNextRec.Width := Wid;
+
+  sbtnNextRec.Left := gbxSkippedRecs.Width div 2;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmUI.pnlQueryActionsResize(Sender: TObject);
+var
+  Wid: Integer;
+
+begin
+  Wid := (gbxQueryHistory.Width - 15) div 2;
+
+  sbtnPrevQuery.Width := Wid;
+  sbtnNextQuery.Width := Wid;
 
   sbtnNextQuery.Left := gbxQueryHistory.Width div 2;
 end;
@@ -883,6 +1018,24 @@ begin
         mnuCompressColumns.Checked := FCompressColumns;
       end;
 
+      if ValueExists(S_MATH_ERRORS) then
+        chbMathErrors.Checked := ReadBool(S_MATH_ERRORS);
+
+      if ValueExists(S_DUPLICATES) then
+        chbDuplicates.Checked := ReadBool(S_DUPLICATES);
+
+      if ValueExists(S_RELATION_ERRORS) then
+        chbRelationErrors.Checked := ReadBool(S_RELATION_ERRORS);
+
+      if ValueExists(S_DICT_REPLACES) then
+        chbDictReplaces.Checked := ReadBool(S_DICT_REPLACES);
+
+      if ValueExists(S_EMPTY_RECORDS) then
+        chbEmptyRecords.Checked := ReadBool(S_EMPTY_RECORDS);
+
+      if ValueExists(S_PREV_REPORT_SUM) then
+        chbPrevReportSum.Checked := ReadBool(S_PREV_REPORT_SUM);
+
     finally
       CloseKey();
       Free();
@@ -902,16 +1055,12 @@ begin
     try
       SQLSelectTemplate := ReadString(S_INI_TEMPLATES, S_SELECT_TEMPLATE,
         SQLSelectTemplate);
-
       SQLInsertTemplate := ReadString(S_INI_TEMPLATES, S_INSERT_TEMPLATE,
         SQLInsertTemplate);
-
       SQLUpdateTemplate := ReadString(S_INI_TEMPLATES, S_UPDATE_TEMPLATE,
         SQLUpdateTemplate);
-
       SQLDeleteTemplate := ReadString(S_INI_TEMPLATES, S_DELETE_TEMPLATE,
         SQLDeleteTemplate);
-
       TrayEnabled := ReadBool(S_INI_GUI, S_TRAY_ENABLED, TrayEnabled);
 
     finally
@@ -933,8 +1082,9 @@ begin
   begin
     SelectedColWidth := (grdFile.ClientWidth - 30) div 10;
     ColWidth := (grdFile.ClientWidth - SelectedColWidth - 30) div
-      grdFile.Columns.Count - 1;
+      (grdFile.Columns.Count - 1);
   end
+
   else
   begin
     SelectedColWidth := I_DEFAULT_COL_WIDTH;
@@ -955,6 +1105,7 @@ begin
   pbFileProcess.Position := 0;
   lblCurrentRecordNo.Caption := '0';
   btnSaveLog.Enabled := memLog.Visible;
+  gbxSkippedRecs.Enabled := Length(dmData.SkippedRecs) > 0;
 end;
 
 //---------------------------------------------------------------------------
@@ -1083,6 +1234,7 @@ begin
       DragQueryFile(DropH, I, PChar(FileName), FileNameLength + 1);
       OpenFile(FileName);
     end;
+
   finally
     DragFinish(DropH);
   end;
@@ -1103,6 +1255,12 @@ begin
       WriteInteger(S_FORM_HEIGHT, frmUI.Height);
       WriteInteger(S_FORM_WIDTH, frmUI.Width);
       WriteBool(S_COMPRESS_COLUMNS, FCompressColumns);
+      WriteBool(S_MATH_ERRORS, chbMathErrors.Checked);
+      WriteBool(S_DUPLICATES, chbDuplicates.Checked);
+      WriteBool(S_RELATION_ERRORS, chbRelationErrors.Checked);
+      WriteBool(S_DICT_REPLACES, chbDictReplaces.Checked);
+      WriteBool(S_EMPTY_RECORDS, chbEmptyRecords.Checked);
+      WriteBool(S_PREV_REPORT_SUM, chbPrevReportSum.Checked);
 
     finally
       CloseKey();

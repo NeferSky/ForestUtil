@@ -1,8 +1,8 @@
 object frmUI: TfrmUI
-  Left = 243
-  Top = 174
+  Left = 449
+  Top = 42
   Width = 800
-  Height = 658
+  Height = 701
   Caption = 'ForestUtil'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,7 +20,7 @@ object frmUI: TfrmUI
   TextHeight = 13
   object sbStatus: TStatusBar
     Left = 0
-    Top = 585
+    Top = 628
     Width = 792
     Height = 19
     Panels = <>
@@ -30,7 +30,7 @@ object frmUI: TfrmUI
     Left = 0
     Top = 0
     Width = 792
-    Height = 585
+    Height = 628
     ActivePage = tsFileWorkspace
     Align = alClient
     Images = ilUIImages
@@ -42,7 +42,7 @@ object frmUI: TfrmUI
       object splFileActions: TSplitter
         Left = 621
         Top = 0
-        Height = 556
+        Height = 599
         Align = alRight
         OnMoved = splFileActionsMoved
       end
@@ -50,12 +50,13 @@ object frmUI: TfrmUI
         Left = 624
         Top = 0
         Width = 160
-        Height = 556
+        Height = 599
         Align = alRight
         TabOrder = 1
+        OnResize = pnlFileActionsResize
         DesignSize = (
           160
-          556)
+          599)
         object lblSelectSheet: TLabel
           Left = 8
           Top = 8
@@ -68,16 +69,16 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 411
+          Top = 450
           Width = 147
           Height = 49
-          Action = actMathValidate
+          Action = actValidateTable
           Anchors = [akLeft, akRight, akBottom]
           TabOrder = 2
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 327
+          Top = 366
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -143,7 +144,7 @@ object frmUI: TfrmUI
         end
         object pbFileProcess: TProgressBar
           Left = 1
-          Top = 538
+          Top = 581
           Width = 158
           Height = 17
           Align = alBottom
@@ -171,7 +172,7 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 471
+          Top = 510
           Width = 145
           Height = 49
           Action = actCreateScript
@@ -179,17 +180,149 @@ object frmUI: TfrmUI
           TabOrder = 5
           WordWrap = True
         end
+        object grbLogDetails: TGroupBox
+          Left = 8
+          Top = 96
+          Width = 145
+          Height = 161
+          Anchors = [akLeft, akTop, akRight]
+          Caption = #1042#1082#1083#1102#1095#1072#1090#1100' '#1074' '#1083#1086#1075':'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 6
+          DesignSize = (
+            145
+            161)
+          object chbMathErrors: TCheckBox
+            Left = 16
+            Top = 16
+            Width = 121
+            Height = 17
+            Hint = #1052#1072#1090#1077#1084#1072#1090#1080#1095#1077#1089#1082#1080#1077' '#1086#1096#1080#1073#1082#1080
+            Anchors = [akLeft, akTop, akRight]
+            Caption = #1052#1072#1090#1077#1084#1072#1090#1080#1095#1077#1089#1082#1080#1077' '#1086#1096#1080#1073#1082#1080
+            Color = clBtnFace
+            Font.Charset = DEFAULT_CHARSET
+            Font.Color = clWindowText
+            Font.Height = -11
+            Font.Name = 'MS Sans Serif'
+            Font.Style = []
+            ParentColor = False
+            ParentFont = False
+            TabOrder = 0
+            OnClick = chbLogDetailClick
+          end
+          object chbDuplicates: TCheckBox
+            Tag = 1
+            Left = 16
+            Top = 40
+            Width = 121
+            Height = 17
+            Hint = #1044#1091#1073#1083#1080#1082#1072#1090#1099' '#1089#1090#1088#1086#1082
+            Anchors = [akLeft, akTop, akRight]
+            Caption = #1044#1091#1073#1083#1080#1082#1072#1090#1099' '#1089#1090#1088#1086#1082
+            TabOrder = 1
+            OnClick = chbLogDetailClick
+          end
+          object chbRelationErrors: TCheckBox
+            Tag = 2
+            Left = 16
+            Top = 64
+            Width = 121
+            Height = 17
+            Hint = #1054#1096#1080#1073#1082#1080' '#1086#1090#1085#1086#1096#1077#1085#1080#1081' '#1084#1077#1078#1076#1091' '#1082#1086#1083#1086#1085#1082#1072#1084#1080
+            Anchors = [akLeft, akTop, akRight]
+            Caption = #1054#1096#1080#1073#1082#1080' '#1086#1090#1085#1086#1096#1077#1085#1080#1081' '#1084#1077#1078#1076#1091' '#1082#1086#1083#1086#1085#1082#1072#1084#1080
+            TabOrder = 2
+            OnClick = chbLogDetailClick
+          end
+          object chbDictReplaces: TCheckBox
+            Tag = 3
+            Left = 16
+            Top = 88
+            Width = 121
+            Height = 17
+            Hint = #1047#1072#1084#1077#1085#1099' '#1080#1079' '#1089#1083#1086#1074#1072#1088#1077#1081
+            Anchors = [akLeft, akTop, akRight]
+            Caption = #1047#1072#1084#1077#1085#1099' '#1080#1079' '#1089#1083#1086#1074#1072#1088#1077#1081
+            TabOrder = 3
+            OnClick = chbLogDetailClick
+          end
+          object chbEmptyRecords: TCheckBox
+            Tag = 4
+            Left = 16
+            Top = 112
+            Width = 121
+            Height = 17
+            Hint = #1055#1091#1089#1090#1099#1077' '#1089#1090#1088#1086#1082#1080
+            Anchors = [akLeft, akTop, akRight]
+            Caption = #1055#1091#1089#1090#1099#1077' '#1089#1090#1088#1086#1082#1080
+            TabOrder = 4
+            OnClick = chbLogDetailClick
+          end
+          object chbPrevReportSum: TCheckBox
+            Tag = 5
+            Left = 16
+            Top = 136
+            Width = 121
+            Height = 17
+            Hint = #1053#1077#1089#1086#1074#1087#1072#1076#1077#1085#1080#1077' '#1089' '#1087#1088#1077#1076#1099#1076#1091#1097#1080#1084' '#1086#1090#1095#1077#1090#1086#1084
+            Anchors = [akLeft, akTop, akRight]
+            Caption = #1053#1077#1089#1086#1074#1087#1072#1076#1077#1085#1080#1077' '#1089' '#1087#1088#1077#1076#1099#1076#1091#1097#1080#1084' '#1086#1090#1095#1077#1090#1086#1084
+            TabOrder = 5
+            OnClick = chbLogDetailClick
+          end
+        end
+        object gbxSkippedRecs: TGroupBox
+          Left = 8
+          Top = 264
+          Width = 145
+          Height = 81
+          Anchors = [akLeft, akTop, akRight]
+          Caption = #1055#1088#1086#1087#1091#1097#1077#1085#1085#1099#1077' '#1089#1090#1088#1086#1082#1080':'
+          Color = clBtnFace
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'MS Sans Serif'
+          Font.Style = []
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 7
+          object sbtnPrevRec: TSpeedButton
+            Left = 8
+            Top = 16
+            Width = 57
+            Height = 25
+            Action = actPrevSkippedRec
+          end
+          object sbtnNextRec: TSpeedButton
+            Left = 64
+            Top = 16
+            Width = 57
+            Height = 25
+            Action = actNextSkippedRec
+          end
+          object btnValidateRecord: TButton
+            Left = 8
+            Top = 48
+            Width = 129
+            Height = 25
+            Action = actValidateRecord
+            TabOrder = 0
+          end
+        end
       end
       object pnlFileWorkspace: TPanel
         Left = 0
         Top = 0
         Width = 621
-        Height = 556
+        Height = 599
         Align = alClient
         TabOrder = 0
         object splLog: TSplitter
           Left = 1
-          Top = 452
+          Top = 495
           Width = 619
           Height = 3
           Cursor = crVSplit
@@ -208,7 +341,7 @@ object frmUI: TfrmUI
           Left = 1
           Top = 34
           Width = 619
-          Height = 418
+          Height = 461
           Align = alClient
           DataSource = dsFile
           Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
@@ -219,6 +352,7 @@ object frmUI: TfrmUI
           TitleFont.Height = -11
           TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
+          OnDrawColumnCell = grdFileDrawColumnCell
           OnTitleClick = grdFileTitleClick
         end
         object pnlHint: TPanel
@@ -252,7 +386,7 @@ object frmUI: TfrmUI
         end
         object memLog: TScrolledMemo
           Left = 1
-          Top = 455
+          Top = 498
           Width = 619
           Height = 100
           Align = alBottom
@@ -269,20 +403,20 @@ object frmUI: TfrmUI
       object splQueryActions: TSplitter
         Left = 621
         Top = 0
-        Height = 556
+        Height = 599
         Align = alRight
       end
       object pnlQueryActions: TPanel
         Left = 624
         Top = 0
         Width = 160
-        Height = 556
+        Height = 599
         Align = alRight
         TabOrder = 1
         OnResize = pnlQueryActionsResize
         DesignSize = (
           160
-          556)
+          599)
         object gbxTemplate: TGroupBox
           Left = 8
           Top = 168
@@ -347,7 +481,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 461
+          Top = 500
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -412,7 +546,7 @@ object frmUI: TfrmUI
         end
         object pbQueryProcess: TProgressBar
           Left = 1
-          Top = 538
+          Top = 581
           Width = 158
           Height = 17
           Align = alBottom
@@ -421,7 +555,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 405
+          Top = 444
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]
@@ -449,12 +583,12 @@ object frmUI: TfrmUI
         Left = 0
         Top = 0
         Width = 621
-        Height = 556
+        Height = 599
         Align = alClient
         TabOrder = 0
         object splQueryResult: TSplitter
           Left = 1
-          Top = 252
+          Top = 295
           Width = 619
           Height = 3
           Cursor = crVSplit
@@ -463,7 +597,7 @@ object frmUI: TfrmUI
         end
         object grdQueryResult: TDBGrid
           Left = 1
-          Top = 255
+          Top = 298
           Width = 619
           Height = 300
           Align = alBottom
@@ -484,7 +618,7 @@ object frmUI: TfrmUI
           Left = 1
           Top = 1
           Width = 619
-          Height = 251
+          Height = 294
           Align = alClient
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
@@ -520,7 +654,7 @@ object frmUI: TfrmUI
         Action = actOpenFile
       end
       object mnuValidateFile: TMenuItem
-        Action = actMathValidate
+        Action = actValidateTable
       end
       object mnuCreateScript: TMenuItem
         Action = actCreateScript
@@ -1283,11 +1417,11 @@ object frmUI: TfrmUI
       ShortCut = 120
       OnExecute = actExecuteQueryExecute
     end
-    object actMathValidate: TAction
+    object actValidateTable: TAction
       Caption = #1055#1088#1086#1074#1077#1088#1080#1090#1100' '#1092#1072#1081#1083
       ImageIndex = 6
       ShortCut = 16502
-      OnExecute = actMathValidateExecute
+      OnExecute = actValidateTableExecute
     end
     object actRestore: TAction
       Caption = #1042#1086#1089#1089#1090#1072#1085#1086#1074#1080#1090#1100
@@ -1364,6 +1498,18 @@ object frmUI: TfrmUI
       ImageIndex = 0
       ShortCut = 16503
       OnExecute = actCreateScriptExecute
+    end
+    object actPrevSkippedRec: TAction
+      Caption = '<<<'
+      OnExecute = actPrevSkippedRecExecute
+    end
+    object actNextSkippedRec: TAction
+      Caption = '>>>'
+      OnExecute = actNextSkippedRecExecute
+    end
+    object actValidateRecord: TAction
+      Caption = #1055#1088#1086#1074#1077#1088#1080#1090#1100' '#1089#1090#1088#1086#1082#1091
+      OnExecute = actValidateRecordExecute
     end
   end
   object odlgOpenFile: TOpenDialog

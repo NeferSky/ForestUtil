@@ -22,16 +22,11 @@ type
     udYear: TUpDown;
     procedure cmbRegionSelect(Sender: TObject);
   private
-    function GetDictArray: TValidArr;
-    procedure SetDictArray(const Value: TValidArr);
-  private
     { Private declarations }
     FRegionID: Integer;
     FForestryID: Integer;
     FReportQuarter: Integer;
     FReportYear: Integer;
-    FDictArray: TValidArr;
-    property DictArray: TValidArr read GetDictArray write SetDictArray;
   public
     { Public declarations }
     property RegionID: Integer read FRegionID write FRegionID;
@@ -40,7 +35,7 @@ type
     property ReportYear: Integer read FReportYear write FReportYear;
   end;
 
-  function AskFileForestry: Boolean;
+function AskFileForestry: Boolean;
 
 var
   frmAskForestry: TfrmAskForestry;
@@ -59,8 +54,8 @@ var
   Dict: TValidArr;
 
 begin
-  Dict := dmData.GetValidList(frmDicts.GetFileForDict(
-    S_DICTIONARY_FORESTRIES_NAME));
+  Dict :=
+    dmData.GetValidList(frmDicts.GetFileForDict(S_DICTIONARY_FORESTRIES_NAME));
 
   for I := 0 to Length(Dict) - 1 do
     frmAskForestry.cmbForestry.Items.Add(Dict[I].WordValue);
@@ -69,34 +64,35 @@ begin
 
   DecodeDate(Date(), AYear, AMonth, ADay);
   case AMonth of
-  1..3:
-    begin
-      frmAskForestry.udYear.Position := AYear - 1;
-      frmAskForestry.cmbQuarter.ItemIndex := 3;
-    end;
-  4..6:
-    begin
-      frmAskForestry.udYear.Position := AYear;
-      frmAskForestry.cmbQuarter.ItemIndex := 0;
-    end;
-  7..9:
-    begin
-      frmAskForestry.udYear.Position := AYear;
-      frmAskForestry.cmbQuarter.ItemIndex := 1;
-    end;
-  10..12:
-    begin
-      frmAskForestry.udYear.Position := AYear;
-      frmAskForestry.cmbQuarter.ItemIndex := 2;
-    end;
+    1..3:
+      begin
+        frmAskForestry.udYear.Position := AYear - 1;
+        frmAskForestry.cmbQuarter.ItemIndex := 3;
+      end;
+    4..6:
+      begin
+        frmAskForestry.udYear.Position := AYear;
+        frmAskForestry.cmbQuarter.ItemIndex := 0;
+      end;
+    7..9:
+      begin
+        frmAskForestry.udYear.Position := AYear;
+        frmAskForestry.cmbQuarter.ItemIndex := 1;
+      end;
+    10..12:
+      begin
+        frmAskForestry.udYear.Position := AYear;
+        frmAskForestry.cmbQuarter.ItemIndex := 2;
+      end;
   end;
 
   frmAskForestry.ShowModal();
 
-  frmAskForestry.RegionID := dmData.GetIntField(Format(
-    S_DB_GET_REGION_ID_BY_FORESTRY, [frmAskForestry.cmbForestry.Text]));
-  frmAskForestry.ForestryID := dmData.GetIntField(Format(
-    S_DB_GET_FORESTRY_ID, [frmAskForestry.cmbForestry.Text]));
+  frmAskForestry.RegionID :=
+    dmData.GetIntField(Format(S_DB_GET_REGION_ID_BY_FORESTRY,
+    [frmAskForestry.cmbForestry.Text]));
+  frmAskForestry.ForestryID := dmData.GetIntField(Format(S_DB_GET_FORESTRY_ID,
+    [frmAskForestry.cmbForestry.Text]));
 
   frmAskForestry.ReportQuarter := frmAskForestry.cmbQuarter.ItemIndex + 1;
   frmAskForestry.ReportYear := frmAskForestry.udYear.Position;
@@ -109,31 +105,11 @@ end;
 procedure TfrmAskForestry.cmbRegionSelect(Sender: TObject);
 begin
   case cmbRegion.ItemIndex of
-  0: cmbForestry.Items.Assign(dmData.GetForestryByRegion(22));
-  1: cmbForestry.Items.Assign(dmData.GetForestryByRegion(23));
+    0: cmbForestry.Items.Assign(dmData.GetForestryByRegion(22));
+    1: cmbForestry.Items.Assign(dmData.GetForestryByRegion(23));
   end;
 
   cmbForestry.ItemIndex := 0;
-end;
-
-//---------------------------------------------------------------------------
-
-function TfrmAskForestry.GetDictArray: TValidArr;
-begin
-  Result := FDictArray;
-end;
-
-//---------------------------------------------------------------------------
-
-procedure TfrmAskForestry.SetDictArray(const Value: TValidArr);
-var
-  I: Integer;
-
-begin
-  FDictArray := Value;
-  
-  for I := 0 to Length(Value) - 1 do
-    cmbForestry.Items.Add(Value[I].WordValue);
 end;
 
 end.

@@ -77,7 +77,7 @@ begin
         frmUI.OpenTable(ParamStr(4) + '$');
 
         if HasCmdParam('-validate') then
-          frmUI.actMathValidateExecute(Application);
+          frmUI.actValidateTableExecute(Application);
       end;
     end;
     

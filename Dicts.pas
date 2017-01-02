@@ -131,7 +131,7 @@ begin
 
   else if Dict = (S_DICTIONARY_LANDUSE_NAME) then
     Result := Result + S_DICTIONARY_LANDUSE_FILE
-   
+
   else if Dict = (S_DICTIONARY_PROTECT_CATEGORY_NAME) then
     Result := Result + S_DICTIONARY_PROTECT_CATEGORY_FILE
 

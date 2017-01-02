@@ -17,7 +17,12 @@ const
   S_EDIT_HEIGHT: AnsiString = 'EditHeight';
   S_EDIT_WIDTH: AnsiString = 'EditWidth';
   S_COMPRESS_COLUMNS: AnsiString = 'CompressColumns';
-//  S_CONTINUE_ON_ERROR: AnsiString = 'ContinueOnError';
+  S_MATH_ERRORS: AnsiString = 'LogMathErrors';
+  S_DUPLICATES: AnsiString = 'LogDuplicates';
+  S_RELATION_ERRORS: AnsiString = 'LogRelationErrors';
+  S_DICT_REPLACES: AnsiString = 'LogDictReplaces';
+  S_EMPTY_RECORDS: AnsiString = 'LogEmptyRecords';
+  S_PREV_REPORT_SUM: AnsiString = 'LogPrevReportSum';
 
   S_INI_GUI: AnsiString = 'GUI';
   S_TRAY_ENABLED: AnsiString = 'TrayEnabled';
@@ -165,6 +170,8 @@ const
     'В таблице присутствуют дубликаты строк, необходима проверка';
   S_LOG_RELATION_INVALID: AnsiString =
     'В таблице присутствуют ошибки соответствия полей';
+  S_LOG_SKIPPED_LINES: AnsiString =
+    'Обнаружены пропущенные проверки. Поэтому скрипт для базы данных я Вам не отдам...';
 
   S_IN_PROGRESS: AnsiString = 'Похоже, все еще выполняется предыдущий запрос.';
   S_QUERY_EXEC_SUCCESS: AnsiString = 'Успешно!';
@@ -175,13 +182,16 @@ const
   E_FIND_FIRST_CELL: AnsiString = 'Не удалось распознать первую строку таблицы';
   E_FIND_LAST_CELL: AnsiString =
     'Не удалось распознать последнюю строку таблицы';
-  E_WRITE_QUERY: AnsiString = 'Ошибка при попытке запомнить SQL-запрос' + #13#10 +
+  E_WRITE_QUERY: AnsiString = 'Ошибка при попытке запомнить SQL-запрос' + #13#10
+    +
     'Значения счетчиков:' + #13#10 +
     'MaxQueriesCount: %d, FActualCount: %d, FWritingIndex: %d, FReadingIndex: %d';
-  E_READ_QUERY: AnsiString = 'Ошибка при попытке прочитать SQL-запрос' + #13#10 +
+  E_READ_QUERY: AnsiString = 'Ошибка при попытке прочитать SQL-запрос' + #13#10
+    +
     'Значения счетчиков:' + #13#10 +
     'MaxQueriesCount: %d, FActualCount: %d, FWritingIndex: %d, FReadingIndex: %d';
-  E_QUERY_EXEC_ERROR: AnsiString = '!!! Ошибка при выполнении запроса. !!!' + #13#10 +
+  E_QUERY_EXEC_ERROR: AnsiString = '!!! Ошибка при выполнении запроса. !!!' +
+    #13#10 +
     'Изменения отменены.';
 
   // File names
@@ -193,7 +203,8 @@ const
   S_DICTIONARY_LOCAL_FORESTRIES_FILE: AnsiString =
     'DictionaryLocalForestry.dic';
   S_DICTIONARY_LANDUSE_FILE: AnsiString = 'DictionaryLanduse.dic';
-  S_DICTIONARY_PROTECT_CATEGORY_FILE: AnsiString = 'DictionaryProtectCategory.dic';
+  S_DICTIONARY_PROTECT_CATEGORY_FILE: AnsiString =
+    'DictionaryProtectCategory.dic';
   S_DICTIONARY_SPECIES_FILE: AnsiString = 'DictionarySpecies.dic';
   S_DICTIONARY_DAMAGE_FILE: AnsiString = 'DictionaryDamage.dic';
   S_DICTIONARY_PEST_FILE: AnsiString = 'DictionaryPest.dic';
@@ -325,7 +336,7 @@ const
   S_SQL_GET_PEST_DICT: AnsiString =
     'select distinct pest_code, pest_rus from pest_dict order by pest_rus';
 
-  ARR_FIELD_NAMES: Array[1..68] of AnsiString = (
+  ARR_FIELD_NAMES: array[1..68] of AnsiString = (
     'Лесничество',
     'Участковое лесничество',
     'Квартал',
@@ -394,7 +405,7 @@ const
     'Степень очага/Средняя (га)',
     'Степень очага/Сильная (га)',
     'Степень очага/Сплошная (га)'
-  );
+    );
 
   // =)
   S_YES = 'True';
@@ -452,9 +463,4 @@ finalization
   DestroyLists();
 
 end.
-
-
-
-
-
 

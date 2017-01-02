@@ -1,14 +1,14 @@
 unit ForestTypes;
 
 interface
-  
+
 type
   TOnValidationLog = procedure(Msg: AnsiString) of object;
   TOnProgress = procedure(CurrentIteration: Integer) of object;
 
 type
   TQueryType = (qtSelect, qtCommand);
- 
+
 type
   TShowResult = (srReplace, srSkip, srForceSkip, srStop);
 
@@ -20,26 +20,32 @@ type
 
 type
   TValidationRes = (vrDuplicateInvalid, vrMainInvalid, vrExtraInvalid,
-    vrStringInvalid, vrRelationInvalid, vrStop);
+    vrStringInvalid, vrRelationInvalid, vrStop, vrSkip);
   TValidationResult = set of TValidationRes;
 
 type
+  TLogDetail = (ldMathErrors, ldDuplicates, ldRelationErrors, ldDictReplaces,
+    ldEmptyRecords, ldPrevReportSum);
+  TLogDetails = set of TLogDetail;
+
+type
   TValuesRec = record
-    F1: AnsiString;
-    F2: AnsiString;
-    I2: Integer;
-    F3: Integer;
-    F4: Integer;
-    F5: AnsiString;
-    I5: Integer;
-    F6: AnsiString;
-    I6: Integer;
-    F7: AnsiString;
-    I7: Integer;
-    F8: AnsiString;
-    I8: Integer;
-    F9: AnsiString;
-    I9: Integer;
+    {F1}ForestryName: AnsiString;
+    {F1 ID}ForestryID: Integer;
+    {F2}LocalForestryName: AnsiString;
+    {F2 ID}LocalForestryID: Integer;
+    Quarter: Integer;
+    Patch: Integer;
+    {F5}LanduseName: AnsiString;
+    {F5 ID}LanduseID: Integer;
+    {F6}DefenseCategoryName: AnsiString;
+    {F6 ID}DefenseCategoryID: Integer;
+    {F7}MainSpeciesName: AnsiString;
+    {F7 ID}MainSpeciesID: Integer;
+    {F8}DamageSpeciesName: AnsiString;
+    {F8 ID}DamageSpeciesID: Integer;
+    {F9}DamageReasonName: AnsiString;
+    {F9 ID}DamageReasonID: Integer;
     F10: Integer;
     F11: Integer;
     F12: Currency;
@@ -87,9 +93,9 @@ type
     F54: Currency;
     F55: Currency;
     F56: Currency;
-    F57: AnsiString;
-    F58: AnsiString;
-    I58: Integer;
+    {F57}PestStatus: AnsiString;
+    {F58}PestName: AnsiString;
+    {F58 ID}PestID: Integer;
     F59: Currency;
     F60: Currency;
     F61: Currency;
@@ -100,6 +106,10 @@ type
     F66: Currency;
     F67: Currency;
     F68: Currency;
+    RegionID: Integer;
+    ReportQuarter: Integer;
+    ReportYear: Integer;
+    ValidationResult: TValidationResult;
   end;
 
 type
@@ -139,6 +149,9 @@ type
     LostArea: Currency;
     PestArea: Currency;
   end;
+
+type
+  TSkippedRecs = array of Integer;
 
 implementation
 

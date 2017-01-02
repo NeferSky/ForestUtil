@@ -19,8 +19,8 @@ type
     procedure SetForceSkip(Value: Boolean);
   public
     function Validate(const AWord: AnsiString): Integer;
-    function FindRecord(const AWord: AnsiString;
-      var WordRecord: TDictRecord): Boolean;
+    function FindRecord(const AWord: AnsiString; var WordRecord: TDictRecord):
+      Boolean;
     procedure WriteRecord(const WordRecord: TDictRecord);
     procedure Clear;
     constructor Create(AFile: AnsiString);
@@ -94,7 +94,6 @@ destructor TDictionary.Destroy;
 var
   DictFile, ValidDictFile: AnsiString;
   I: Integer;
-  ValidRecord: TValidRecord;
 
 begin
   DictFile := Format('%s%s', [GetAppPath, FDictionaryName]);
@@ -126,8 +125,8 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TDictionary.FindRecord(const AWord: AnsiString;
-  var WordRecord: TDictRecord): Boolean;
+function TDictionary.FindRecord(const AWord: AnsiString; var WordRecord:
+  TDictRecord): Boolean;
 var
   I: Integer;
 
@@ -149,7 +148,7 @@ function TDictionary.GetForceSkip: Boolean;
 begin
   Result := FForceSkip;
 end;
- 
+
 //---------------------------------------------------------------------------
 
 function TDictionary.GetValidArray: TValidArr;
@@ -164,7 +163,7 @@ begin
   if Value <> FForceSkip then
     FForceSkip := Value;
 end;
-   
+
 //---------------------------------------------------------------------------
 
 procedure TDictionary.SetValidArray(Value: TValidArr);
@@ -179,14 +178,16 @@ var
   I: Integer;
 
 begin
-  Result := 0;
+  Result := -1;
 
   for I := 0 to Length(FValidArray) - 1 do
-    if FValidArray[I].WordValue = Uppercase(AWord) then
+  begin
+    if FValidArray[I].WordValue = AnsiUpperCase(AWord) then
     begin
       Result := FValidArray[I].WordIndex;
       Break;
     end;
+  end;
 end;
 
 //---------------------------------------------------------------------------
@@ -199,7 +200,7 @@ begin
   for I := 0 to (Length(FDictArray) - 1) do
     if Equal(FDictArray[I], WordRecord) then
     begin
-      FDictArray[I].NewWord := UpperCase(WordRecord.NewWord);
+      FDictArray[I].NewWord := AnsiUpperCase(WordRecord.NewWord);
       Exit;
     end;
 

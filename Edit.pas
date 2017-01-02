@@ -39,8 +39,8 @@ type
     property CurrentIndex: Integer read FCurrentIndex;
   end;
 
-  function ShowEdit(const OldWord, Prompt: AnsiString;
-    const Dict: TValidArr): TShowResult;
+function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TValidArr):
+  TShowResult;
 
 var
   frmEdit: TfrmEdit;
@@ -52,8 +52,8 @@ uses
 
 {$R *.dfm}
 
-function ShowEdit(const OldWord, Prompt: AnsiString;
-  const Dict: TValidArr): TShowResult;
+function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TValidArr):
+  TShowResult;
 begin
   frmEdit.FWaiting := True;
   frmEdit.edtWord.Text := OldWord;
@@ -61,8 +61,10 @@ begin
   frmEdit.cmbSynonim.Clear();
   frmEdit.DictArray := Dict;
   frmEdit.Show();
+
   while frmEdit.FWaiting do
     Application.ProcessMessages();
+
   Result := frmEdit.ShowResult;
 end;
 
@@ -183,7 +185,7 @@ var
 
 begin
   FDictArray := Value;
-  
+
   for I := 0 to Length(Value) - 1 do
     cmbSynonim.Items.Add(Value[I].WordValue);
 end;

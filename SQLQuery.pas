@@ -58,6 +58,7 @@ begin
   try
     FSQLQueriesArray[FWritingIndex] := Value;
     FModified := True;
+
   except
     raise Exception.Create(Format(E_WRITE_QUERY, [MaxQueriesCount, FActualCount,
       FWritingIndex, FReadingIndex]));
@@ -94,10 +95,10 @@ var
 begin
   Result := False;
 
-  S := UpperCase(Value);
+  S := AnsiUpperCase(Value);
   for I := 0 to Length(FSQLQueriesArray) - 1 do
   begin
-    Result := S = UpperCase(FSQLQueriesArray[I]);
+    Result := S = AnsiUpperCase(FSQLQueriesArray[I]);
     if Result then
       Break;
   end;
@@ -125,6 +126,7 @@ begin
     try
       Result := FSQLQueriesArray[FReadingIndex + 1];
       Inc(FReadingIndex);
+
     except
       raise Exception.Create(Format(E_READ_QUERY, [MaxQueriesCount,
         FActualCount, FWritingIndex, FReadingIndex]));
@@ -139,6 +141,7 @@ begin
     try
       Result := FSQLQueriesArray[FReadingIndex - 1];
       Dec(FReadingIndex);
+
     except
       raise Exception.Create(Format(E_READ_QUERY, [MaxQueriesCount,
         FActualCount, FWritingIndex, FReadingIndex]));
@@ -165,6 +168,7 @@ begin
       Read(QueryFile, Query);
       Add(Query.QueryText);
     end;
+
   finally
     CloseFile(QueryFile);
   end;
@@ -184,6 +188,7 @@ begin
       FReadingIndex := ReadInteger(S_INI_QUERIES, S_READING_INDEX, 0);
       FWritingIndex := ReadInteger(S_INI_QUERIES, S_WRITING_INDEX, 0);
       MaxQueriesCount := ReadInteger(S_INI_QUERIES, S_MAX_QUERIES_COUNT, 50);
+
     finally
       Free();
     end;
@@ -208,6 +213,7 @@ begin
       Query.QueryText := FSQLQueriesArray[I];
       Write(QueryFile, Query);
     end;
+
   finally
     CloseFile(QueryFile);
   end;
@@ -223,6 +229,7 @@ begin
       WriteInteger(S_INI_QUERIES, S_READING_INDEX, FReadingIndex);
       WriteInteger(S_INI_QUERIES, S_WRITING_INDEX, FWritingIndex);
       WriteInteger(S_INI_QUERIES, S_MAX_QUERIES_COUNT, MaxQueriesCount);
+
     finally
       Free();
     end;
