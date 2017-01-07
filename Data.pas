@@ -67,6 +67,7 @@ type
     procedure AddSkippedRec(RecNo: Integer);
     procedure AddInvalidRec(RecNo: Integer);
     procedure RemoveSkippedRec(RecNo: Integer);
+    function GetScript: AnsiString;
   public
     procedure Log(S: string);
     { Public declarations }
@@ -93,7 +94,6 @@ type
     procedure ValidateRecord(const RegionID, ForestryID, ReportYear,
       ReportQuarter: Integer);
     procedure PositionTable;
-    function GetResultScript: AnsiString;
     //
     property TableList: TStringList read GetTableList;
     property InProgress: Boolean read GetInProgress;
@@ -105,6 +105,7 @@ type
     property SkippedRecs: TSkippedRecs read FSkippedRecs;
     property FirstRecNo: Integer read FFIrstRow;
     property LastRecNo: Integer read FLastRow;
+    property Script: AnsiString read GetScript;
   end;
 
 var
@@ -511,7 +512,7 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TdmData.GetResultScript: AnsiString;
+function TdmData.GetScript: AnsiString;
 begin
   Result := FScript.GetText();
 end;
@@ -689,6 +690,9 @@ var
 begin
   FFirstRow := 0;
   FLastRow := MaxInt;
+  FScript.Clear();
+  SetLength(FSkippedRecs, 0);
+  SetLength(FInvalidRecs, 0);
 
   if qryFileSelect.Active then
     qryFileSelect.Close();
@@ -720,6 +724,10 @@ function TdmData.OpenTable(const TableName: AnsiString): Boolean;
 begin
   FFirstRow := 0;
   FLastRow := MaxInt;
+  FScript.Clear();
+  SetLength(FSkippedRecs, 0);
+  SetLength(FInvalidRecs, 0);
+
   qryFileSelect.SQL.Text := Format(S_FILE_SELECT, [TableName]);
 
   try

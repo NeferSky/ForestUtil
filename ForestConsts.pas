@@ -415,6 +415,7 @@ const
   S_BRACKED1_SELECT: AnsiString = '(SELECT';
   S_BRACKED2_SELECT: AnsiString = ')SELECT';
   S_EQUAL_SELECT: AnsiString = '=SELECT';
+  S_COMMA_SELECT: AnsiString = ',SELECT';
   S_FILE_SELECT: AnsiString = 'select * from [%s]';
 
 var

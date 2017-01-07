@@ -213,7 +213,7 @@ type
     procedure InitFileProcessControls;
     procedure ResetFileProcessControls;
     procedure ShowQueriesCount;
-    //    function CheckQueryType: TQueryType;
+    function CheckQueryType: TQueryType;
     procedure ShowQueryResultGrid;
     procedure ControlWindow(var Msg: TMessage); message WM_SYSCOMMAND;
     procedure IconMouse(var Msg: TMessage); message WM_USER + 1;
@@ -287,8 +287,9 @@ begin
     ShowMessage(S_LOG_SKIPPED_LINES)
   else
   begin
-    memQueryText.Text := dmData.GetResultScript();
+    memQueryText.Text := dmData.Script;
     rgrQueryType.ItemIndex := 1;
+    pcPages.SelectNextPage(True);
   end;
 end;
 
@@ -322,10 +323,10 @@ begin
   end;
 
   // If I not sure that QueryType is correct - I'll ask user about it
-{  if QueryType <> CheckQueryType() then
+  if QueryType <> CheckQueryType() then
     if MessageDlg(S_QUERY_TYPE_CONFIRM, mtConfirmation, mbOkCancel, 0) <> mrOk then
       Exit;
-}
+
   case QueryType of
     qtSelect:
       begin
@@ -359,8 +360,6 @@ procedure TfrmUI.actHelpExecute(Sender: TObject);
 begin
   RunApp('hh.exe ForestUtil.chm', GetAppPath());
 end;
-
-//---------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------
 
@@ -595,19 +594,18 @@ begin
 end;
 
 //---------------------------------------------------------------------------
-{
+
 function TfrmUI.CheckQueryType: TQueryType;
 var
   SQLText: AnsiString;
   WordCount, DotCommaCount: Integer;
-  Braked1Count, Braked2Count, EqualCount: Integer;
+  Braked1Count, Braked2Count, EqualCount, CommaCount: Integer;
 
 begin
   Result := qtCommand;
 
   SQLText := memQueryText.Text;
-  SQLText := StringReplace(SQLText, #13#10, '', [rfReplaceAll]);
-  SQLText := StringReplace(SQLText, ' ', '', [rfReplaceAll]);
+  SQLText := DeleteLineBreaks(SQLText);
   SQLText := AnsiUpperCase(SQLText);
 
   // if 'SELECT' is first word
@@ -617,8 +615,8 @@ begin
     Exit;
   end;
 
-  WordCount := (Length(SQLText) - Length(StringReplace(SQLText, S_FREE_SELECT,
-    '', [rfReplaceAll]))) div Length(S_FREE_SELECT);
+  WordCount := (Length(SQLText) - Length(StringReplace(SQLText,
+    S_FREE_SELECT, '', [rfReplaceAll]))) div Length(S_FREE_SELECT);
   DotCommaCount := (Length(SQLText) - Length(StringReplace(SQLText,
     S_DOTCOMMA_SELECT, '', [rfReplaceAll]))) div Length(S_DOTCOMMA_SELECT);
   Braked1Count := (Length(SQLText) - Length(StringReplace(SQLText,
@@ -627,20 +625,22 @@ begin
     S_BRACKED2_SELECT, '', [rfReplaceAll]))) div Length(S_BRACKED2_SELECT);
   EqualCount := (Length(SQLText) - Length(StringReplace(SQLText,
     S_EQUAL_SELECT, '', [rfReplaceAll]))) div Length(S_EQUAL_SELECT);
+  CommaCount := (Length(SQLText) - Length(StringReplace(SQLText,
+    S_COMMA_SELECT, '', [rfReplaceAll]))) div Length(S_COMMA_SELECT);
 
-  // Free SELECT more than (SELECT + )SELECT + =SELECT
-  if WordCount > (Braked1Count + Braked2Count + EqualCount) then
+  // Free SELECT more than (SELECT + )SELECT + =SELECT + ,SELECT
+  if WordCount > (Braked1Count + Braked2Count + EqualCount + CommaCount) then
     Result := qtSelect;
 
-  // Free SELECT the same count of (SELECT + )SELECT + =SELECT
-  if WordCount = (Braked1Count + Braked2Count + EqualCount) then
+  // Free SELECT the same count of (SELECT + )SELECT + =SELECT + ,SELECT
+  if WordCount = (Braked1Count + Braked2Count + EqualCount + CommaCount) then
     Result := qtCommand;
 
   // There are ;SELECT
   if DotCommaCount > 0 then
     Result := qtSelect;
 end;
- }
+
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.cmbFileSheetSelect(Sender: TObject);
@@ -876,17 +876,8 @@ begin
     lblRecordsCount.Caption := IntToStr(dmData.GetFileRecordsCount());
     pbFileProcess.Max := dmData.GetFileRecordsCount();
     lblStatus.Caption := S_STATUS_READY;
-
-    if AskFileForestry() then
-    begin
-      btnMathValidate.Enabled := True;
-      btnCreateScript.Enabled := True;
-    end
-    else
-    begin
-      btnMathValidate.Enabled := False;
-      btnCreateScript.Enabled := False;
-    end
+    btnMathValidate.Enabled := AskFileForestry();
+    btnCreateScript.Enabled := dmData.Script <> '';
   end;
 end;
 
@@ -1106,6 +1097,7 @@ begin
   lblCurrentRecordNo.Caption := '0';
   btnSaveLog.Enabled := memLog.Visible;
   gbxSkippedRecs.Enabled := Length(dmData.SkippedRecs) > 0;
+  btnCreateScript.Enabled := dmData.Script <> '';
 end;
 
 //---------------------------------------------------------------------------

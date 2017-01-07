@@ -123,6 +123,9 @@ function GetFullPathOfFile(const FileName: string): string;
 function CRCMakerPas(InputByte, CRCByte: Byte): Byte;
 function CRCMakerAsm(InputByte, CRCByte: Byte): Byte;
 
+// String Utils
+function DeleteLineBreaks(const S: String): String;
+
 // Convert
 function StringToArray(Str: string): TCharArray;
 function StringToDynArray(Str: string): TCharDynArray;
@@ -974,6 +977,99 @@ begin
       mov al,ah
     end;
     }
+end;
+
+//---------------------------------------------------------------------------
+{ String Utils }
+
+// Взято отсюда и изменено:
+// http://www.delphifaq.ru/rabota-s-tekstom-i-strokami/kak-udalit-perenosy-iz-stroki.html
+function DeleteLineBreaks(const S: String): String;
+var
+  Source, SourceEnd: PAnsiChar;
+
+begin
+  Result := '';
+  Source := Pointer(S);
+  SourceEnd := Source + Length(S);
+
+  while Source < SourceEnd do
+  begin
+    case Source^ of
+      #10, #13, #32:;
+      else
+        Result := Result + Source^;
+    end;
+
+    Inc(Source);
+  end;
+end;
+
+//---------------------------------------------------------------------------
+// Взято отсюда и изменено:
+// http://www.delphifaq.ru/rabota-s-tekstom-i-strokami/algoritm-poiska-podstroki-v-stroke.html
+{ **** UBPFD *********** by delphibase.endimus.com ****
+>> алгоритм поиска подстроки в строке
+
+Зависимости: SysUtils
+Автор:       ALex2)
+Copyright:   2)
+Дата:        1 февраля 2003 г.
+***************************************************** }
+
+function BMSearch(const S, Pattern: String; StartPos: Integer = 1): Integer;
+type
+  TBMTable = array[0..255] of Integer;
+
+var
+  Position, LenPattern, I: Integer;
+  BMT: TBMTable;
+
+begin
+  Result := 0;
+  LenPattern := Length(Pattern);
+  Position := StartPos + LenPattern - 1;
+
+  for I := 0 to 255 do
+    BMT[I] := LenPattern;
+
+  for I := LenPattern downto 1 do
+    if BMT[Byte(Pattern[I])] = LenPattern then
+      BMT[Byte(Pattern[I])] := LenPattern - I;
+
+  while Position <= Length(S) do
+  begin
+    if Pattern[LenPattern] <> S[Position] then
+      Position := Position + BMT[Byte(S[Position])]
+
+    else
+    begin
+      if LenPattern = 1 then
+      begin
+        Result := Position;
+        Exit;
+      end
+
+      else
+      begin
+        for I := LenPattern - 1 downto 1 do
+          if Pattern[I] <> S[Position - LenPattern + I] then
+          begin
+            Inc(Position);
+            Break;
+          end
+
+          else
+          begin
+            if I = 1 then
+            begin
+              Result := Position - LenPattern + 1;
+              Exit;
+            end;
+          end;
+      end;
+    end;
+  end;
 end;
 
 //---------------------------------------------------------------------------
