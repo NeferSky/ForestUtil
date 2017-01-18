@@ -145,6 +145,8 @@ type
     pbQueryProcess: TProgressBar;
 
     sbStatus: TStatusBar;
+    actCatalogSettings: TAction;
+    mnuCatalogEdit: TMenuItem;
 
     // Components Events
     procedure FormCreate(Sender: TObject);
@@ -198,6 +200,7 @@ type
     procedure actNextSkippedRecExecute(Sender: TObject);
     procedure actValidateRecordExecute(Sender: TObject);
     procedure ImageClick(Sender: TObject);
+    procedure actCatalogSettingsExecute(Sender: TObject);
   private
     { Private declarations }
     SQLQueries: TSQLQueries;
@@ -231,7 +234,7 @@ implementation
 
 uses
   ShellAPI, Registry, ForestConsts, IniFiles, NsUtils, Data, Settings, Dicts,
-  ComObj, About, AskForestry;
+  ComObj, About, AskForestry, Catalogs;
 
 {$R *.dfm}
 {$R 'res\Coffee.res'}
@@ -270,6 +273,13 @@ begin
   Img.OnClick := ImageClick;
   Img.Parent := Creator;
   Img.Picture.Bitmap.Handle := LoadBitmap(hInstance, 'COFFEE');
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmUI.actCatalogSettingsExecute(Sender: TObject);
+begin
+  frmCatalogs.ShowModal();
 end;
 
 //---------------------------------------------------------------------------

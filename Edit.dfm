@@ -51,11 +51,11 @@ object frmEdit: TfrmEdit
     Left = 8
     Top = 72
     Width = 361
-    Height = 22
+    Height = 24
     Anchors = [akLeft, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
+    Font.Height = -13
     Font.Name = 'Courier New'
     Font.Style = [fsBold]
     ParentFont = False
@@ -84,6 +84,8 @@ object frmEdit: TfrmEdit
     ItemHeight = 13
     TabOrder = 1
     OnChange = cmbSynonimChange
+    OnDropDown = cmbSynonimDropDown
+    OnKeyPress = cmbSynonimKeyPress
     OnSelect = cmbSynonimChange
   end
   object btnSkip: TButton
@@ -117,6 +119,7 @@ object frmEdit: TfrmEdit
     Height = 33
     Anchors = [akRight, akBottom]
     Caption = #1054#1089#1090#1072#1085#1086#1074#1080#1090#1100
+    ModalResult = 3
     TabOrder = 5
     OnClick = btnStopClick
   end

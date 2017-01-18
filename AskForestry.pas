@@ -43,23 +43,15 @@ var
 implementation
 
 uses
-  Dicts, Data, ForestConsts;
+  Data, ForestConsts, Dictionary, Dialogs;
 
 {$R *.dfm}
 
 function AskFileForestry: Boolean;
 var
   AYear, AMonth, ADay: Word;
-  I: Integer;
-  Dict: TValidArr;
 
 begin
-  Dict :=
-    dmData.GetValidList(frmDicts.GetFileForDict(S_DICTIONARY_FORESTRIES_NAME));
-
-  for I := 0 to Length(Dict) - 1 do
-    frmAskForestry.cmbForestry.Items.Add(Dict[I].WordValue);
-
   frmAskForestry.cmbRegionSelect(Application);
 
   DecodeDate(Date(), AYear, AMonth, ADay);
@@ -69,20 +61,10 @@ begin
         frmAskForestry.udYear.Position := AYear - 1;
         frmAskForestry.cmbQuarter.ItemIndex := 3;
       end;
-    4..6:
+    else
       begin
         frmAskForestry.udYear.Position := AYear;
-        frmAskForestry.cmbQuarter.ItemIndex := 0;
-      end;
-    7..9:
-      begin
-        frmAskForestry.udYear.Position := AYear;
-        frmAskForestry.cmbQuarter.ItemIndex := 1;
-      end;
-    10..12:
-      begin
-        frmAskForestry.udYear.Position := AYear;
-        frmAskForestry.cmbQuarter.ItemIndex := 2;
+        frmAskForestry.cmbQuarter.ItemIndex := ((AMonth - 1) div 3) - 1;
       end;
   end;
 

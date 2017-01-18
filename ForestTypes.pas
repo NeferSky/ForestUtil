@@ -20,7 +20,7 @@ type
 
 type
   TValidationRes = (vrDuplicateInvalid, vrMainInvalid, vrExtraInvalid,
-    vrStringInvalid, vrRelationInvalid, vrStop, vrSkip);
+    vrStringInvalid, vrRelationInvalid, vrStop, vrSkip, vrOk);
   TValidationResult = set of TValidationRes;
 
 type
@@ -128,20 +128,23 @@ type
   end;
 
 type
-  TDictRecord = record
+  TCatalogRecord = record
     OldWord: string[255];
     NewWord: string[255];
     NewIndex: Integer;
   end;
 
 type
-  TValidRecord = record
+  TCatalogArr = array of TCatalogRecord;
+
+type
+  TDictRecord = record
     WordIndex: Integer;
     WordValue: string[255];
   end;
 
 type
-  TValidArr = array of TValidRecord;
+  TDictArr = array of TDictRecord;
 
 type
   TReportSums = record

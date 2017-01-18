@@ -1,6 +1,6 @@
 object frmUI: TfrmUI
-  Left = 449
-  Top = 42
+  Left = 346
+  Top = 49
   Width = 800
   Height = 701
   Caption = 'ForestUtil'
@@ -69,16 +69,16 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 448
+          Top = 464
           Width = 147
-          Height = 49
+          Height = 38
           Action = actValidateTable
           Anchors = [akLeft, akRight, akBottom]
           TabOrder = 2
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 364
+          Top = 377
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -172,9 +172,9 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 508
+          Top = 512
           Width = 145
-          Height = 49
+          Height = 42
           Action = actCreateScript
           Anchors = [akLeft, akRight, akBottom]
           TabOrder = 5
@@ -184,19 +184,19 @@ object frmUI: TfrmUI
           Left = 8
           Top = 96
           Width = 145
-          Height = 161
-          Anchors = [akLeft, akTop, akRight]
+          Height = 193
+          Anchors = [akLeft, akTop, akRight, akBottom]
           Caption = #1042#1082#1083#1102#1095#1072#1090#1100' '#1074' '#1083#1086#1075':'
           ParentShowHint = False
           ShowHint = True
           TabOrder = 6
           DesignSize = (
             145
-            161)
+            193)
           object chbMathErrors: TCheckBox
-            Left = 16
+            Left = 8
             Top = 16
-            Width = 121
+            Width = 129
             Height = 17
             Hint = #1052#1072#1090#1077#1084#1072#1090#1080#1095#1077#1089#1082#1080#1077' '#1086#1096#1080#1073#1082#1080
             Anchors = [akLeft, akTop, akRight]
@@ -214,9 +214,9 @@ object frmUI: TfrmUI
           end
           object chbDuplicates: TCheckBox
             Tag = 1
-            Left = 16
-            Top = 40
-            Width = 121
+            Left = 8
+            Top = 36
+            Width = 129
             Height = 17
             Hint = #1044#1091#1073#1083#1080#1082#1072#1090#1099' '#1089#1090#1088#1086#1082
             Anchors = [akLeft, akTop, akRight]
@@ -226,9 +226,9 @@ object frmUI: TfrmUI
           end
           object chbRelationErrors: TCheckBox
             Tag = 2
-            Left = 16
-            Top = 64
-            Width = 121
+            Left = 8
+            Top = 56
+            Width = 129
             Height = 17
             Hint = #1054#1096#1080#1073#1082#1080' '#1086#1090#1085#1086#1096#1077#1085#1080#1081' '#1084#1077#1078#1076#1091' '#1082#1086#1083#1086#1085#1082#1072#1084#1080
             Anchors = [akLeft, akTop, akRight]
@@ -238,9 +238,9 @@ object frmUI: TfrmUI
           end
           object chbDictReplaces: TCheckBox
             Tag = 3
-            Left = 16
-            Top = 88
-            Width = 121
+            Left = 8
+            Top = 76
+            Width = 129
             Height = 17
             Hint = #1047#1072#1084#1077#1085#1099' '#1080#1079' '#1089#1083#1086#1074#1072#1088#1077#1081
             Anchors = [akLeft, akTop, akRight]
@@ -250,9 +250,9 @@ object frmUI: TfrmUI
           end
           object chbEmptyRecords: TCheckBox
             Tag = 4
-            Left = 16
-            Top = 112
-            Width = 121
+            Left = 8
+            Top = 96
+            Width = 129
             Height = 17
             Hint = #1055#1091#1089#1090#1099#1077' '#1089#1090#1088#1086#1082#1080
             Anchors = [akLeft, akTop, akRight]
@@ -262,9 +262,9 @@ object frmUI: TfrmUI
           end
           object chbPrevReportSum: TCheckBox
             Tag = 5
-            Left = 16
-            Top = 136
-            Width = 121
+            Left = 8
+            Top = 116
+            Width = 129
             Height = 17
             Hint = #1053#1077#1089#1086#1074#1087#1072#1076#1077#1085#1080#1077' '#1089' '#1087#1088#1077#1076#1099#1076#1091#1097#1080#1084' '#1086#1090#1095#1077#1090#1086#1084
             Anchors = [akLeft, akTop, akRight]
@@ -275,10 +275,10 @@ object frmUI: TfrmUI
         end
         object gbxSkippedRecs: TGroupBox
           Left = 8
-          Top = 264
+          Top = 296
           Width = 145
           Height = 81
-          Anchors = [akLeft, akTop, akRight]
+          Anchors = [akLeft, akRight, akBottom]
           Caption = #1055#1088#1086#1087#1091#1097#1077#1085#1085#1099#1077' '#1089#1090#1088#1086#1082#1080':'
           Color = clBtnFace
           Font.Charset = DEFAULT_CHARSET
@@ -481,7 +481,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 498
+          Top = 495
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -555,7 +555,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 442
+          Top = 439
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]
@@ -688,6 +688,9 @@ object frmUI: TfrmUI
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080
       object mnuDictionaryEdit: TMenuItem
         Action = actDictSettings
+      end
+      object mnuCatalogEdit: TMenuItem
+        Action = actCatalogSettings
       end
       object mnuParams: TMenuItem
         Action = actSettings
@@ -1455,6 +1458,11 @@ object frmUI: TfrmUI
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1072' '#1089#1083#1086#1074#1072#1088#1077#1081
       ImageIndex = 12
       OnExecute = actDictSettingsExecute
+    end
+    object actCatalogSettings: TAction
+      Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080' '#1089#1087#1088#1072#1074#1086#1095#1085#1080#1082#1086#1074' '#1072#1074#1090#1086#1079#1072#1084#1077#1085#1099
+      ImageIndex = 12
+      OnExecute = actCatalogSettingsExecute
     end
     object actSaveQueryResult: TAction
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1074#1099#1073#1086#1088#1082#1091' '#1074' '#1092#1072#1081#1083

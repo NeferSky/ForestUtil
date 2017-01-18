@@ -3,7 +3,7 @@ unit Edit;
 interface
 
 uses
-  Windows, Controls, Forms, StdCtrls, Classes, ForestTypes;
+  Windows, Controls, Forms, StdCtrls, Classes, Dictionary, ForestTypes, Dialogs;
 
 type
   TfrmEdit = class(TForm)
@@ -23,24 +23,31 @@ type
     procedure btnSkipAllClick(Sender: TObject);
     procedure btnStopClick(Sender: TObject);
     procedure cmbSynonimChange(Sender: TObject);
+    procedure cmbSynonimDropDown(Sender: TObject);
+    procedure cmbSynonimKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     FWaiting: Boolean;
-    FDictArray: TValidArr;
+    FDictionary: TDictionary;
     FCurrentIndex: Integer;
+    FCurrentText: AnsiString;
+    FInputText: AnsiString;
     procedure ReadSettings;
     procedure WriteSettings;
-    function GetDictArray: TValidArr;
-    procedure SetDictArray(const Value: TValidArr);
+    function GetDictionary: TDictionary;
+    procedure SetDictionary(Value: TDictionary);
   public
     { Public declarations }
     ShowResult: TShowResult;
-    property DictArray: TValidArr read GetDictArray write SetDictArray;
+    property Dictionary: TDictionary read GetDictionary write SetDictionary;
     property CurrentIndex: Integer read FCurrentIndex;
+    property CurrentText: AnsiString read FCurrentText;
   end;
 
-function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TValidArr):
+function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TDictionary):
   TShowResult;
+function ShowEditEx(const OldWord, Prompt: AnsiString; const Dict: TDictionary;
+  Modal: Boolean = False): TShowResult;
 
 var
   frmEdit: TfrmEdit;
@@ -48,19 +55,51 @@ var
 implementation
 
 uses
-  Registry, ForestConsts;
+  Registry, ForestConsts, StrUtils, SysUtils;
 
 {$R *.dfm}
 
-function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TValidArr):
+function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TDictionary):
   TShowResult;
 begin
   frmEdit.FWaiting := True;
   frmEdit.edtWord.Text := OldWord;
+  frmEdit.edtWord.ReadOnly := True;
+  frmEdit.edtWord.TabStop := False;
+  frmEdit.btnSkip.Enabled := True;
+  frmEdit.btnSkipAll.Enabled := True;
   frmEdit.lblPrompt.Caption := Prompt;
-  frmEdit.cmbSynonim.Clear();
-  frmEdit.DictArray := Dict;
+  frmEdit.Dictionary := Dict;
+  frmEdit.cmbSynonim.Text := '';
+  frmEdit.FInputText := '';
   frmEdit.Show();
+
+  while frmEdit.FWaiting do
+    Application.ProcessMessages();
+
+  Result := frmEdit.ShowResult;
+end;
+
+//---------------------------------------------------------------------------
+
+function ShowEditEx(const OldWord, Prompt: AnsiString; const Dict: TDictionary;
+  Modal: Boolean = False): TShowResult;
+begin
+  frmEdit.FWaiting := True;
+  frmEdit.edtWord.Text := OldWord;
+  frmEdit.edtWord.ReadOnly := False;
+  frmEdit.edtWord.TabStop := True;
+  frmEdit.btnSkip.Enabled := False;
+  frmEdit.btnSkipAll.Enabled := False;
+  frmEdit.lblPrompt.Caption := Prompt;
+  frmEdit.Dictionary := Dict;
+  frmEdit.cmbSynonim.Text := '';
+  frmEdit.FInputText := '';
+
+  if Modal then
+    frmEdit.ShowModal()
+  else
+    frmEdit.Show();
 
   while frmEdit.FWaiting do
     Application.ProcessMessages();
@@ -107,6 +146,50 @@ end;
 
 //---------------------------------------------------------------------------
 
+procedure TfrmEdit.cmbSynonimChange(Sender: TObject);
+var
+  I, Place: Integer;
+
+begin
+  for I := 0 to cmbSynonim.Items.Count - 1 do
+  begin
+    Place := AnsiPos(FInputText, cmbSynonim.Items[I]);
+
+    if Place > 0 then
+    begin
+      cmbSynonim.Text := cmbSynonim.Items[I];
+      cmbSynonim.SelStart := Place - 1;
+      cmbSynonim.SelLength := Length(FInputText);
+      Break;
+    end;
+  end;
+
+  FCurrentIndex := FDictionary.GetRecordByListItem(cmbSynonim.Text).WordIndex;
+  FCurrentText := FDictionary.GetRecordByListItem(cmbSynonim.Text).WordValue;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmEdit.cmbSynonimDropDown(Sender: TObject);
+begin
+  if cmbSynonim.Items.Count < 10 then cmbSynonim.DropDownCount := cmbSynonim.Items.Count;
+  if cmbSynonim.Items.Count >= 10 then cmbSynonim.DropDownCount := 10;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmEdit.cmbSynonimKeyPress(Sender: TObject; var Key: Char);
+begin
+  if ((Ord(Key)) = 8) and (Length(FInputText) > 0) then
+    Delete(FInputText, Length(FInputText), 1)
+  else
+    FInputText := FInputText + Key;
+
+  FInputText := AnsiUpperCase(FInputText);
+end;
+
+//---------------------------------------------------------------------------
+
 procedure TfrmEdit.FormCreate(Sender: TObject);
 begin
   ReadSettings();
@@ -117,6 +200,13 @@ end;
 procedure TfrmEdit.FormDestroy(Sender: TObject);
 begin
   WriteSettings();
+end;
+    
+//---------------------------------------------------------------------------
+
+function TfrmEdit.GetDictionary: TDictionary;
+begin
+  Result := FDictionary;
 end;
 
 //---------------------------------------------------------------------------
@@ -142,6 +232,19 @@ begin
       Free();
     end;
 end;
+  
+//---------------------------------------------------------------------------
+
+procedure TfrmEdit.SetDictionary(Value: TDictionary);
+begin
+  if FDictionary <> Value then
+  begin
+    FDictionary := Value;
+    cmbSynonim.Clear();
+    cmbSynonim.Items.Assign(Value.DictionaryList);
+    cmbSynonim.Sorted := True;
+  end;
+end;
 
 //---------------------------------------------------------------------------
 
@@ -161,33 +264,6 @@ begin
       CloseKey();
       Free();
     end;
-end;
-
-//---------------------------------------------------------------------------
-
-procedure TfrmEdit.cmbSynonimChange(Sender: TObject);
-begin
-  FCurrentIndex := FDictArray[cmbSynonim.ItemIndex].WordIndex;
-end;
-
-//---------------------------------------------------------------------------
-
-function TfrmEdit.GetDictArray: TValidArr;
-begin
-  Result := FDictArray;
-end;
-
-//---------------------------------------------------------------------------
-
-procedure TfrmEdit.SetDictArray(const Value: TValidArr);
-var
-  I: Integer;
-
-begin
-  FDictArray := Value;
-
-  for I := 0 to Length(Value) - 1 do
-    cmbSynonim.Items.Add(Value[I].WordValue);
 end;
 
 end.

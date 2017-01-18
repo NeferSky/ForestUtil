@@ -20,7 +20,8 @@ uses
   DBScript in 'DBScript.pas',
   ForestTypes in 'ForestTypes.pas',
   About in 'About.pas' {AboutBox},
-  AskForestry in 'AskForestry.pas' {frmAskForestry};
+  AskForestry in 'AskForestry.pas' {frmAskForestry},
+  Catalogs in 'Catalogs.pas' {frmCatalogs};
 
 procedure SwitchToThisWindow(h1: hWnd; x: bool); stdcall;
   external user32 Name 'SwitchToThisWindow';
@@ -58,14 +59,14 @@ begin
     Application.Title := 'ForestUtil';
     Application.HelpFile := 'ForestUtil.hlp';
     Application.CreateForm(TdmData, dmData);
-    Application.CreateForm(TfrmUI, frmUI);
-    Application.CreateForm(TfrmEdit, frmEdit);
-    Application.CreateForm(TfrmSettings, frmSettings);
-    Application.CreateForm(TfrmDicts, frmDicts);
-    Application.CreateForm(TAboutBox, AboutBox);
-    Application.CreateForm(TfrmAskForestry, frmAskForestry);
-
-    if HasCmdParam('-help') then
+  Application.CreateForm(TfrmUI, frmUI);
+  Application.CreateForm(TfrmEdit, frmEdit);
+  Application.CreateForm(TfrmSettings, frmSettings);
+  Application.CreateForm(TfrmDicts, frmDicts);
+  Application.CreateForm(TAboutBox, AboutBox);
+  Application.CreateForm(TfrmAskForestry, frmAskForestry);
+  Application.CreateForm(TfrmCatalogs, frmCatalogs);
+  if HasCmdParam('-help') then
       MessageBox(0, PChar(S_USAGE), 'Help', MB_OK or MB_ICONSTOP);
 
     if HasCmdParam('-file') then

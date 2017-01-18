@@ -8,35 +8,64 @@ uses
 type
   TDictionary = class(TObject)
   private
-    FDictionaryName: AnsiString;
-    FDictArray: array of TDictRecord;
-    FValidArray: TValidArr;
+    FDictionaryFile: AnsiString;
+    FCaption: AnsiString;
+    FCatalogArray: TCatalogArr;
+    FDictArray: TDictArr;
     FForceSkip: Boolean;
-    function Equal(const A: TDictRecord; const B: TDictRecord): Boolean;
-    function GetValidArray: TValidArr;
-    procedure SetValidArray(Value: TValidArr);
+    FDictionaryFormatString: AnsiString;
+    FSQLScript: AnsiString;
+    FDictionaryList: TStringList;
+    procedure ReadSettings;
+    procedure WriteSettings;
+    function Equal(const A: TCatalogRecord; const B: TCatalogRecord): Boolean;
+    procedure PrepareValuesList;
+    //
+    function GetCaption: AnsiString;
+    procedure SetCaption(Value: AnsiString);
+    function GetDictionaryArray: TDictArr;
+    procedure SetDictionaryArray(Value: TDictArr);
     function GetForceSkip: Boolean;
     procedure SetForceSkip(Value: Boolean);
+    function GetDictionaryFormatString: AnsiString;
+    procedure SetDictionaryFormatString(Value: AnsiString);
+    function GetSQLScript: AnsiString;
+    procedure SetSQLScript(Value: AnsiString);
+    function GetCatalogFile: AnsiString;
+    function GetCatalogArray: TCatalogArr;
+    procedure SetCatalogArray(Value: TCatalogArr);
   public
     function Validate(const AWord: AnsiString): Integer;
-    function FindRecord(const AWord: AnsiString; var WordRecord: TDictRecord):
+    function FindRecord(const AWord: AnsiString; var WordRecord: TCatalogRecord):
       Boolean;
-    procedure WriteRecord(const WordRecord: TDictRecord);
+    function GetRecordByListItem(const S: AnsiString): TDictRecord;
+    procedure WriteRecord(const WordRecord: TCatalogRecord);
     procedure Clear;
-    constructor Create(AFile: AnsiString);
+    //
+    constructor Create(AFile: AnsiString; DictCaption: AnsiString);
     destructor Destroy; override;
-    property ValidList: TValidArr read GetValidArray write SetValidArray;
+    //--
+    property Caption: AnsiString read GetCaption write SetCaption;
+    property DictionaryArr: TDictArr read GetDictionaryArray
+      write SetDictionaryArray;
+    property CatalogArr: TCatalogArr read GetCatalogArray write SetCatalogArray;
+    property DictionaryList: TStringList read FDictionaryList;
     property ForceSkip: Boolean read GetForceSkip write SetForceSkip;
+    property DictionaryFormatString: AnsiString read GetDictionaryFormatString
+      write SetDictionaryFormatString;
+    property DictionaryFile: AnsiString read FDictionaryFile;
+    property CatalogFile: AnsiString read GetCatalogFile;
+    property SQLScript: AnsiString read GetSQLScript write SetSQLScript;
   end;
 
 var
   DictionaryFile: file of TDictRecord;
-  ValidFile: file of TValidRecord;
+  CatalogFile: file of TCatalogRecord;
 
 implementation
 
 uses
-  NsUtils;
+  IniFiles, NsUtils;
 
 //---------------------------------------------------------------------------
 { TDictionary }
@@ -48,77 +77,90 @@ end;
 
 //---------------------------------------------------------------------------
 
-constructor TDictionary.Create(AFile: AnsiString);
+constructor TDictionary.Create(AFile: AnsiString; DictCaption: AnsiString);
 var
-  DictFile, ValidDictFile: AnsiString;
+  DictFilePath, CatalogFilePath: AnsiString;
+  DictFile: File of TDictRecord;
+  CatalogFile: File of TCatalogRecord;
   I: Integer;
 
 begin
-  FDictionaryName := AFile;
+  FDictionaryFile := AFile;
+  FCaption := DictCaption;
+  FDictionaryList := TStringList.Create();
 
+  ReadSettings();
   Clear();
 
-  DictFile := Format('%s%s', [GetAppPath, FDictionaryName]);
-  if FileExists(DictFile) then
+  CatalogFilePath := Format('%s%s', [GetAppPath, FDictionaryFile]);
+  if FileExists(CatalogFilePath) then
   begin
-    Assign(DictionaryFile, DictFile);
-    Reset(DictionaryFile);
-    while not Eof(DictionaryFile) do
+    Assign(CatalogFile, CatalogFilePath);
+    Reset(CatalogFile);
+    while not Eof(CatalogFile) do
+    begin
+      I := Length(FCatalogArray);
+      SetLength(FCatalogArray, I + 1);
+      Read(CatalogFile, FCatalogArray[I]);
+    end;
+    CloseFile(CatalogFile);
+  end;
+
+  DictFilePath := Format('%s%s%s', [GetAppPath, S_DICT_VALID_PREFIX,
+    FDictionaryFile]);
+  if FileExists(DictFilePath) then
+  begin
+    Assign(DictFile, DictFilePath);
+    Reset(DictFile);
+    while not Eof(DictFile) do
     begin
       I := Length(FDictArray);
       SetLength(FDictArray, I + 1);
-      Read(DictionaryFile, FDictArray[I]);
+      Read(DictFile, FDictArray[I]);
     end;
-    CloseFile(DictionaryFile);
+    CloseFile(DictFile);
   end;
 
-  ValidDictFile := Format('%s%s%s', [GetAppPath, S_DICTIONARY_VALID_PREFIX,
-    FDictionaryName]);
-  if FileExists(ValidDictFile) then
-  begin
-    Assign(ValidFile, ValidDictFile);
-    Reset(ValidFile);
-    while not Eof(ValidFile) do
-    begin
-      I := Length(FValidArray);
-      SetLength(FValidArray, I + 1);
-      Read(ValidFile, FValidArray[I]);
-    end;
-    CloseFile(ValidFile);
-  end;
+  PrepareValuesList();
 end;
 
 //---------------------------------------------------------------------------
 
 destructor TDictionary.Destroy;
 var
-  DictFile, ValidDictFile: AnsiString;
+  CatalogFilePath, DictFilePath: AnsiString;
+  CatalogFile: File of TCatalogRecord;
+  DictFile: File of TDictRecord;
   I: Integer;
 
 begin
-  DictFile := Format('%s%s', [GetAppPath, FDictionaryName]);
-  Assign(DictionaryFile, DictFile);
-  Rewrite(DictionaryFile);
+  CatalogFilePath := Format('%s%s', [GetAppPath, FDictionaryFile]);
+  Assign(CatalogFile, CatalogFilePath);
+  Rewrite(CatalogFile);
+  for I := 0 to (Length(FCatalogArray) - 1) do
+    Write(CatalogFile, FCatalogArray[I]);
+  CloseFile(CatalogFile);
+
+  DictFilePath := Format('%s%s%s', [GetAppPath, S_DICT_VALID_PREFIX,
+    FDictionaryFile]);
+  Assign(DictFile, DictFilePath);
+  Rewrite(DictFile);
   for I := 0 to (Length(FDictArray) - 1) do
-    Write(DictionaryFile, FDictArray[I]);
-  CloseFile(DictionaryFile);
+    Write(DictFile, FDictArray[I]);
+  CloseFile(DictFile);
 
   Clear();
+  FDictionaryList.Clear();
+  FDictionaryList.Destroy;
 
-  ValidDictFile := Format('%s%s%s', [GetAppPath, S_DICTIONARY_VALID_PREFIX,
-    FDictionaryName]);
-  Assign(ValidFile, ValidDictFile);
-  Rewrite(ValidFile);
-  for I := 0 to (Length(FValidArray) - 1) do
-    Write(ValidFile, FValidArray[I]);
-  CloseFile(ValidFile);
+  WriteSettings();
 
   inherited;
 end;
 
 //---------------------------------------------------------------------------
 
-function TDictionary.Equal(const A: TDictRecord; const B: TDictRecord): Boolean;
+function TDictionary.Equal(const A: TCatalogRecord; const B: TCatalogRecord): Boolean;
 begin
   Result := (A.OldWord = B.OldWord);
 end;
@@ -126,22 +168,57 @@ end;
 //---------------------------------------------------------------------------
 
 function TDictionary.FindRecord(const AWord: AnsiString; var WordRecord:
-  TDictRecord): Boolean;
+  TCatalogRecord): Boolean;
 var
   I: Integer;
 
 begin
   Result := False;
 
-  for I := 0 to (Length(FDictArray) - 1) do
-    if FDictArray[I].OldWord = AWord then
+  for I := 0 to (Length(FCatalogArray) - 1) do
+    if FCatalogArray[I].OldWord = AWord then
     begin
-      WordRecord := FDictArray[I];
+      WordRecord := FCatalogArray[I];
       Result := True;
       Break;
     end;
 end;
 
+//---------------------------------------------------------------------------
+
+function TDictionary.GetCaption: AnsiString;
+begin
+  Result := FCaption;
+end;
+
+//---------------------------------------------------------------------------
+  
+function TDictionary.GetCatalogArray: TCatalogArr;
+begin
+  Result := FCatalogArray;
+end;
+
+//---------------------------------------------------------------------------
+
+function TDictionary.GetCatalogFile: AnsiString;
+begin
+  Result := S_DICT_VALID_PREFIX + FDictionaryFile;
+end;
+
+//---------------------------------------------------------------------------
+
+function TDictionary.GetDictionaryArray: TDictArr;
+begin
+  Result := FDictArray;
+end;
+
+//---------------------------------------------------------------------------
+
+function TDictionary.GetDictionaryFormatString: AnsiString;
+begin
+  Result := FDictionaryFormatString;
+end;
+   
 //---------------------------------------------------------------------------
 
 function TDictionary.GetForceSkip: Boolean;
@@ -151,9 +228,70 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TDictionary.GetValidArray: TValidArr;
+function TDictionary.GetRecordByListItem(const S: AnsiString): TDictRecord;
 begin
-  Result := FValidArray;
+  Result := FDictArray[FDictionaryList.IndexOf(S)];
+end;
+
+//---------------------------------------------------------------------------
+
+function TDictionary.GetSQLScript: AnsiString;
+begin
+  Result := FSQLScript;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TDictionary.PrepareValuesList;
+var
+  I: Integer;
+  TmpStr: AnsiString;
+
+begin
+  FDictionaryList.Clear();
+
+  for I := 0 to Length(FDictArray) - 1 do
+  begin
+    TmpStr := FDictionaryFormatString;
+    TmpStr := StringReplace(TmpStr, S_DICT_NAME_FORMAT,
+      FDictArray[I].WordValue, [rfReplaceAll, rfIgnoreCase]);
+    TmpStr := StringReplace(TmpStr, S_DICT_ID_FORMAT,
+      IntToStr(FDictArray[I].WordIndex), [rfReplaceAll, rfIgnoreCase]);
+    FDictionaryList.Add(TmpStr);
+  end;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TDictionary.ReadSettings;
+begin
+  if not FileExists(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) then
+    Exit;
+
+  with TIniFile.Create(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) do
+    try
+      FDictionaryFormatString := ReadString(S_INI_DICT_FORMATS, FDictionaryFile,
+        S_DICT_NAME_FORMAT);
+
+    finally
+      Free();
+    end;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TDictionary.SetCaption(Value: AnsiString);
+begin
+  if FCaption <> Value then
+    FCaption := Value;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TDictionary.SetCatalogArray(Value: TCatalogArr);
+begin
+  if Value <> FCatalogArray then
+    FCatalogArray := Value;
 end;
 
 //---------------------------------------------------------------------------
@@ -166,9 +304,32 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TDictionary.SetValidArray(Value: TValidArr);
+procedure TDictionary.SetSQLScript(Value: AnsiString);
 begin
-  FValidArray := Value;
+  if FSQLScript <> Value then
+    FSQLScript := Value;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TDictionary.SetDictionaryArray(Value: TDictArr);
+begin
+  if Value <> FDictArray then
+  begin
+    FDictArray := Value;
+    PrepareValuesList();
+  end;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TDictionary.SetDictionaryFormatString(Value: AnsiString);
+begin
+  if Value <> FDictionaryFormatString then
+  begin
+    FDictionaryFormatString := Value;
+    PrepareValuesList();
+  end;
 end;
 
 //---------------------------------------------------------------------------
@@ -180,33 +341,45 @@ var
 begin
   Result := -1;
 
-  for I := 0 to Length(FValidArray) - 1 do
-  begin
-    if FValidArray[I].WordValue = AnsiUpperCase(AWord) then
+  for I := 0 to Length(FDictArray) - 1 do
+    if FDictArray[I].WordValue = AnsiUpperCase(AWord) then
     begin
-      Result := FValidArray[I].WordIndex;
+      Result := FDictArray[I].WordIndex;
       Break;
     end;
-  end;
 end;
 
 //---------------------------------------------------------------------------
 
-procedure TDictionary.WriteRecord(const WordRecord: TDictRecord);
+procedure TDictionary.WriteRecord(const WordRecord: TCatalogRecord);
 var
   I: Integer;
 
 begin
-  for I := 0 to (Length(FDictArray) - 1) do
-    if Equal(FDictArray[I], WordRecord) then
+  for I := 0 to (Length(FCatalogArray) - 1) do
+    if Equal(FCatalogArray[I], WordRecord) then
     begin
-      FDictArray[I].NewWord := AnsiUpperCase(WordRecord.NewWord);
+      FCatalogArray[I].NewWord := AnsiUpperCase(WordRecord.NewWord);
       Exit;
     end;
 
-  I := Length(FDictArray);
-  SetLength(FDictArray, I + 1);
-  FDictArray[I] := WordRecord;
+  I := Length(FCatalogArray);
+  SetLength(FCatalogArray, I + 1);
+  FCatalogArray[I] := WordRecord;
+end;
+    
+//---------------------------------------------------------------------------
+
+procedure TDictionary.WriteSettings;
+begin
+  with TIniFile.Create(ExtractFilePath(Application.ExeName) +
+    S_SETTINGS_FILE_NAME) do
+    try
+      WriteString(S_INI_DICT_FORMATS, FDictionaryFile, FDictionaryFormatString);
+
+    finally
+      Free();
+    end;
 end;
 
 end.

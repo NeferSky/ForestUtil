@@ -35,45 +35,48 @@ type
     FLogDetails: TLogDetails;
     FSkippedRecs: TSkippedRecs;
     FInvalidRecs: TSkippedRecs;
+    //--
     procedure ReadSettings;
     procedure WriteSettings;
-    function SearchForDuplicates: TValidationRes;
+    //
     procedure Connect;
     procedure Disconnect;
     procedure Commit;
     procedure Rollback;
+    //
+    function SearchForDuplicates: TValidationRes;
     procedure ReadDBString(const RegionID, ForestryID, ReportQuarter,
       ReportYear: Integer);
+    //
     procedure ValidationLog(Str: AnsiString);
     procedure Progress(CurrentIteration: Integer);
-
-    function GetDBConnectionString: AnsiString;
-    function GetFileConnectionString(const FileName: AnsiString): AnsiString;
-    function GetSQLByDictName(const DictName: AnsiString): AnsiString;
     function FindFirstRow: Boolean;
     function FindLastRow: Boolean;
     function EmptyRec: Boolean;
-    function GetTableList: TStringList;
-    function GetInProgress: Boolean;
     function MoveTo(const DataSet: TDataSet; const Position: Integer): Boolean;
+    //
     function ExistsSameReport(const ForestryID, ReportQuarter, ReportYear:
       Integer): Boolean;
     function ExistsPrevReport(const ForestryID: Integer; ReportQuarter,
       ReportYear: Integer): Boolean;
     function GetPrevReportSums(const ForestryID, ReportYear, ReportQuarter:
       Integer; const PrevYear: Boolean): TReportSums;
-    function GetLogDetails: TLogDetails;
-    procedure SetLogDetails(const Value: TLogDetails);
+    //
     procedure AddSkippedRec(RecNo: Integer);
     procedure AddInvalidRec(RecNo: Integer);
     procedure RemoveSkippedRec(RecNo: Integer);
+    //
+    function GetDBConnectionString: AnsiString;
+    function GetFileConnectionString(const FileName: AnsiString): AnsiString;
+    function GetTableList: TStringList;
+    function GetInProgress: Boolean;
+    function GetLogDetails: TLogDetails;
+    procedure SetLogDetails(const Value: TLogDetails);
     function GetScript: AnsiString;
   public
     procedure Log(S: string);
     { Public declarations }
-    function GetValidList(Dictionary: AnsiString): TValidArr;
-    procedure SetValidList(Dictionary: AnsiString; Value: TValidArr);
-    function GetValuesFromTable(const DictName: AnsiString): TValidArr;
+    function GetValuesFromTable(const DictCaption: AnsiString): TDictArr;
     function GetForestryByRegion(const RegionID: Integer): TStringList;
     function GetIntField(SQLText: AnsiString): Integer;
     procedure MoveNextSkipped;
@@ -88,7 +91,7 @@ type
     function OpenFile(const FileName: AnsiString): Boolean;
     function OpenTable(const TableName: AnsiString): Boolean;
     function GetFileRecordsCount: Integer;
-
+    //
     procedure ValidateTable(const RegionID, ForestryID, ReportYear,
       ReportQuarter: Integer);
     procedure ValidateRecord(const RegionID, ForestryID, ReportYear,
@@ -106,6 +109,7 @@ type
     property FirstRecNo: Integer read FFIrstRow;
     property LastRecNo: Integer read FLastRow;
     property Script: AnsiString read GetScript;
+    property Validator: TValidator read FValidator;
   end;
 
 var
@@ -519,34 +523,6 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TdmData.GetSQLByDictName(const DictName: AnsiString): AnsiString;
-begin
-  if DictName = S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_FORESTRIES_FILE then
-    Result := S_SQL_GET_FORESTRIES_DICT
-
-  else if DictName = S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_LOCAL_FORESTRIES_FILE then
-    Result := S_SQL_GET_LOCAL_FORESTRIES_DICT
-
-  else if DictName = S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_LANDUSE_FILE then
-    Result := S_SQL_GET_LANDUSE_DICT
-
-  else if DictName = S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_PROTECT_CATEGORY_FILE then
-    Result := S_SQL_GET_PROTECT_CATEGORY_DICT
-
-  else if DictName = S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_SPECIES_FILE then
-    Result := S_SQL_GET_SPECIES_DICT
-
-  else if DictName = S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_DAMAGE_FILE then
-    Result := S_SQL_GET_DAMAGE_DICT
-
-  else if DictName = S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_PEST_FILE then
-    Result := S_SQL_GET_PEST_DICT;
-end;
-
-//---------------------------------------------------------------------------
-
 function TdmData.GetTableList: TStringList;
 begin
   Result := FTableList;
@@ -554,14 +530,7 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TdmData.GetValidList(Dictionary: AnsiString): TValidArr;
-begin
-  Result := FValidator.GetValidList(Dictionary);
-end;
-
-//---------------------------------------------------------------------------
-
-function TdmData.GetValuesFromTable(const DictName: AnsiString): TValidArr;
+function TdmData.GetValuesFromTable(const DictCaption: AnsiString): TDictArr;
 var
   I: Integer;
 
@@ -570,7 +539,7 @@ begin
 
   try
     Connect();
-    qryGetTableValues.SQL.Text := GetSQLByDictName(DictName);
+    qryGetTableValues.SQL.Text := FValidator.GetDictionary(DictCaption).SQLScript;
     qryGetTableValues.Open();
 
     qryGetTableValues.First();
@@ -963,6 +932,7 @@ begin
   qryFileSelect.DisableControls();
   CurRecNo := FFirstRow;
   MoveTo(qryFileSelect, CurRecNo);
+  Result := vrOk;
 
   while CurRecNo < FLastRow do
   begin
@@ -1016,13 +986,6 @@ procedure TdmData.SetLogDetails(const Value: TLogDetails);
 begin
   if FLogDetails <> Value then
     FLogDetails := Value;
-end;
-
-//---------------------------------------------------------------------------
-
-procedure TdmData.SetValidList(Dictionary: AnsiString; Value: TValidArr);
-begin
-  FValidator.SetValidList(Dictionary, Value);
 end;
 
 //---------------------------------------------------------------------------
@@ -1085,7 +1048,6 @@ procedure TdmData.ValidateTable(const RegionID, ForestryID, ReportYear,
 var
   CurRecNo: Integer;
   CurReportSums, PrevReportSums: TReportSums;
-  SkippedRecsCount: Integer;
 
 begin
   FInProgress := True;
@@ -1212,8 +1174,6 @@ begin
       Free();
     end;
 end;
-
-//---------------------------------------------------------------------------
 
 end.
 

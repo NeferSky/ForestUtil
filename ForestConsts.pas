@@ -6,6 +6,17 @@ uses
   Classes;
 
 const
+  CRLF: AnsiString = #13#10;
+     
+  // Numbers
+  I_FILE_INDEX = $FFFFFFFF;
+  I_DEFAULT_COL_WIDTH = 64;
+  I_COL_COUNT = 68;
+  I_MIN_HEIGHT = 50;
+  I_NORMAL_HEIGHT = 300;
+  I_COLS_TO_FIND_LAST_ROW = 11;
+  I_WEIGHT_TO_FIND_LAST_ROW = 6;
+
   // Settings and params
   S_REG_KEY: AnsiString = 'Software\NeferSky\ForestUtil';
   S_FORM_LEFT: AnsiString = 'FormLeft';
@@ -38,6 +49,8 @@ const
   S_INSERT_TEMPLATE: AnsiString = 'InsertTemplate';
   S_UPDATE_TEMPLATE: AnsiString = 'UpdateTemplate';
   S_DELETE_TEMPLATE: AnsiString = 'DeleteTemplate';
+
+  S_INI_DICT_FORMATS: AnsiString = 'DictionaryFormats';
 
   S_INI_DATA: AnsiString = 'Data';
   S_DB_DATABASE: AnsiString = 'DatabaseName';
@@ -182,42 +195,44 @@ const
   E_FIND_FIRST_CELL: AnsiString = 'Не удалось распознать первую строку таблицы';
   E_FIND_LAST_CELL: AnsiString =
     'Не удалось распознать последнюю строку таблицы';
-  E_WRITE_QUERY: AnsiString = 'Ошибка при попытке запомнить SQL-запрос' + #13#10
-    +
+  E_WRITE_QUERY: AnsiString = 'Ошибка при попытке запомнить SQL-запрос' + #13#10 +
     'Значения счетчиков:' + #13#10 +
     'MaxQueriesCount: %d, FActualCount: %d, FWritingIndex: %d, FReadingIndex: %d';
-  E_READ_QUERY: AnsiString = 'Ошибка при попытке прочитать SQL-запрос' + #13#10
-    +
+  E_READ_QUERY: AnsiString = 'Ошибка при попытке прочитать SQL-запрос' + #13#10 +
     'Значения счетчиков:' + #13#10 +
     'MaxQueriesCount: %d, FActualCount: %d, FWritingIndex: %d, FReadingIndex: %d';
   E_QUERY_EXEC_ERROR: AnsiString = '!!! Ошибка при выполнении запроса. !!!' +
-    #13#10 +
-    'Изменения отменены.';
+    #13#10 + 'Изменения отменены.';
 
   // File names
-  S_DICTIONARY_VALID_PREFIX: AnsiString = 'Valid';
+  S_DICT_VALID_PREFIX: AnsiString = 'Valid';
   S_QUERY_FILE_NAME: AnsiString = 'SQLQueries.lst';
   S_SETTINGS_FILE_NAME: AnsiString = 'Settings.ini';
   S_LOG_FILE_NAME: AnsiString = 'Validate.log';
-  S_DICTIONARY_FORESTRIES_FILE: AnsiString = 'DictionaryForestry.dic';
-  S_DICTIONARY_LOCAL_FORESTRIES_FILE: AnsiString =
-    'DictionaryLocalForestry.dic';
-  S_DICTIONARY_LANDUSE_FILE: AnsiString = 'DictionaryLanduse.dic';
-  S_DICTIONARY_PROTECT_CATEGORY_FILE: AnsiString =
-    'DictionaryProtectCategory.dic';
-  S_DICTIONARY_SPECIES_FILE: AnsiString = 'DictionarySpecies.dic';
-  S_DICTIONARY_DAMAGE_FILE: AnsiString = 'DictionaryDamage.dic';
-  S_DICTIONARY_PEST_FILE: AnsiString = 'DictionaryPest.dic';
 
-  // Dictionary names
-  S_DICTIONARY_FORESTRIES_NAME: AnsiString = 'Лесничество';
-  S_DICTIONARY_LOCAL_FORESTRIES_NAME: AnsiString = 'Участковое лесничество';
-  S_DICTIONARY_LANDUSE_NAME: AnsiString = 'Целевое назначение лесов';
-  S_DICTIONARY_PROTECT_CATEGORY_NAME: AnsiString = 'Категория защитных лесов';
-  S_DICTIONARY_SPECIES_NAME: AnsiString = 'Порода';
-  S_DICTIONARY_DAMAGE_NAME: AnsiString =
-    'Основная причина ослабления (усыхания)';
-  S_DICTIONARY_PEST_NAME: AnsiString = 'Вид вредного организма';
+  // Dict files
+  S_DICT_FORESTRIES_FILE: AnsiString = 'DictionaryForestry.dic';
+  S_DICT_LOCAL_FORESTRIES_FILE: AnsiString = 'DictionaryLocalForestry.dic';
+  S_DICT_LANDUSE_FILE: AnsiString = 'DictionaryLanduse.dic';
+  S_DICT_PROTECT_CATEGORY_FILE: AnsiString = 'DictionaryProtectCategory.dic';
+  S_DICT_SPECIES_FILE: AnsiString = 'DictionarySpecies.dic';
+  S_DICT_DAMAGE_FILE: AnsiString = 'DictionaryDamage.dic';
+  S_DICT_PEST_FILE: AnsiString = 'DictionaryPest.dic';
+
+  // Dictionary captions
+  S_DICT_FORESTRIES_NAME: AnsiString = 'Лесничество';
+  S_DICT_LOCAL_FORESTRIES_NAME: AnsiString = 'Участковое лесничество';
+  S_DICT_LANDUSE_NAME: AnsiString = 'Целевое назначение лесов';
+  S_DICT_PROTECT_CATEGORY_NAME: AnsiString = 'Категория защитных лесов';
+  S_DICT_SPECIES_NAME: AnsiString = 'Порода';
+  S_DICT_DAMAGE_NAME: AnsiString = 'Основная причина ослабления (усыхания)';
+  S_DICT_PEST_NAME: AnsiString = 'Вид вредного организма';
+
+  // Dictionary formats
+  S_DICT_ID_FORMAT: AnsiString = '$ID$';
+  S_DICT_NAME_FORMAT: AnsiString = '$NAME$';
+  S_FORMAT_HELP: AnsiString = 'Подстановка значений для форматирования:' +
+    #13#10 + '$NAME$ - текстовое название' + #13#10 + '$ID$ - идентификатор';
 
   // Settings names
   S_SETTINGS_TEMPLATE_SELECT: AnsiString = 'Шаблон SELECT';
@@ -234,15 +249,6 @@ const
   S_VERSION: AnsiString = 'Версия: %s';
   S_COPYRIGHT: AnsiString = 'Axl NeferSky (AxlNeferSky@gmail.com)';
   S_COMMENTS: AnsiString = 'Комментарии излишни';
-
-  // Numbers
-  I_FILE_INDEX = $FFFFFFFF;
-  I_DEFAULT_COL_WIDTH = 64;
-  I_COL_COUNT = 68;
-  I_MIN_HEIGHT = 50;
-  I_NORMAL_HEIGHT = 300;
-  I_COLS_TO_FIND_LAST_ROW = 11;
-  I_WEIGHT_TO_FIND_LAST_ROW = 6;
 
   // Script
   S_DB_TABLE_NAME: AnsiString = 'QuarterReports';
@@ -336,7 +342,7 @@ const
   S_SQL_GET_PEST_DICT: AnsiString =
     'select distinct pest_code, pest_rus from pest_dict order by pest_rus';
 
-  ARR_FIELD_NAMES: array[1..68] of AnsiString = (
+  ARR_FIELD_NAMES: array[1..I_COL_COUNT] of AnsiString = (
     'Лесничество',
     'Участковое лесничество',
     'Квартал',

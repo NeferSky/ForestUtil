@@ -34,8 +34,7 @@ type
     constructor Create(Owner: TObject);
     destructor Destroy; override;
     procedure InitCheck(LogDetails: TLogDetails);
-    function GetValidList(Dictionary: AnsiString): TValidArr;
-    procedure SetValidList(Dictionary: AnsiString; Value: TValidArr);
+    function GetDictionary(DictCaption: AnsiString): TDictionary;
 
     procedure Validate(const RecNo: Integer; var CurrentRecord: TValuesRec);
 
@@ -84,13 +83,26 @@ end;
 
 constructor TValidator.Create(Owner: TObject);
 begin
-  DictForestries := TDictionary.Create(S_DICTIONARY_FORESTRIES_FILE);
-  DictLocalForestries := TDictionary.Create(S_DICTIONARY_LOCAL_FORESTRIES_FILE);
-  DictLanduse := TDictionary.Create(S_DICTIONARY_LANDUSE_FILE);
-  DictProtectCategory := TDictionary.Create(S_DICTIONARY_PROTECT_CATEGORY_FILE);
-  DictSpecies := TDictionary.Create(S_DICTIONARY_SPECIES_FILE);
-  DictDamage := TDictionary.Create(S_DICTIONARY_DAMAGE_FILE);
-  DictPest := TDictionary.Create(S_DICTIONARY_PEST_FILE);
+  DictForestries := TDictionary.Create(S_DICT_FORESTRIES_FILE, S_DICT_FORESTRIES_NAME);
+  DictForestries.SQLScript := S_SQL_GET_FORESTRIES_DICT;
+
+  DictLocalForestries := TDictionary.Create(S_DICT_LOCAL_FORESTRIES_FILE, S_DICT_LOCAL_FORESTRIES_NAME);
+  DictLocalForestries.SQLScript := S_SQL_GET_LOCAL_FORESTRIES_DICT;
+
+  DictLanduse := TDictionary.Create(S_DICT_LANDUSE_FILE, S_DICT_LANDUSE_NAME);
+  DictLanduse.SQLScript := S_SQL_GET_LANDUSE_DICT;
+
+  DictProtectCategory := TDictionary.Create(S_DICT_PROTECT_CATEGORY_FILE, S_DICT_PROTECT_CATEGORY_NAME);
+  DictProtectCategory.SQLScript := S_SQL_GET_PROTECT_CATEGORY_DICT;
+
+  DictSpecies := TDictionary.Create(S_DICT_SPECIES_FILE, S_DICT_SPECIES_NAME);
+  DictSpecies.SQLScript := S_SQL_GET_SPECIES_DICT;
+
+  DictDamage := TDictionary.Create(S_DICT_DAMAGE_FILE, S_DICT_DAMAGE_NAME);
+  DictDamage.SQLScript := S_SQL_GET_DAMAGE_DICT;
+
+  DictPest := TDictionary.Create(S_DICT_PEST_FILE, S_DICT_PEST_NAME);
+  DictPest.SQLScript := S_SQL_GET_PEST_DICT;
 end;
 
 //---------------------------------------------------------------------------
@@ -110,34 +122,22 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TValidator.GetValidList(Dictionary: AnsiString): TValidArr;
+function TValidator.GetDictionary(DictCaption: AnsiString): TDictionary;
 begin
-  if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_FORESTRIES_FILE)
-    then
-    Result := DictForestries.ValidList
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_LOCAL_FORESTRIES_FILE) then
-    Result := DictLocalForestries.ValidList
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_LANDUSE_FILE)
-    then
-    Result := DictLanduse.ValidList
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_PROTECT_CATEGORY_FILE) then
-    Result := DictProtectCategory.ValidList
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_SPECIES_FILE)
-    then
-    Result := DictSpecies.ValidList
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_DAMAGE_FILE)
-    then
-    Result := DictDamage.ValidList
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_PEST_FILE) then
-    Result := DictPest.ValidList;
+  if DictCaption = S_DICT_FORESTRIES_NAME then
+    Result := DictForestries
+  else if DictCaption = S_DICT_LOCAL_FORESTRIES_NAME then
+    Result := DictLocalForestries
+  else if DictCaption = S_DICT_LANDUSE_NAME then
+    Result := DictLanduse
+  else if DictCaption = S_DICT_PROTECT_CATEGORY_NAME then
+    Result := DictProtectCategory
+  else if DictCaption = S_DICT_SPECIES_NAME then
+    Result := DictSpecies
+  else if DictCaption = S_DICT_DAMAGE_NAME then
+    Result := DictDamage
+  else if DictCaption = S_DICT_PEST_NAME then
+    Result := DictPest;
 end;
 
 //---------------------------------------------------------------------------
@@ -836,43 +836,10 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TValidator.SetValidList(Dictionary: AnsiString; Value: TValidArr);
-begin
-  if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_FORESTRIES_FILE)
-    then
-    DictForestries.ValidList := Value
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_LOCAL_FORESTRIES_FILE) then
-    DictLocalForestries.ValidList := Value
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_LANDUSE_FILE)
-    then
-    DictLanduse.ValidList := Value
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX +
-    S_DICTIONARY_PROTECT_CATEGORY_FILE) then
-    DictProtectCategory.ValidList := Value
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_SPECIES_FILE)
-    then
-    DictSpecies.ValidList := Value
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_DAMAGE_FILE)
-    then
-    DictDamage.ValidList := Value
-
-  else if Dictionary = (S_DICTIONARY_VALID_PREFIX + S_DICTIONARY_PEST_FILE) then
-    DictPest.ValidList := Value;
-end;
-
-//---------------------------------------------------------------------------
-
 procedure TValidator.StringValidateField(var Field: AnsiString; var FieldID:
-  Integer; const Dict: TDictionary;
-  const Prompt: AnsiString);
+  Integer; const Dict: TDictionary; const Prompt: AnsiString);
 var
-  DictRecord: TDictRecord;
+  CatalogRecord: TCatalogRecord;
   Magic: AnsiString;
   WordIndex: Integer;
 
@@ -886,10 +853,10 @@ begin
   // Empty string - ask to replace and not remember
   if Trim(Field) = '' then
   begin
-    case ShowEdit(Field, Prompt, Dict.ValidList) of
+    case ShowEdit(Field, Prompt, Dict) of
       srReplace:
         begin
-          Field := frmEdit.cmbSynonim.Text;
+          Field := frmEdit.CurrentText;
           FieldID := frmEdit.CurrentIndex;
         end;
       srForceSkip:
@@ -913,29 +880,29 @@ begin
   else
   begin
     // Found in dictionary - autoreplace, log only
-    if Dict.FindRecord(Field, DictRecord) then
+    if Dict.FindRecord(Field, CatalogRecord) then
     begin
       AddValidationResult(vrStringInvalid);
       AddRecordStatus(Format(S_LOG_REPLACE_FROM_DICTIONARY, [FRecNo,
-        DictRecord.NewWord, Field]), ldDictReplaces);
+        CatalogRecord.NewWord, Field]), ldDictReplaces);
     end
 
       // Not found in dictionary - ask to replace, remember and log
     else
     begin
       // here ask...
-      case ShowEdit(Field, Prompt, Dict.ValidList) of
+      case ShowEdit(Field, Prompt, Dict) of
         srReplace:
           begin
             // ...here remember...
-            DictRecord.OldWord := Field;
-            DictRecord.NewWord := frmEdit.cmbSynonim.Text;
-            DictRecord.NewIndex := frmEdit.CurrentIndex;
-            Dict.WriteRecord(DictRecord);
+            CatalogRecord.OldWord := Field;
+            CatalogRecord.NewWord := frmEdit.CurrentText;
+            CatalogRecord.NewIndex := frmEdit.CurrentIndex;
+            Dict.WriteRecord(CatalogRecord);
             // ...here log...
             AddValidationResult(vrStringInvalid);
             AddRecordStatus(Format(S_LOG_REPLACE_FROM_DICTIONARY, [FRecNo,
-              DictRecord.NewWord, Field]), ldDictReplaces);
+              CatalogRecord.NewWord, Field]), ldDictReplaces);
             // ...here replace
             Field := frmEdit.cmbSynonim.Text;
             FieldID := frmEdit.CurrentIndex;
@@ -959,8 +926,8 @@ begin
     end;
 
     // Some magic to set new word into variable
-    FieldID := DictRecord.NewIndex;
-    Magic := DictRecord.NewWord;
+    FieldID := CatalogRecord.NewIndex;
+    Magic := CatalogRecord.NewWord;
     Field := Magic;
   end;
 end;

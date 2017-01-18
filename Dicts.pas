@@ -17,19 +17,23 @@ type
     btnOk: TButton;
     btnApply: TButton;
     btnCancel: TButton;
+    edtShowFormat: TEdit;
+    lblShowFormat: TLabel;
+    btnFormatHelp: TButton;
     procedure FormCreate(Sender: TObject);
     procedure cmbDictsSelect(Sender: TObject);
     procedure btnApplyClick(Sender: TObject);
-    procedure Apply;
     procedure btnOkClick(Sender: TObject);
     procedure btnClearClick(Sender: TObject);
     procedure btnFillFromDBClick(Sender: TObject);
+    procedure btnFormatHelpClick(Sender: TObject);
   private
     { Private declarations }
-    FWordsArr: TValidArr;
+    FWordsArr: TDictArr;
+    procedure Apply;
   public
     { Public declarations }
-    function GetFileForDict(const Dict: AnsiString): AnsiString;
+    function GetFileForDict(const DictCaption: AnsiString): AnsiString;
   end;
 
 var
@@ -47,7 +51,9 @@ uses
 
 procedure TfrmDicts.Apply;
 begin
-  dmData.SetValidList(GetFileForDict(cmbDicts.Text), FWordsArr);
+  dmData.Validator.GetDictionary(cmbDicts.Text).DictionaryArr := FWordsArr;
+  dmData.Validator.GetDictionary(cmbDicts.Text).DictionaryFormatString :=
+    edtShowFormat.Text;
 end;
 
 //---------------------------------------------------------------------------
@@ -73,10 +79,21 @@ var
 begin
   memValues.Lines.Clear();
 
-  FWordsArr := dmData.GetValuesFromTable(GetFileForDict(cmbDicts.Text));
+  FWordsArr := dmData.GetValuesFromTable(
+    dmData.Validator.GetDictionary(cmbDicts.Text).Caption);
 
   for I := 0 to Length(FWordsArr) - 1 do
     memValues.Lines.Add(FWordsArr[I].WordValue);
+    
+  memValues.SelStart := 0;
+  memValues.SelLength := 0;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TfrmDicts.btnFormatHelpClick(Sender: TObject);
+begin
+  ShowMessage(S_FORMAT_HELP);
 end;
 
 //---------------------------------------------------------------------------
@@ -95,10 +112,15 @@ var
 begin
   memValues.Lines.Clear();
 
-  FWordsArr := dmData.GetValidList(GetFileForDict(cmbDicts.Text));
+  FWordsArr := dmData.Validator.GetDictionary(cmbDicts.Text).DictionaryArr;
 
   for I := 0 to Length(FWordsArr) - 1 do
     memValues.Lines.Add(FWordsArr[I].WordValue);
+
+  memValues.SelStart := 0;
+  memValues.SelLength := 0;
+
+  edtShowFormat.Text := dmData.Validator.GetDictionary(cmbDicts.Text).DictionaryFormatString;
 end;
 
 //---------------------------------------------------------------------------
@@ -106,43 +128,23 @@ end;
 procedure TfrmDicts.FormCreate(Sender: TObject);
 begin
   cmbDicts.Clear();
-  cmbDicts.Items.Add(S_DICTIONARY_FORESTRIES_NAME);
-  cmbDicts.Items.Add(S_DICTIONARY_LOCAL_FORESTRIES_NAME);
-  cmbDicts.Items.Add(S_DICTIONARY_LANDUSE_NAME);
-  cmbDicts.Items.Add(S_DICTIONARY_PROTECT_CATEGORY_NAME);
-  cmbDicts.Items.Add(S_DICTIONARY_SPECIES_NAME);
-  cmbDicts.Items.Add(S_DICTIONARY_DAMAGE_NAME);
-  cmbDicts.Items.Add(S_DICTIONARY_PEST_NAME);
+  // Yes, this! Because i can modify caption later
+  cmbDicts.Items.Add(dmData.Validator.GetDictionary(S_DICT_FORESTRIES_NAME).Caption);
+  cmbDicts.Items.Add(dmData.Validator.GetDictionary(S_DICT_LOCAL_FORESTRIES_NAME).Caption);
+  cmbDicts.Items.Add(dmData.Validator.GetDictionary(S_DICT_LANDUSE_NAME).Caption);
+  cmbDicts.Items.Add(dmData.Validator.GetDictionary(S_DICT_PROTECT_CATEGORY_NAME).Caption);
+  cmbDicts.Items.Add(dmData.Validator.GetDictionary(S_DICT_SPECIES_NAME).Caption);
+  cmbDicts.Items.Add(dmData.Validator.GetDictionary(S_DICT_DAMAGE_NAME).Caption);
+  cmbDicts.Items.Add(dmData.Validator.GetDictionary(S_DICT_PEST_NAME).Caption);
   cmbDicts.ItemIndex := 0;
   cmbDictsSelect(Sender);
 end;
 
 //---------------------------------------------------------------------------
 
-function TfrmDicts.GetFileForDict(const Dict: AnsiString): AnsiString;
+function TfrmDicts.GetFileForDict(const DictCaption: AnsiString): AnsiString;
 begin
-  Result := S_DICTIONARY_VALID_PREFIX;
-
-  if Dict = (S_DICTIONARY_FORESTRIES_NAME) then
-    Result := Result + S_DICTIONARY_FORESTRIES_FILE
-
-  else if Dict = (S_DICTIONARY_LOCAL_FORESTRIES_NAME) then
-    Result := Result + S_DICTIONARY_LOCAL_FORESTRIES_FILE
-
-  else if Dict = (S_DICTIONARY_LANDUSE_NAME) then
-    Result := Result + S_DICTIONARY_LANDUSE_FILE
-
-  else if Dict = (S_DICTIONARY_PROTECT_CATEGORY_NAME) then
-    Result := Result + S_DICTIONARY_PROTECT_CATEGORY_FILE
-
-  else if Dict = (S_DICTIONARY_SPECIES_NAME) then
-    Result := Result + S_DICTIONARY_SPECIES_FILE
-
-  else if Dict = (S_DICTIONARY_DAMAGE_NAME) then
-    Result := Result + S_DICTIONARY_DAMAGE_FILE
-
-  else if Dict = (S_DICTIONARY_PEST_NAME) then
-    Result := Result + S_DICTIONARY_PEST_FILE;
+  Result := dmData.Validator.GetDictionary(DictCaption).DictionaryFile;
 end;
 
 end.
