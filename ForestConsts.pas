@@ -203,6 +203,7 @@ const
     'MaxQueriesCount: %d, FActualCount: %d, FWritingIndex: %d, FReadingIndex: %d';
   E_QUERY_EXEC_ERROR: AnsiString = '!!! Ошибка при выполнении запроса. !!!' +
     #13#10 + 'Изменения отменены.';
+  E_REPORT_ERROR = 'Во время подготовки отчета произошла ошибка.';
 
   // File names
   S_DICT_VALID_PREFIX: AnsiString = 'Valid';

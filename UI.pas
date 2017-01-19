@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Grids, DBGrids, ComCtrls, Menus, DB,
   ActnList, ImgList, SQLQuery, XPMan, ScrolledMemo, Edit, Buttons,
-  ForestTypes;
+  ForestTypes, ADODB, ReportManager;
 
 type
   TfrmUI = class(TForm)
@@ -147,6 +147,9 @@ type
     sbStatus: TStatusBar;
     actCatalogSettings: TAction;
     mnuCatalogEdit: TMenuItem;
+    mnuReports: TMenuItem;
+    mnuPrevReport: TMenuItem;
+    actRepPrevReport: TAction;
 
     // Components Events
     procedure FormCreate(Sender: TObject);
@@ -201,11 +204,14 @@ type
     procedure actValidateRecordExecute(Sender: TObject);
     procedure ImageClick(Sender: TObject);
     procedure actCatalogSettingsExecute(Sender: TObject);
+    procedure actRepPrevReportExecute(Sender: TObject);
   private
     { Private declarations }
-    SQLQueries: TSQLQueries;
+    FSQLQueries: TSQLQueries;
     FSelectedColumn: Integer;
     FCompressColumns: Boolean;
+    FReportMgr: TReportManager;
+    //--
     procedure ReadParams;
     procedure WriteParams;
     procedure ReadSettings;
@@ -234,7 +240,7 @@ implementation
 
 uses
   ShellAPI, Registry, ForestConsts, IniFiles, NsUtils, Data, Settings, Dicts,
-  ComObj, About, AskForestry, Catalogs;
+  About, AskForestry, Catalogs;
 
 {$R *.dfm}
 {$R 'res\Coffee.res'}
@@ -354,7 +360,7 @@ begin
       end;
   end;
 
-  SQLQueries.Add(memQueryText.Text);
+  FSQLQueries.Add(memQueryText.Text);
 end;
 
 //---------------------------------------------------------------------------
@@ -378,7 +384,7 @@ var
   S: AnsiString;
 
 begin
-  S := SQLQueries.NextQuery();
+  S := FSQLQueries.NextQuery();
 
   if Trim(S) <> '' then
   begin
@@ -453,7 +459,7 @@ var
   S: AnsiString;
 
 begin
-  S := SQLQueries.PrevQuery();
+  S := FSQLQueries.PrevQuery();
 
   if Trim(S) <> '' then
   begin
@@ -470,6 +476,13 @@ begin
   dmData.MovePrevSkipped;
 end;
 
+//---------------------------------------------------------------------------
+
+procedure TfrmUI.actRepPrevReportExecute(Sender: TObject);
+begin
+  FReportMgr.DoReport('PrevForestryReport');
+end;
+  
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.actRestoreExecute(Sender: TObject);
@@ -498,25 +511,8 @@ end;
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.actSaveQueryResultExecute(Sender: TObject);
-var
-  Row, Col: Integer;
-  ExcelApp, Sheet: Variant;
-
 begin
-  ExcelApp := CreateOleObject('Excel.Application');
-  ExcelApp.Visible := True;
-  ExcelApp.WorkBooks.Add();
-  ExcelApp.WorkBooks[1].WorkSheets[1].Name := S_DB_TABLE_NAME;
-  Sheet := ExcelApp.WorkBooks[1].WorkSheets[S_DB_TABLE_NAME];
-
-  dsQuery.DataSet.First;
-  for Row := 1 to dsQuery.DataSet.RecordCount do
-  begin
-    for Col := 1 to grdQueryResult.FieldCount do
-      Sheet.Cells[Row, Col] := grdQueryResult.Fields[Col - 1].AsString;
-
-    dsQuery.DataSet.Next();
-  end;
+  FReportMgr.ReportQueryResult(TDataSet(dmData.qrySelect), S_DB_TABLE_NAME);
 end;
 
 //---------------------------------------------------------------------------
@@ -702,7 +698,8 @@ begin
   DragAcceptFiles(Self.Handle, True);
   ReadSettings();
   ReadParams();
-  SQLQueries := TSQLQueries.Create(frmUI);
+  FSQLQueries := TSQLQueries.Create(frmUI);
+  FReportMgr := TReportManager.Create(Application);
   tmrTimerTimer(Sender);
   EnableFileControls(False);
   InitFileProcessControls();
@@ -721,7 +718,8 @@ begin
   DragAcceptFiles(Self.Handle, False);
   WriteSettings();
   WriteParams();
-  SQLQueries.Free();
+  FSQLQueries.Free();
+  FReportMgr.Free();
 end;
 
 //---------------------------------------------------------------------------
@@ -1114,8 +1112,8 @@ end;
 
 procedure TfrmUI.ShowQueriesCount;
 begin
-  lblQueriesCount.Caption := Format('%d/%d', [SQLQueries.ItemIndex + 1,
-    SQLQueries.Count]);
+  lblQueriesCount.Caption := Format('%d/%d', [FSQLQueries.ItemIndex + 1,
+    FSQLQueries.Count]);
 end;
 
 //---------------------------------------------------------------------------

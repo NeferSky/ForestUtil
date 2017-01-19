@@ -939,6 +939,14 @@ var
   Prompt: AnsiString;
 
 begin
+  // LocalForestries - validate always
+  Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[2], S_EDIT_PROMPT,
+    ARR_FIELD_NAMES[1], CurrentRecord.ForestryName]);
+  StringValidateField(CurrentRecord.LocalForestryName, CurrentRecord.LocalForestryID,
+    DictLocalForestries, Prompt);
+  if vrStop in FValidationResult then
+    Exit;
+
   // LanduseName - validate always
   Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[5], S_EDIT_PROMPT,
     ARR_FIELD_NAMES[6], CurrentRecord.DefenseCategoryName]);

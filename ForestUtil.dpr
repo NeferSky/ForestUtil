@@ -21,7 +21,8 @@ uses
   ForestTypes in 'ForestTypes.pas',
   About in 'About.pas' {AboutBox},
   AskForestry in 'AskForestry.pas' {frmAskForestry},
-  Catalogs in 'Catalogs.pas' {frmCatalogs};
+  Catalogs in 'Catalogs.pas' {frmCatalogs},
+  ReportManager in 'ReportManager.pas';
 
 procedure SwitchToThisWindow(h1: hWnd; x: bool); stdcall;
   external user32 Name 'SwitchToThisWindow';

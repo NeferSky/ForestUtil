@@ -1081,7 +1081,7 @@ begin
         Continue;
       end;
 
-      ReadDBString(ForestryID, RegionID, ReportQuarter, ReportYear);
+      ReadDBString(RegionID, ForestryID, ReportQuarter, ReportYear);
 
       FValidator.Validate(qryFileSelect.RecNo, FCurrentRecord);
       FValidationResult := FValidationResult + FCurrentRecord.ValidationResult;
