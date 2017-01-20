@@ -3,7 +3,7 @@ unit ReportManager;
 interface
 
 uses
-  Classes, Variants, ADODB, DB, SysUtils, xmldom, XMLIntf, msxmldom, XMLDoc;
+  SysUtils, Classes, DB, ADODB, xmldom, XMLIntf, msxmldom, XMLDoc, Dialogs;
 
 type
   TReport = class(TObject)
@@ -12,7 +12,7 @@ type
     FCaption: AnsiString;
     FSQLText: AnsiString;
   public
-    constructor Create(AOwner: TComponent);
+    constructor Create(RepName, RepCaption, RepSQLText: AnsiString);
     //--
     property Name: AnsiString read FName write FName;
     property Caption: AnsiString read FCaption write FCaption;
@@ -20,83 +20,91 @@ type
   end;
 
 type
-  TReportManager = class(TObject)
-  private
+  TdmReportManager = class(TDataModule)
     FDataSet: TADODataSet;
+    procedure DataModuleCreate(Sender: TObject);
+    procedure DataModuleDestroy(Sender: TObject);
+  private
+    { Private declarations }
     FReportList: TList;
     //--
     function GetReport(const ReportName: AnsiString): TReport;
     function PrepareExcelFile(const SheetName: AnsiString): Variant;
-    function GetReportList: TStringList;
+    function GetReportList: TList;
     procedure ReadReports();
     procedure AddReport(const ReportFile: AnsiString);
   public
-    constructor Create(AOwner: TComponent);
-    destructor Destroy; override;
+    { Public declarations }
     procedure DoReport(const ReportName: AnsiString);
     procedure ReportQueryResult(const DataSet: TDataSet;
       const TableName: AnsiString);
-    property ReportList: TStringList read GetReportList;
+    //--
+    property ReportList: TList read GetReportList;
   end;
+
+var
+  dmReportManager: TdmReportManager;
 
 implementation
 
+{$R *.dfm}
+
 uses
-  ComObj, Data, ForestConsts, NsUtils;
+  ComObj, Data, ForestConsts, NsUtils, Variants;
 
 //---------------------------------------------------------------------------
-{ TReportManager }
+{ TReport }
 
-procedure TReportManager.AddReport(const ReportFile: AnsiString);
+constructor TReport.Create(RepName, RepCaption, RepSQLText: AnsiString);
+begin
+  FName := RepName;
+  FCaption := RepCaption;
+  FSQLText := RepSQLText;
+end;
+
+//---------------------------------------------------------------------------
+{ TdmReportManager }
+
+procedure TdmReportManager.AddReport(const ReportFile: AnsiString);
 var
   Rep: TReport;
   RepFile: IXMLDocument;
+  RepName, RepCaption, RepSQLText: AnsiString;
 
 begin
-  Rep := TReport.Create(nil);
+  RepFile := TXMLDocument.Create(nil);
   RepFile.LoadFromFile(ReportFile);
 
-  Rep.Name := RepFile.ChildNodes['NAME'].Text;
-  Rep.Caption := RepFile.ChildNodes['CAPTION'].Text;
-  Rep.SQLText := RepFile.ChildNodes['SQLTEXT'].Text;
+  RepName := Trim(RepFile.DocumentElement.ChildNodes.Nodes['Name'].Text);
+  RepCaption := Trim(RepFile.DocumentElement.ChildNodes.Nodes['Caption'].Text);
+  RepSQLText := RepFile.DocumentElement.ChildNodes.Nodes['SQLText'].Text;
 
+  Rep := TReport.Create(RepName, RepCaption, RepSQLText);
   FReportList.Add(Rep);
 end;
 
 //---------------------------------------------------------------------------
 
-constructor TReportManager.Create(AOwner: TComponent);
+procedure TdmReportManager.DataModuleCreate(Sender: TObject);
 begin
-{  FDataSet := TADODataSet.Create(AOwner);
-  FDataSet.Connection := FConnection;
-  FDataSet.CommandText := 'select * from quarterreports';
-
-  FDataSet.Open();
+  FDataSet.Connection := dmData.connDB;
   FReportList := TList.Create();
-
   ReadReports();
-  }
 end;
 
 //---------------------------------------------------------------------------
 
-destructor TReportManager.Destroy;
+procedure TdmReportManager.DataModuleDestroy(Sender: TObject);
 begin
-{  if FDataSet.Active then
+  if FDataSet.Active then
     FDataSet.Close();
-//  FDataSet.Free();
 
-//  FConnection.Close();
-//  FConnection.Free();
-
-  FReportList.Clear();
   FReportList.Free();
-  }
 end;
 
 //---------------------------------------------------------------------------
 
-procedure TReportManager.DoReport(const ReportName: AnsiString);
+procedure TdmReportManager.DoReport(const ReportName: AnsiString);
 var
   Rep: TReport;
 
@@ -112,19 +120,20 @@ begin
       FDataSet.Open();
 
       ReportQueryResult(FDataSet, Rep.Caption);
+
     except
       on E: Exception do
         ShowMsg(E_REPORT_ERROR);
     end;
-
   finally
     FDataSet.Close();
+    dmData.connDB.Close();
   end;
 end;
 
 //---------------------------------------------------------------------------
 
-function TReportManager.GetReport(const ReportName: AnsiString): TReport;
+function TdmReportManager.GetReport(const ReportName: AnsiString): TReport;
 var
   I: Integer;
 
@@ -141,39 +150,33 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TReportManager.GetReportList: TStringList;
-var
-  I: Integer;
-
+function TdmReportManager.GetReportList: TList;
 begin
-  Result.Clear();
-
-  for I := 0 to FReportList.Count - 1 do
-    Result.Add(TReport(FReportList[I]).Caption);
+  Result := FReportList;
 end;
 
 //---------------------------------------------------------------------------
 
-function TReportManager.PrepareExcelFile(const SheetName: AnsiString): Variant;
+function TdmReportManager.PrepareExcelFile(const SheetName: AnsiString): Variant;
 var
   ExcelApp: Variant;
 
 begin
   ExcelApp := CreateOleObject('Excel.Application');
-  ExcelApp.Visible := True;
   ExcelApp.WorkBooks.Add();
   ExcelApp.WorkBooks[1].WorkSheets[1].Name := SheetName;
+  ExcelApp.Visible := True;
   Result := ExcelApp.WorkBooks[1].WorkSheets[SheetName];
 end;
 
 //---------------------------------------------------------------------------
 
-procedure TReportManager.ReadReports;
+procedure TdmReportManager.ReadReports;
 var
   SearchResult: TSearchRec;
 
 begin
-  if FindFirst('*.rep', faAnyFile, SearchResult) = 0 then
+  if FindFirst(GetAppPath() + 'Reports\*.rep', faAnyFile, SearchResult) = 0 then
   begin
     repeat
       AddReport(GetAppPath() + 'Reports\' + SearchResult.Name);
@@ -185,7 +188,7 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TReportManager.ReportQueryResult(const DataSet: TDataSet;
+procedure TdmReportManager.ReportQueryResult(const DataSet: TDataSet;
   const TableName: AnsiString);
 var
   Row, Col: Integer;
@@ -202,16 +205,6 @@ begin
 
     DataSet.Next();
   end;
-end;
-
-//---------------------------------------------------------------------------
-{ TReport }
-
-constructor TReport.Create(AOwner: TComponent);
-begin
-  FName := '';
-  FCaption := '';
-  FSQLText := '';
 end;
 
 end.

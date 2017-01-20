@@ -9,6 +9,14 @@ uses
   ForestTypes, ADODB, ReportManager;
 
 type
+  TReportMenuItem = class(TMenuItem)
+  private
+    FReportName: AnsiString;
+  public
+    property ReportName: AnsiString read FReportName write FReportName;
+  end;
+  
+type
   TfrmUI = class(TForm)
     // Invisible components
     manXP: TXPManifest;
@@ -210,13 +218,14 @@ type
     FSQLQueries: TSQLQueries;
     FSelectedColumn: Integer;
     FCompressColumns: Boolean;
-    FReportMgr: TReportManager;
+    FReportMgr: TdmReportManager;
     //--
     procedure ReadParams;
     procedure WriteParams;
     procedure ReadSettings;
     procedure WriteSettings;
     procedure PositionTable;
+    procedure ReadReports;
     procedure EnableFileControls(Active: Boolean);
     procedure RecalcFileGridCols;
     procedure InitFileProcessControls;
@@ -229,6 +238,7 @@ type
     procedure Tray(n: Integer; Icon: TIcon);
     procedure ValidationLog(Msg: AnsiString);
     procedure StepProcess(CurrentIteration: Integer);
+    procedure ReportMenuClick(Sender: TObject);
   public
     { Public declarations }
   end;
@@ -698,8 +708,8 @@ begin
   DragAcceptFiles(Self.Handle, True);
   ReadSettings();
   ReadParams();
+  ReadReports();
   FSQLQueries := TSQLQueries.Create(frmUI);
-  FReportMgr := TReportManager.Create(Application);
   tmrTimerTimer(Sender);
   EnableFileControls(False);
   InitFileProcessControls();
@@ -719,7 +729,6 @@ begin
   WriteSettings();
   WriteParams();
   FSQLQueries.Free();
-  FReportMgr.Free();
 end;
 
 //---------------------------------------------------------------------------
@@ -1043,6 +1052,24 @@ end;
 
 //---------------------------------------------------------------------------
 
+procedure TfrmUI.ReadReports;
+var
+  I: Integer;
+  mnuItem: TReportMenuItem;
+
+begin
+  for I := 0 to dmReportManager.ReportList.Count - 1 do
+  begin
+    mnuItem := TReportMenuItem.Create(mmnuMain);
+    mnuReports.Add(mnuItem);
+    mnuItem.Caption := TReport(dmReportManager.ReportList[I]).Caption;
+    mnuItem.ReportName := TReport(dmReportManager.ReportList[I]).Name;
+    mnuItem.OnClick := ReportMenuClick;
+  end;
+end;
+      
+//---------------------------------------------------------------------------
+
 procedure TfrmUI.ReadSettings;
 begin
   if not FileExists(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME)
@@ -1097,6 +1124,13 @@ begin
       grdFile.Columns.Items[I].Width := ColWidth;
 end;
 
+//---------------------------------------------------------------------------
+
+procedure TfrmUI.ReportMenuClick(Sender: TObject);
+begin
+  dmReportManager.DoReport(TReportMenuItem(Sender).ReportName);
+end;
+   
 //---------------------------------------------------------------------------
 
 procedure TfrmUI.ResetFileProcessControls;

@@ -734,6 +734,7 @@ end;
 procedure TdmData.ReadDBString(const RegionID, ForestryID, ReportQuarter,
   ReportYear: Integer);
 begin
+  FillChar(FCurrentRecord, SizeOf(FCurrentRecord), 0);
   FCurrentRecord.RegionID := RegionID;
   FCurrentRecord.ForestryName := Trim(qryFileSelect.Fields[0 +
     FFirstCol].AsString);
@@ -794,7 +795,8 @@ begin
     FFirstCol].AsVariant);
   FCurrentRecord.F29 := DefCurrency(qryFileSelect.Fields[28 +
     FFirstCol].AsVariant);
-  FCurrentRecord.F30 := Trim(qryFileSelect.Fields[29 + FFirstCol].AsString);
+  FCurrentRecord.F30 := Trim(qryFileSelect.Fields[29 +
+    FFirstCol].AsString);
   FCurrentRecord.F31 := DefCurrency(qryFileSelect.Fields[30 +
     FFirstCol].AsVariant);
   FCurrentRecord.F32 := DefCurrency(qryFileSelect.Fields[31 +
@@ -833,7 +835,8 @@ begin
     FFirstCol].AsVariant);
   FCurrentRecord.F49 := DefCurrency(qryFileSelect.Fields[48 +
     FFirstCol].AsVariant);
-  FCurrentRecord.F50 := Trim(qryFileSelect.Fields[49 + FFirstCol].AsString);
+  FCurrentRecord.F50 := Trim(qryFileSelect.Fields[49 +
+    FFirstCol].AsString);
   FCurrentRecord.F51 := DefCurrency(qryFileSelect.Fields[50 +
     FFirstCol].AsVariant);
   FCurrentRecord.F52 := DefCurrency(qryFileSelect.Fields[51 +
@@ -1071,7 +1074,11 @@ begin
     for CurRecNo := FFirstRow to FLastRow do
     begin
       Application.ProcessMessages();
-      MoveTo(qryFileSelect, CurRecNo);
+      if CurRecNo <> qryFileSelect.RecNo + 1 then
+        MoveTo(qryFileSelect, CurRecNo)
+      else
+        qryFileSelect.Next;
+
       Progress(qryFileSelect.RecNo);
 
       if EmptyRec() then
@@ -1086,8 +1093,7 @@ begin
       FValidator.Validate(qryFileSelect.RecNo, FCurrentRecord);
       FValidationResult := FValidationResult + FCurrentRecord.ValidationResult;
 
-      CurReportSums.DamagedArea := CurReportSums.DamagedArea +
-        FCurrentRecord.F17;
+      CurReportSums.DamagedArea := CurReportSums.DamagedArea + FCurrentRecord.F17;
       CurReportSums.LostArea := CurReportSums.LostArea + FCurrentRecord.F24;
       CurReportSums.PestArea := CurReportSums.PestArea + FCurrentRecord.F59;
 
@@ -1100,6 +1106,14 @@ begin
       if vrSkip in FCurrentRecord.ValidationResult then
         AddSkippedRec(CurRecNo);
 
+      if ((vrRelationInvalid in FCurrentRecord.ValidationResult)
+        and (ldRelationErrors in FLogDetails))
+        or ((vrMainInvalid in FCurrentRecord.ValidationResult)
+        and (ldMathErrors in FLogDetails))
+        or ((vrExtraInvalid in FCurrentRecord.ValidationResult)
+        and (ldMathErrors in FLogDetails)) then
+        AddInvalidRec(CurRecNo);
+
       if ((vrStringInvalid in FCurrentRecord.ValidationResult)
         and (ldDictReplaces in FLogDetails))
         or ((vrRelationInvalid in FCurrentRecord.ValidationResult)
@@ -1108,10 +1122,7 @@ begin
         and (ldMathErrors in FLogDetails))
         or ((vrExtraInvalid in FCurrentRecord.ValidationResult)
         and (ldMathErrors in FLogDetails)) then
-      begin
         ValidationLog(FValidator.RecordStatus);
-        AddInvalidRec(CurRecNo);
-      end;
 
       FScript.AddInsert(FCurrentRecord);
     end;

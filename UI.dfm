@@ -1,6 +1,6 @@
 object frmUI: TfrmUI
-  Left = 196
-  Top = 112
+  Left = 340
+  Top = 105
   Width = 800
   Height = 701
   Caption = 'ForestUtil'
@@ -31,7 +31,7 @@ object frmUI: TfrmUI
     Top = 0
     Width = 792
     Height = 628
-    ActivePage = tsQueryWorkspace
+    ActivePage = tsFileWorkspace
     Align = alClient
     Images = ilUIImages
     TabOrder = 0
@@ -481,7 +481,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 494
+          Top = 493
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -555,7 +555,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 438
+          Top = 437
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]
@@ -686,7 +686,6 @@ object frmUI: TfrmUI
     end
     object mnuReports: TMenuItem
       Caption = #1054#1090#1095#1077#1090#1099
-      Visible = False
       object mnuPrevReport: TMenuItem
         Action = actRepPrevReport
       end
@@ -728,7 +727,7 @@ object frmUI: TfrmUI
     Left = 564
     Top = 40
     Bitmap = {
-      494C010113001800040010001000FFFFFFFFFF00FFFFFFFFFFFFFFFF424D3600
+      494C010113001800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000006000000001002000000000000060
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -1524,7 +1523,8 @@ object frmUI: TfrmUI
       8003C003E0070001C003C003C0030001C003C00380010001C003000381810001
       C003000383C10001C003000387E10001C003000387210001C003000383010001
       C003000381010001C003000380010001C0030003C0030001C0010003E0010001
-      C000C007F0018001E000C00FFFFFE001}
+      C000C007F0018001E000C00FFFFFE00100000000000000000000000000000000
+      000000000000}
   end
   object actlUIActions: TActionList
     Images = ilUIImages
