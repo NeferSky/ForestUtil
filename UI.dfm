@@ -69,7 +69,7 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 463
+          Top = 462
           Width = 147
           Height = 38
           Action = actValidateTable
@@ -78,7 +78,7 @@ object frmUI: TfrmUI
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 376
+          Top = 375
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -172,7 +172,7 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 511
+          Top = 510
           Width = 145
           Height = 42
           Action = actCreateScript
@@ -184,7 +184,7 @@ object frmUI: TfrmUI
           Left = 8
           Top = 96
           Width = 145
-          Height = 192
+          Height = 191
           Anchors = [akLeft, akTop, akRight, akBottom]
           Caption = #1042#1082#1083#1102#1095#1072#1090#1100' '#1074' '#1083#1086#1075':'
           ParentShowHint = False
@@ -192,7 +192,7 @@ object frmUI: TfrmUI
           TabOrder = 6
           DesignSize = (
             145
-            192)
+            191)
           object chbMathErrors: TCheckBox
             Left = 8
             Top = 16
@@ -275,7 +275,7 @@ object frmUI: TfrmUI
         end
         object gbxSkippedRecs: TGroupBox
           Left = 8
-          Top = 295
+          Top = 294
           Width = 145
           Height = 81
           Anchors = [akLeft, akRight, akBottom]
@@ -481,7 +481,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 493
+          Top = 492
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -555,7 +555,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 437
+          Top = 436
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]
@@ -686,9 +686,6 @@ object frmUI: TfrmUI
     end
     object mnuReports: TMenuItem
       Caption = #1054#1090#1095#1077#1090#1099
-      object mnuPrevReport: TMenuItem
-        Action = actRepPrevReport
-      end
     end
     object mnuAllSettings: TMenuItem
       Caption = #1053#1072#1089#1090#1088#1086#1081#1082#1080

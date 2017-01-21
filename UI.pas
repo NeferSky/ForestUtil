@@ -156,7 +156,6 @@ type
     actCatalogSettings: TAction;
     mnuCatalogEdit: TMenuItem;
     mnuReports: TMenuItem;
-    mnuPrevReport: TMenuItem;
     actRepPrevReport: TAction;
 
     // Components Events
@@ -490,7 +489,7 @@ end;
 
 procedure TfrmUI.actRepPrevReportExecute(Sender: TObject);
 begin
-  FReportMgr.DoReport('PrevForestryReport');
+//  FReportMgr.ReportQueryResult(const DataSet: TDataSet; const TableName: AnsiString);
 end;
   
 //---------------------------------------------------------------------------
@@ -1064,8 +1063,11 @@ begin
     mnuReports.Add(mnuItem);
     mnuItem.Caption := TReport(dmReportManager.ReportList[I]).Caption;
     mnuItem.ReportName := TReport(dmReportManager.ReportList[I]).Name;
+    mnuItem.ImageIndex := 18;
     mnuItem.OnClick := ReportMenuClick;
   end;
+
+  mnuReports.Visible := dmReportManager.ReportList.Count > 0;
 end;
       
 //---------------------------------------------------------------------------
