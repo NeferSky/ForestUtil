@@ -25,7 +25,8 @@ type
       TLogDetail);
     procedure AddValidationResult(const ValResult: TValidationRes);
     procedure StringValidateField(var Field: AnsiString; var FieldID: Integer;
-      const Dict: TDictionary; const Prompt: AnsiString);
+      const Dict: TDictionary; const Prompt: AnsiString;
+      const RelationID: Integer = 0);
     procedure RelationValidateRecord(var CurrentRecord: TValuesRec);
     procedure MathValidateRecord(var CurrentRecord: TValuesRec);
     procedure MathExtraValidateRecord(var CurrentRecord: TValuesRec);
@@ -837,7 +838,8 @@ end;
 //---------------------------------------------------------------------------
 
 procedure TValidator.StringValidateField(var Field: AnsiString; var FieldID:
-  Integer; const Dict: TDictionary; const Prompt: AnsiString);
+  Integer; const Dict: TDictionary; const Prompt: AnsiString;
+  const RelationID: Integer = 0);
 var
   CatalogRecord: TCatalogRecord;
   Magic: AnsiString;
@@ -873,14 +875,14 @@ begin
     Exit;
   end;
 
-  WordIndex := Dict.Validate(Field);
+  WordIndex := Dict.Validate(Field, RelationID);
   if WordIndex <> -1 then
     // Word is correct and full-valid
     FieldID := WordIndex
   else
   begin
     // Found in dictionary - autoreplace, log only
-    if Dict.FindRecord(Field, CatalogRecord) then
+    if Dict.FindRecord(Field, RelationID, CatalogRecord) then
     begin
       AddValidationResult(vrStringInvalid);
       AddRecordStatus(Format(S_LOG_REPLACE_FROM_DICTIONARY, [FRecNo,
@@ -898,6 +900,7 @@ begin
             CatalogRecord.OldWord := Field;
             CatalogRecord.NewWord := frmEdit.CurrentText;
             CatalogRecord.NewIndex := frmEdit.CurrentIndex;
+            CatalogRecord.RelationID := RelationID;
             Dict.WriteRecord(CatalogRecord);
             // ...here log...
             AddValidationResult(vrStringInvalid);
@@ -943,7 +946,7 @@ begin
   Prompt := Format('%s%s%s: "%s"', [ARR_FIELD_NAMES[2], S_EDIT_PROMPT,
     ARR_FIELD_NAMES[1], CurrentRecord.ForestryName]);
   StringValidateField(CurrentRecord.LocalForestryName, CurrentRecord.LocalForestryID,
-    DictLocalForestries, Prompt);
+    DictLocalForestries, Prompt, CurrentRecord.ForestryID);
   if vrStop in FValidationResult then
     Exit;
 

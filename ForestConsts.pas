@@ -188,7 +188,7 @@ const
 
   S_IN_PROGRESS: AnsiString = 'Похоже, все еще выполняется предыдущий запрос.';
   S_QUERY_EXEC_SUCCESS: AnsiString = 'Успешно!';
-  S_EDIT_PROMPT: AnsiString = '' + #13#10 +
+  S_EDIT_PROMPT: AnsiString = '' + #13#10 + #13#10 + 
     'Значения близких по смыслу колонок:' + #13#10;
 
   // Error messages
@@ -327,21 +327,21 @@ const
     'select sum(dam_byear), sum(lost_byear), sum(pest_on_byear) from %s where forestry_number = %d and report_year = %d and report_quarter = %d';
 
   S_SQL_GET_FORESTRIES_DICT: AnsiString =
-    'select distinct forestry_id, forestry_name from forestries where region_id in (22, 23) order by forestry_name';
+    'select distinct forestry_id, forestry_name, region_id from forestries where region_id in (22, 23) order by forestry_name';
   S_SQL_GET_LOCAL_FORESTRIES_DICT: AnsiString =
-    'select distinct local_forestry_id, local_forestry_name from local_forestries where region_id in (22, 23) order by local_forestry_name';
+    'select distinct local_forestry_id, local_forestry_name, forestry_id from local_forestries where region_id in (22, 23) order by local_forestry_name';
   S_SQL_GET_FORESTRIES_BY_REGION: AnsiString =
     'select distinct forestry_name from forestries where region_id = %d order by forestry_name';
   S_SQL_GET_LANDUSE_DICT: AnsiString =
-    'select distinct landuse_purpose_code, landuse_purpose from landuse_purposes order by landuse_purpose';
+    'select distinct landuse_purpose_code, landuse_purpose, 0 from landuse_purposes order by landuse_purpose';
   S_SQL_GET_PROTECT_CATEGORY_DICT: AnsiString =
-    'select distinct protect_category_code, protect_category_rus from protect_category order by protect_category_rus';
+    'select distinct protect_category_code, protect_category_rus, 0 from protect_category order by protect_category_rus';
   S_SQL_GET_SPECIES_DICT: AnsiString =
-    'select distinct species_id, poroda from species order by poroda';
+    'select distinct species_id, poroda, 0 from species order by poroda';
   S_SQL_GET_DAMAGE_DICT: AnsiString =
-    'select distinct cause_code, cause_rus from damage_causes order by cause_rus';
+    'select distinct cause_code, cause_rus, 0 from damage_causes order by cause_rus';
   S_SQL_GET_PEST_DICT: AnsiString =
-    'select distinct pest_code, pest_rus from pest_dict order by pest_rus';
+    'select distinct pest_code, pest_rus, 0 from pest_dict order by pest_rus';
 
   ARR_FIELD_NAMES: array[1..I_COL_COUNT] of AnsiString = (
     'Лесничество',

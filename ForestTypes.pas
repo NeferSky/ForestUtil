@@ -132,6 +132,7 @@ type
     OldWord: string[255];
     NewWord: string[255];
     NewIndex: Integer;
+    RelationID: Integer;
   end;
 
 type
@@ -141,6 +142,7 @@ type
   TDictRecord = record
     WordIndex: Integer;
     WordValue: string[255];
+    RelationID: Integer;
   end;
 
 type

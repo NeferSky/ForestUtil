@@ -35,9 +35,10 @@ type
     function GetCatalogArray: TCatalogArr;
     procedure SetCatalogArray(Value: TCatalogArr);
   public
-    function Validate(const AWord: AnsiString): Integer;
-    function FindRecord(const AWord: AnsiString; var WordRecord: TCatalogRecord):
-      Boolean;
+    function Validate(const AWord: AnsiString;
+      const RelationID: Integer): Integer;
+    function FindRecord(const AWord: AnsiString; const RelationID:
+      Integer; var WordRecord: TCatalogRecord): Boolean;
     function GetRecordByListItem(const S: AnsiString): TDictRecord;
     procedure WriteRecord(const WordRecord: TCatalogRecord);
     procedure Clear;
@@ -167,8 +168,8 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TDictionary.FindRecord(const AWord: AnsiString; var WordRecord:
-  TCatalogRecord): Boolean;
+function TDictionary.FindRecord(const AWord: AnsiString; const RelationID:
+  Integer; var WordRecord: TCatalogRecord): Boolean;
 var
   I: Integer;
 
@@ -176,7 +177,8 @@ begin
   Result := False;
 
   for I := 0 to (Length(FCatalogArray) - 1) do
-    if FCatalogArray[I].OldWord = AWord then
+    if (FCatalogArray[I].OldWord = AWord) and
+      (FCatalogArray[I].RelationID = RelationID) then
     begin
       WordRecord := FCatalogArray[I];
       Result := True;
@@ -334,7 +336,8 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TDictionary.Validate(const AWord: AnsiString): Integer;
+function TDictionary.Validate(const AWord: AnsiString;
+  const RelationID: Integer): Integer;
 var
   I: Integer;
 
@@ -342,7 +345,8 @@ begin
   Result := -1;
 
   for I := 0 to Length(FDictArray) - 1 do
-    if FDictArray[I].WordValue = AnsiUpperCase(AWord) then
+    if (FDictArray[I].WordValue = AnsiUpperCase(AWord)) and
+      (FDictArray[I].RelationID = RelationID) then
     begin
       Result := FDictArray[I].WordIndex;
       Break;

@@ -550,6 +550,7 @@ begin
       Result[I].WordIndex := qryGetTableValues.Fields[0].AsInteger;
       Result[I].WordValue :=
         AnsiUpperCase(Trim(qryGetTableValues.Fields[1].AsString));
+      Result[I].RelationID := qryGetTableValues.Fields[2].AsInteger;
       qryGetTableValues.Next();
     end;
 
