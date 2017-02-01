@@ -11,12 +11,19 @@ type
     FName: AnsiString;
     FCaption: AnsiString;
     FSQLText: AnsiString;
+    FHeaderSQLText: AnsiString;
+    FColumns: TStringList;
+    FFooterSQLText: AnsiString;
   public
-    constructor Create(RepName, RepCaption, RepSQLText: AnsiString);
+    constructor Create;
+    destructor Destroy; override;
     //--
     property Name: AnsiString read FName write FName;
     property Caption: AnsiString read FCaption write FCaption;
     property SQLText: AnsiString read FSQLText write FSQLText;
+    property HeaderSQLText: AnsiString read FHeaderSQLText write FHeaderSQLText;
+    property Columns: TStringList read FColumns write FColumns;
+    property FooterSQLText: AnsiString read FFooterSQLText write FFooterSQLText;
   end;
 
 type
@@ -26,6 +33,7 @@ type
     procedure DataModuleDestroy(Sender: TObject);
   private
     { Private declarations }
+    FRow: Integer;
     FReportList: TList;
     //--
     function GetReport(const ReportName: AnsiString): TReport;
@@ -33,11 +41,14 @@ type
     function GetReportList: TList;
     procedure ReadReports();
     procedure AddReport(const ReportFile: AnsiString);
+    procedure ReportQueryResult(const Sheet: Variant; const SQLText: AnsiString);
+    procedure ReportString(const Sheet: Variant; const Text: AnsiString);
+    procedure ReportStringListH(const Sheet: Variant; const TextList: TStringList);
+    procedure ReportStringListV(const Sheet: Variant; const TextList: TStringList);
   public
     { Public declarations }
     procedure DoReport(const ReportName: AnsiString);
-    procedure ReportQueryResult(const DataSet: TDataSet;
-      const TableName: AnsiString);
+    procedure ReportUIQuery(const DataSet: TDataSet; const TableName: AnsiString);
     //--
     property ReportList: TList read GetReportList;
   end;
@@ -55,11 +66,23 @@ uses
 //---------------------------------------------------------------------------
 { TReport }
 
-constructor TReport.Create(RepName, RepCaption, RepSQLText: AnsiString);
+constructor TReport.Create;
 begin
-  FName := RepName;
-  FCaption := RepCaption;
-  FSQLText := RepSQLText;
+  FName := '';
+  FCaption := '';
+  FSQLText := '';
+  FColumns := TStringList.Create();
+  FHeaderSQLText := '';
+  FFooterSQLText := '';
+end;
+
+//---------------------------------------------------------------------------
+
+destructor TReport.Destroy;
+begin
+  FColumns.Free();
+
+  inherited;
 end;
 
 //---------------------------------------------------------------------------
@@ -69,17 +92,52 @@ procedure TdmReportManager.AddReport(const ReportFile: AnsiString);
 var
   Rep: TReport;
   RepFile: IXMLDocument;
-  RepName, RepCaption, RepSQLText: AnsiString;
+  RepColumns: TStringList;
+
+  function ReadStr(Section: AnsiString): AnsiString;
+  begin
+    try
+      Result := Trim(RepFile.DocumentElement.ChildNodes.Nodes[Section].Text);
+    except
+      Result := '';
+    end;
+  end;
+
+  function ReadInt(Section: AnsiString): Integer;
+  begin
+    try
+      Result := StrToInt(Trim(RepFile.DocumentElement.ChildNodes.Nodes[Section].Text));
+    except
+      Result := 0;
+    end;
+  end;
+
+  procedure ReadStrings(Section: AnsiString; var AStringList: TStringList);
+  begin
+    try
+      AStringList.DelimitedText := Trim(RepFile.DocumentElement.ChildNodes.Nodes[Section].Text);
+    except
+      AStringList.Clear();
+    end;
+  end;
 
 begin
+  Rep := TReport.Create();
+  RepColumns := TStringList.Create();
+  RepColumns.Delimiter := '#';
+  RepColumns.QuoteChar := '|';
+
   RepFile := TXMLDocument.Create(nil);
   RepFile.LoadFromFile(ReportFile);
 
-  RepName := Trim(RepFile.DocumentElement.ChildNodes.Nodes['Name'].Text);
-  RepCaption := Trim(RepFile.DocumentElement.ChildNodes.Nodes['Caption'].Text);
-  RepSQLText := RepFile.DocumentElement.ChildNodes.Nodes['SQLText'].Text;
+  Rep.Name := ReadStr('Name');
+  Rep.Caption := ReadStr('Caption');
+  Rep.SQLText := ReadStr('SQLText');
+  Rep.HeaderSQLText := ReadStr('HeaderSQLText');
+  ReadStrings('Columns', RepColumns);
+  Rep.Columns.AddStrings(RepColumns);
+  Rep.FooterSQLText := ReadStr('FooterSQLText');
 
-  Rep := TReport.Create(RepName, RepCaption, RepSQLText);
   FReportList.Add(Rep);
 end;
 
@@ -107,26 +165,26 @@ end;
 procedure TdmReportManager.DoReport(const ReportName: AnsiString);
 var
   Rep: TReport;
+  Sheet: Variant;
 
 begin
   try
     try
-      if FDataSet.Active then
-        FDataSet.Close();
-
       Rep := GetReport(ReportName);
+      Sheet := PrepareExcelFile(Rep.Caption);
+      FRow := 1;
 
-      FDataSet.CommandText := Rep.SQLText;
-      FDataSet.Open();
-
-      ReportQueryResult(FDataSet, Rep.Caption);
+      ReportString(Sheet, Rep.Caption);
+      ReportQueryResult(Sheet, Rep.HeaderSQLText);
+      ReportStringListH(Sheet, Rep.Columns);
+      ReportQueryResult(Sheet, Rep.SQLText);
+      ReportQueryResult(Sheet, Rep.FFooterSQLText);
 
     except
       on E: Exception do
         ShowMsg(E_REPORT_ERROR);
     end;
   finally
-    FDataSet.Close();
     dmData.connDB.Close();
   end;
 end;
@@ -188,22 +246,119 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TdmReportManager.ReportQueryResult(const DataSet: TDataSet;
+procedure TdmReportManager.ReportQueryResult(const Sheet: Variant; const
+  SQLText: AnsiString);
+var
+  CurRow, CurCol: Integer;
+
+begin
+  try
+    if SQLText = '' then
+      Exit;
+
+    if FDataSet.Active then
+      FDataSet.Close();
+
+    FDataSet.CommandText := SQLText;
+    FDataSet.Open();
+    FDataSet.First();
+    CurRow := 1;
+
+    while CurRow <= FDataSet.RecordCount do
+    begin
+      CurCol := 1;
+      while CurCol <= FDataSet.FieldCount do
+      begin
+        Sheet.Cells[FRow, CurCol] := FDataSet.Fields[CurCol - 1].AsString;
+        Inc(CurCol);
+      end;
+
+      FDataSet.Next();
+      Inc(CurRow);
+      Inc(FRow);
+    end;
+
+  finally
+    FDataSet.Close();
+  end;
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TdmReportManager.ReportUIQuery(const DataSet: TDataSet;
   const TableName: AnsiString);
 var
-  Row, Col: Integer;
+  CurRow, CurCol: Integer;
   Sheet: Variant;
 
 begin
-  Sheet := PrepareExcelFile(TableName);
+  try
+    Sheet := PrepareExcelFile(TableName);
 
-  DataSet.First;
-  for Row := 1 to DataSet.RecordCount do
+    DataSet.First();
+    CurRow := 1;
+
+    while CurRow <= DataSet.RecordCount do
+    begin
+      CurCol := 1;
+      while CurCol <= DataSet.FieldCount do
+      begin
+        Sheet.Cells[FRow, CurCol] := DataSet.Fields[CurCol - 1].AsString;
+        Inc(CurCol);
+      end;
+
+      DataSet.Next();
+      Inc(CurRow);
+    end;
+
+  except
+    on E: Exception do
+      ShowMsg(E_REPORT_ERROR);
+  end;
+end;
+  
+//---------------------------------------------------------------------------
+
+procedure TdmReportManager.ReportString(const Sheet: Variant;
+  const Text: AnsiString);
+begin
+  Sheet.Cells[FRow, 1] := Text;
+  Inc(FRow);
+end;
+
+//---------------------------------------------------------------------------
+
+procedure TdmReportManager.ReportStringListH(const Sheet: Variant;
+  const TextList: TStringList);
+var
+  CurCol: Integer;
+
+begin
+  CurCol := 1;
+
+  while CurCol <= TextList.Count do
   begin
-    for Col := 1 to DataSet.FieldCount do
-      Sheet.Cells[Row, Col] := DataSet.Fields[Col - 1].AsString;
+    Sheet.Cells[FRow, CurCol] := TextList[CurCol - 1];
+    Inc(CurCol);
+  end;
 
-    DataSet.Next();
+  Inc(FRow);
+end;
+  
+//---------------------------------------------------------------------------
+
+procedure TdmReportManager.ReportStringListV(const Sheet: Variant;
+  const TextList: TStringList);
+var
+  CurRow: Integer;
+
+begin
+  CurRow := 1;
+  while CurRow <= TextList.Count do
+  begin
+    Sheet.Cells[FRow, 1] := TextList[CurRow - 1];
+    Inc(FRow);
+    Inc(CurRow);
   end;
 end;
 

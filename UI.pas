@@ -521,7 +521,7 @@ end;
 
 procedure TfrmUI.actSaveQueryResultExecute(Sender: TObject);
 begin
-  FReportMgr.ReportQueryResult(TDataSet(dmData.qrySelect), S_DB_TABLE_NAME);
+  FReportMgr.ReportUIQuery(TDataSet(dmData.qrySelect), S_DB_TABLE_NAME);
 end;
 
 //---------------------------------------------------------------------------

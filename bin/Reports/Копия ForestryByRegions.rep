@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<Report1>
+  <Name>
+    ForestriesLocalForestries2
+  </Name>
+
+  <Caption>
+    Лесничества по регионам 2
+  </Caption>
+
+  <HeaderSQLText>
+SELECT 
+  r.region_name
+FROM 
+  regions r
+WHERE 
+  r.region_id = 22
+  OR r.region_id = 23
+  </HeaderSQLText>
+
+  <Columns>
+    |Название региона|#|Номер лесничества|#|Название лесничества|#|Номер участкового лесничества|#|Название участкового лесничества|
+  </Columns>
+
+  <SQLText>
+SELECT 
+  r.region_name,
+  f.forestry_number, 
+  f.forestry_name, 
+  lf.local_forestry_number, 
+  lf.local_forestry_name
+FROM 
+  forestries f
+INNER JOIN local_forestries lf
+  ON lf.forestry_id = f.forestry_id
+INNER JOIN regions r
+  ON r.region_id = f.region_id
+WHERE 
+  r.region_id = 22
+  OR r.region_id = 23
+  </SQLText>
+  
+  <FooterSQLText>
+SELECT 
+  'Всего: ',
+  count(f.forestry_number)
+FROM 
+  forestries f
+INNER JOIN local_forestries lf
+  ON lf.forestry_id = f.forestry_id
+INNER JOIN regions r
+  ON r.region_id = f.region_id
+WHERE 
+  r.region_id = 22
+  OR r.region_id = 23
+  </FooterSQLText>
+  
+</Report1>
+
+    

@@ -20,8 +20,8 @@ object frmUI: TfrmUI
   TextHeight = 13
   object sbStatus: TStatusBar
     Left = 0
-    Top = 623
-    Width = 784
+    Top = 628
+    Width = 792
     Height = 19
     Panels = <>
     SimplePanel = True
@@ -29,8 +29,8 @@ object frmUI: TfrmUI
   object pcPages: TPageControl
     Left = 0
     Top = 0
-    Width = 784
-    Height = 623
+    Width = 792
+    Height = 628
     ActivePage = tsFileWorkspace
     Align = alClient
     Images = ilUIImages
@@ -40,23 +40,23 @@ object frmUI: TfrmUI
       Caption = 'XLS-'#1092#1072#1081#1083
       ImageIndex = 1
       object splFileActions: TSplitter
-        Left = 613
+        Left = 621
         Top = 0
-        Height = 594
+        Height = 599
         Align = alRight
         OnMoved = splFileActionsMoved
       end
       object pnlFileActions: TPanel
-        Left = 616
+        Left = 624
         Top = 0
         Width = 160
-        Height = 594
+        Height = 599
         Align = alRight
         TabOrder = 1
         OnResize = pnlFileActionsResize
         DesignSize = (
           160
-          594)
+          599)
         object lblSelectSheet: TLabel
           Left = 8
           Top = 8
@@ -144,7 +144,7 @@ object frmUI: TfrmUI
         end
         object pbFileProcess: TProgressBar
           Left = 1
-          Top = 576
+          Top = 581
           Width = 158
           Height = 17
           Align = alBottom
@@ -316,14 +316,14 @@ object frmUI: TfrmUI
       object pnlFileWorkspace: TPanel
         Left = 0
         Top = 0
-        Width = 613
-        Height = 594
+        Width = 621
+        Height = 599
         Align = alClient
         TabOrder = 0
         object splLog: TSplitter
           Left = 1
-          Top = 490
-          Width = 611
+          Top = 495
+          Width = 619
           Height = 3
           Cursor = crVSplit
           Align = alBottom
@@ -332,7 +332,7 @@ object frmUI: TfrmUI
         object splHint: TSplitter
           Left = 1
           Top = 31
-          Width = 611
+          Width = 619
           Height = 3
           Cursor = crVSplit
           Align = alTop
@@ -340,8 +340,8 @@ object frmUI: TfrmUI
         object grdFile: TDBGrid
           Left = 1
           Top = 34
-          Width = 611
-          Height = 456
+          Width = 619
+          Height = 461
           Align = alClient
           DataSource = dsFile
           Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
@@ -358,14 +358,14 @@ object frmUI: TfrmUI
         object pnlHint: TPanel
           Left = 1
           Top = 1
-          Width = 611
+          Width = 619
           Height = 30
           Align = alTop
           TabOrder = 0
           object lblHint: TLabel
             Left = 1
             Top = 1
-            Width = 609
+            Width = 617
             Height = 28
             Cursor = crHandPoint
             Align = alClient
@@ -386,8 +386,8 @@ object frmUI: TfrmUI
         end
         object memLog: TScrolledMemo
           Left = 1
-          Top = 493
-          Width = 611
+          Top = 498
+          Width = 619
           Height = 100
           Align = alBottom
           Color = clCream
@@ -401,22 +401,22 @@ object frmUI: TfrmUI
     object tsQueryWorkspace: TTabSheet
       Caption = 'SQL-'#1079#1072#1087#1088#1086#1089
       object splQueryActions: TSplitter
-        Left = 613
+        Left = 621
         Top = 0
-        Height = 594
+        Height = 599
         Align = alRight
       end
       object pnlQueryActions: TPanel
-        Left = 616
+        Left = 624
         Top = 0
         Width = 160
-        Height = 594
+        Height = 599
         Align = alRight
         TabOrder = 1
         OnResize = pnlQueryActionsResize
         DesignSize = (
           160
-          594)
+          599)
         object gbxTemplate: TGroupBox
           Left = 8
           Top = 168
@@ -546,7 +546,7 @@ object frmUI: TfrmUI
         end
         object pbQueryProcess: TProgressBar
           Left = 1
-          Top = 576
+          Top = 581
           Width = 158
           Height = 17
           Align = alBottom
@@ -582,8 +582,8 @@ object frmUI: TfrmUI
       object pnlQueryWorkspace: TPanel
         Left = 0
         Top = 0
-        Width = 613
-        Height = 594
+        Width = 621
+        Height = 599
         Align = alClient
         TabOrder = 0
         object splQueryResult: TSplitter
