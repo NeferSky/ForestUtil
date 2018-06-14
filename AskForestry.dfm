@@ -1,6 +1,6 @@
 object frmAskForestry: TfrmAskForestry
-  Left = 712
-  Top = 509
+  Left = 478
+  Top = 504
   BorderIcons = []
   BorderStyle = bsSingle
   Caption = #1051#1077#1089#1085#1080#1095#1077#1089#1090#1074#1086

@@ -57,21 +57,20 @@ begin
   DecodeDate(Date(), AYear, AMonth, ADay);
   case AMonth of
     1..3:
-      begin
-        frmAskForestry.udYear.Position := AYear - 1;
-        frmAskForestry.cmbQuarter.ItemIndex := 3;
-      end;
+    begin
+      frmAskForestry.udYear.Position := AYear - 1;
+      frmAskForestry.cmbQuarter.ItemIndex := 3;
+    end;
     else
-      begin
-        frmAskForestry.udYear.Position := AYear;
-        frmAskForestry.cmbQuarter.ItemIndex := ((AMonth - 1) div 3) - 1;
-      end;
+    begin
+      frmAskForestry.udYear.Position := AYear;
+      frmAskForestry.cmbQuarter.ItemIndex := ((AMonth - 1) div 3) - 1;
+    end;
   end;
 
   frmAskForestry.ShowModal();
 
-  frmAskForestry.RegionID :=
-    dmData.GetIntField(Format(S_DB_GET_REGION_ID_BY_FORESTRY,
+  frmAskForestry.RegionID := dmData.GetIntField(Format(S_DB_GET_REGION_ID_BY_FORESTRY,
     [frmAskForestry.cmbForestry.Text]));
   frmAskForestry.ForestryID := dmData.GetIntField(Format(S_DB_GET_FORESTRY_ID,
     [frmAskForestry.cmbForestry.Text]));

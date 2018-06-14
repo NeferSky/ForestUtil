@@ -204,8 +204,7 @@ begin
   else
     Prompt := lvValues.Items.Item[ItemIndex].Caption;
 
-  ShowEditEx(Prompt, 'Выберите новое значение',
-    dmData.Validator.GetDictionary(cmbCatalogs.Text), True);
+  ShowEditEx(Prompt, 'Выберите новое значение', dmData.Validator.GetDictionary(cmbCatalogs.Text), True);
 
   lvValues.Items.Item[ItemIndex].Caption := frmEdit.edtWord.Text;
   lvValues.Items.Item[ItemIndex].SubItems[0] := frmEdit.CurrentText;

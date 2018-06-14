@@ -60,8 +60,7 @@ begin
   vleSettings.InsertRow(S_SETTINGS_DB_PORT, PgPort, True);
   vleSettings.InsertRow(S_SETTINGS_DB_LOGIN, PgUID, True);
   vleSettings.InsertRow(S_SETTINGS_DB_PASSWORD, PgPassword, True);
-  vleSettings.InsertRow(S_SETTINGS_QUERIES_REMEMBERED,
-    IntToStr(MaxQueriesCount), True);
+  vleSettings.InsertRow(S_SETTINGS_QUERIES_REMEMBERED, IntToStr(MaxQueriesCount), True);
 
   vleSettings.InsertRow(S_SETTINGS_HIDE_TO_TRAY, BoolToStr(TrayEnabled), True);
   vleSettings.ItemProps[S_SETTINGS_HIDE_TO_TRAY].EditStyle := esPickList;

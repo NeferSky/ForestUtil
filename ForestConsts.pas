@@ -69,8 +69,7 @@ const
   S_EXCEL_USERID: AnsiString = 'User ID=Admin';
   S_EXCEL_MODE: AnsiString = 'Mode=Share Deny None';
   S_EXCEL_EXTENDED4: AnsiString = 'Extended Properties="Excel 8.0;HDR=No"';
-  S_EXCEL_EXTENDED12: AnsiString =
-    'Extended Properties="Excel 12.0 Xml;HDR=No"';
+  S_EXCEL_EXTENDED12: AnsiString = 'Extended Properties="Excel 12.0 Xml;HDR=No"';
   S_EXCEL_JET_DB: AnsiString = 'Jet OLEDB:System database=""';
   S_EXCEL_JET_REG: AnsiString = 'Jet OLEDB:Registry Path=""';
   S_EXCEL_JET_PASS: AnsiString = 'Jet OLEDB:Database Password=""';
@@ -81,15 +80,12 @@ const
   S_EXCEL_JET_NEWPASS: AnsiString = 'Jet OLEDB:New Database Password=""';
   S_EXCEL_JET_CRTDB: AnsiString = 'Jet OLEDB:Create System Database=False';
   S_EXCEL_JET_ENC: AnsiString = 'Jet OLEDB:Encrypt Database=False';
-  S_EXCEL_JET_COPY: AnsiString =
-    'Jet OLEDB:Don''t Copy Locale on Compact=False';
-  S_EXCEL_JET_REPL: AnsiString =
-    'Jet OLEDB:Compact Without Replica Repair=False';
+  S_EXCEL_JET_COPY: AnsiString = 'Jet OLEDB:Don''t Copy Locale on Compact=False';
+  S_EXCEL_JET_REPL: AnsiString = 'Jet OLEDB:Compact Without Replica Repair=False';
   S_EXCEL_JET_SFP: AnsiString = 'Jet OLEDB:SFP=False';
   S_EXCEL_JET_COMPLEX: AnsiString = 'Jet OLEDB:Support Complex Data=False';
   S_XLS_FORMAT: AnsiString = '%s;%s%s;%s';
-  S_XLSX_FORMAT: AnsiString =
-    '%s;%s;%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s';
+  S_XLSX_FORMAT: AnsiString = '%s;%s;%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s';
 
   // Database open
   S_PG_PROVIDER: AnsiString = 'Provider=MSDASQL.1';
@@ -138,71 +134,52 @@ const
   S_PG_GSSAUTH_USE_GSS: AnsiString = 'GssAuthUseGSS=0';
   S_PG_XA_OPT: AnsiString = 'XaOpt=1"';
   S_PG_INIT_CATALOG: AnsiString = 'Initial Catalog=';
-  S_POSTGRESQL_FORMAT: AnsiString =
-    '%s;%s%s;%s;%s%s;%s%s;%s%s;%s%s;%s%s;%s%s;%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s%s';
+  S_POSTGRESQL_FORMAT: AnsiString = '%s;%s%s;%s;%s%s;%s%s;%s%s;%s%s;%s%s;%s%s;%s%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s%s';
 
   // User messages
-  S_QUERY_TYPE_CONFIRM: AnsiString = 'Похоже, что выбран неверный тип запроса.'
-    + #13#10 + 'Верно ли указан тип?';
+  S_QUERY_TYPE_CONFIRM: AnsiString = 'Похоже, что выбран неверный тип запроса.' + sLineBreak + 'Верно ли указан тип?';
   S_STATUS_WAITING_TABLE: AnsiString = 'Ожидание выбора таблицы';
   S_STATUS_POSITION_TABLE: AnsiString = 'Позиционирование таблицы';
   S_STATUS_READY: AnsiString = 'Готово к работе';
   S_STATUS_PROCESSING: AnsiString = 'Выполняется:';
   S_STATUS_OFFLINE: AnsiString = 'Отключено';
 
-  S_LOG_ONE_MORE_THAN_TWO: AnsiString = '' + #13#10 +
-    'Строка %d: Значение в колонке %d больше значения в колонке %d';
-  S_LOG_SUM_ONE_DIFF_THAN_TWO: AnsiString = '' + #13#10 +
-    'Строка %d: Сумма значений в колонках %s не равна значению в колонке %d';
-  S_LOG_ONE_DIFF_THAN_SUM_TWO: AnsiString = '' + #13#10 +
-    'Строка %d: Значение в колонке %d больше суммы значений в колонках %s';
-  S_LOG_FORMULA_ONE_DIFF_THAN_TWO: AnsiString = '' + #13#10 +
-    'Строка %d: Значения в колонках (%s) не равно значению в колонке %d';
-  S_LOG_EMPTY_ROW: AnsiString = '' + #13#10 + 'Пустая строка: %d';
-  S_LOG_DUPLICATE_ROW: AnsiString = '' + #13#10 + 'Дублирование строк: %d и %d';
-  S_LOG_REPLACE_FROM_DICTIONARY: AnsiString = '' + #13#10 +
-    'Строка %d: значение "%s" из словаря вместо "%s"';
-  S_LOG_NO_SPECIES_RELATION: AnsiString = '' + #13#10 +
-    'Строка %d: Повреждаемая порода не соответствует причине повреждения';
-  S_LOG_NO_CAUSE_RELATION: AnsiString = '' + #13#10 +
-    'Строка %d: Причина повреждения не соответствует году повреждения';
-  S_LOG_INVALID_SUM_PREV_REPORT: AnsiString = '' + #13#10 +
-    'Сумма значений в колонке %d не сходится с суммой из предыдущего отчета';
-  S_LOG_PREV_REPORT_NOT_FOUND: AnsiString = '' + #13#10 +
-    'Предыдущий отчет для сравнения не найден';
+  S_LOG_ONE_MORE_THAN_TWO: AnsiString = '' + sLineBreak + 'Строка %d: Значение в колонке %d больше значения в колонке %d';
+  S_LOG_SUM_ONE_DIFF_THAN_TWO: AnsiString = '' + sLineBreak + 'Строка %d: Сумма значений в колонках %s не равна значению в колонке %d';
+  S_LOG_ONE_DIFF_THAN_SUM_TWO: AnsiString = '' + sLineBreak + 'Строка %d: Значение в колонке %d больше суммы значений в колонках %s';
+  S_LOG_FORMULA_ONE_DIFF_THAN_TWO: AnsiString = '' + sLineBreak + 'Строка %d: Значения в колонках (%s) не равно значению в колонке %d';
+  S_LOG_EMPTY_ROW: AnsiString = '' + sLineBreak + 'Пустая строка: %d';
+  S_LOG_DUPLICATE_ROW: AnsiString = '' + sLineBreak + 'Дублирование строк: %d и %d';
+  S_LOG_REPLACE_FROM_DICTIONARY: AnsiString = '' + sLineBreak + 'Строка %d: значение "%s" из словаря вместо "%s"';
+  S_LOG_NO_SPECIES_RELATION: AnsiString = '' + sLineBreak + 'Строка %d: Повреждаемая порода не соответствует причине повреждения';
+  S_LOG_NO_CAUSE_RELATION: AnsiString = '' + sLineBreak + 'Строка %d: Причина повреждения не соответствует году повреждения';
+  S_LOG_INVALID_SUM_PREV_REPORT: AnsiString = '' + sLineBreak + 'Сумма значений в колонке %d не сходится с суммой из предыдущего отчета';
+  S_LOG_PREV_REPORT_NOT_FOUND: AnsiString = '' + sLineBreak + 'Предыдущий отчет для сравнения не найден';
 
   S_LOG_COMPLETED: AnsiString = 'Завершено';
   S_LOG_FORCE_STOP: AnsiString = 'Экстренное завершение по требованию';
-  S_LOG_SUCCESSFULLY: AnsiString =
-    'Проверка пройдена успешно - файл может быть загружен в БД';
-  S_LOG_EXTRA_INVALID: AnsiString =
-    'Площадь очага больше площади обследования (см. номера строк и колонок в результатах проверки)';
-  S_LOG_MAIN_INVALID: AnsiString =
-    'В таблице присутствуют критические ошибки - необходима проверка или доработка (см. номера строк и колонок в результатах проверки)';
-  S_LOG_DUPLICATE_INVALID: AnsiString =
-    'В таблице присутствуют дубликаты строк, необходима проверка';
-  S_LOG_RELATION_INVALID: AnsiString =
-    'В таблице присутствуют ошибки соответствия полей';
-  S_LOG_SKIPPED_LINES: AnsiString =
-    'Обнаружены пропущенные проверки. Поэтому скрипт для базы данных я Вам не отдам...';
+  S_LOG_SUCCESSFULLY: AnsiString = 'Проверка пройдена успешно - файл может быть загружен в БД';
+  S_LOG_EXTRA_INVALID: AnsiString = 'Площадь очага больше площади обследования (см. номера строк и колонок в результатах проверки)';
+  S_LOG_MAIN_INVALID: AnsiString = 'В таблице присутствуют критические ошибки - необходима проверка или доработка (см. номера строк и колонок в результатах проверки)';
+  S_LOG_DUPLICATE_INVALID: AnsiString = 'В таблице присутствуют дубликаты строк, необходима проверка';
+  S_LOG_RELATION_INVALID: AnsiString = 'В таблице присутствуют ошибки соответствия полей';
+  S_LOG_SKIPPED_LINES: AnsiString = 'Обнаружены пропущенные проверки. Поэтому скрипт для базы данных я Вам не отдам...';
 
   S_IN_PROGRESS: AnsiString = 'Похоже, все еще выполняется предыдущий запрос.';
   S_QUERY_EXEC_SUCCESS: AnsiString = 'Успешно!';
-  S_EDIT_PROMPT: AnsiString = '' + #13#10 + #13#10 + 
-    'Значения близких по смыслу колонок:' + #13#10;
+  S_EDIT_PROMPT: AnsiString = '' + sLineBreak + sLineBreak + 'Значения близких по смыслу колонок:' + sLineBreak;
 
   // Error messages
   E_FIND_FIRST_CELL: AnsiString = 'Не удалось распознать первую строку таблицы';
-  E_FIND_LAST_CELL: AnsiString =
-    'Не удалось распознать последнюю строку таблицы';
-  E_WRITE_QUERY: AnsiString = 'Ошибка при попытке запомнить SQL-запрос' + #13#10 +
-    'Значения счетчиков:' + #13#10 +
+  E_FIND_LAST_CELL: AnsiString = 'Не удалось распознать последнюю строку таблицы';
+  E_WRITE_QUERY: AnsiString = 'Ошибка при попытке запомнить SQL-запрос' + sLineBreak +
+    'Значения счетчиков:' + sLineBreak +
     'MaxQueriesCount: %d, FActualCount: %d, FWritingIndex: %d, FReadingIndex: %d';
-  E_READ_QUERY: AnsiString = 'Ошибка при попытке прочитать SQL-запрос' + #13#10 +
-    'Значения счетчиков:' + #13#10 +
+  E_READ_QUERY: AnsiString = 'Ошибка при попытке прочитать SQL-запрос' + sLineBreak +
+    'Значения счетчиков:' + sLineBreak +
     'MaxQueriesCount: %d, FActualCount: %d, FWritingIndex: %d, FReadingIndex: %d';
-  E_QUERY_EXEC_ERROR: AnsiString = '!!! Ошибка при выполнении запроса. !!!' +
-    #13#10 + 'Изменения отменены.';
+  E_QUERY_EXEC_ERROR: AnsiString = '!!! Ошибка при выполнении запроса. !!!' + sLineBreak +
+    'Изменения отменены.';
   E_REPORT_ERROR = 'Во время подготовки отчета произошла ошибка.';
 
   // File names
@@ -232,8 +209,8 @@ const
   // Dictionary formats
   S_DICT_ID_FORMAT: AnsiString = '$ID$';
   S_DICT_NAME_FORMAT: AnsiString = '$NAME$';
-  S_FORMAT_HELP: AnsiString = 'Подстановка значений для форматирования:' +
-    #13#10 + '$NAME$ - текстовое название' + #13#10 + '$ID$ - идентификатор';
+  S_FORMAT_HELP: AnsiString = 'Подстановка значений для форматирования:' + sLineBreak +
+    '$NAME$ - текстовое название' + sLineBreak + '$ID$ - идентификатор';
 
   // Settings names
   S_SETTINGS_TEMPLATE_SELECT: AnsiString = 'Шаблон SELECT';
@@ -256,7 +233,7 @@ const
   S_DB_SCRIPT_HEADER: AnsiString = '';
   S_DB_SCRIPT_FOOTER: AnsiString = 'COMMIT;';
   S_DB_SCRIPT_LN_HEADER: AnsiString = '';
-  S_DB_SCRIPT_LN_FOOTER: AnsiString = '' + #13#10;
+  S_DB_SCRIPT_LN_FOOTER: AnsiString = '' + sLineBreak;
 
   S_DB_DELETE_SCRIPT_FORMAT: AnsiString =
     'DELETE FROM %s WHERE (forestry_number = %d) ' +

@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, Grids, DBGrids, ComCtrls, Menus, DB,
   ActnList, ImgList, SQLQuery, XPMan, ScrolledMemo, Edit, Buttons,
-  ForestTypes, ADODB, ReportManager;
+  ForestTypes, ADODB, ReportManager, NsScrolledDBGrid;
 
 type
   TReportMenuItem = class(TMenuItem)
@@ -91,7 +91,6 @@ type
     lblHint: TLabel;
 
     pnlFileWorkspace: TPanel;
-    grdFile: TDBGrid;
     splLog: TSplitter;
     memLog: TScrolledMemo;
 
@@ -157,6 +156,7 @@ type
     mnuCatalogEdit: TMenuItem;
     mnuReports: TMenuItem;
     actRepPrevReport: TAction;
+    grdFile: TNsScrolledDBGrid;
 
     // Components Events
     procedure FormCreate(Sender: TObject);
@@ -260,8 +260,7 @@ uses
 procedure TfrmUI.actAboutExecute(Sender: TObject);
 begin
   AboutBox.ProductName.Caption := Application.Title;
-  AboutBox.Version.Caption := Format(S_VERSION,
-    [GetFullFileVersion(Application.ExeName)]);
+  AboutBox.Version.Caption := Format(S_VERSION, [GetFullFileVersion(Application.ExeName)]);
   AboutBox.Copyright.Caption := S_COPYRIGHT;
   AboutBox.Comments.Caption := S_COMMENTS;
   AboutBox.ShowModal();
@@ -354,19 +353,19 @@ begin
 
   case QueryType of
     qtSelect:
-      begin
-        dmData.GetQueryResult(memQueryText.Text);
-        ShowQueryResultGrid();
-        btnSaveQueryResult.Enabled := True;
-        lblRecordsFetched.Caption := IntToStr(dmData.GetQueryRecordsCount);
-        gbxRecordsFetched.Visible := True;
-        btnSaveQueryResult.Enabled := dmData.GetQueryRecordsCount > 0;
-      end;
+    begin
+      dmData.GetQueryResult(memQueryText.Text);
+      ShowQueryResultGrid();
+      btnSaveQueryResult.Enabled := True;
+      lblRecordsFetched.Caption := IntToStr(dmData.GetQueryRecordsCount);
+      gbxRecordsFetched.Visible := True;
+      btnSaveQueryResult.Enabled := dmData.GetQueryRecordsCount > 0;
+    end;
     qtCommand:
-      begin
-        dmData.ExecuteQuery(memQueryText.Text);
-        gbxRecordsFetched.Visible := False;
-      end;
+    begin
+      dmData.ExecuteQuery(memQueryText.Text);
+      gbxRecordsFetched.Visible := False;
+    end;
   end;
 
   FSQLQueries.Add(memQueryText.Text);
@@ -535,8 +534,10 @@ end;
 
 procedure TfrmUI.actValidateRecordExecute(Sender: TObject);
 begin
-  dmData.ValidateRecord(frmAskForestry.RegionID, frmAskForestry.ForestryID,
-    frmAskForestry.ReportYear, frmAskForestry.ReportQuarter);
+  dmData.ValidateRecord(frmAskForestry.RegionID,
+                        frmAskForestry.ForestryID,
+                        frmAskForestry.ReportYear,
+                        frmAskForestry.ReportQuarter);
   gbxSkippedRecs.Enabled := Length(dmData.SkippedRecs) > 0
 end;
 
@@ -553,20 +554,18 @@ begin
   lblStatus.Caption := S_STATUS_PROCESSING;
   Application.ProcessMessages();
 
-  dmData.ValidateTable(frmAskForestry.RegionID, frmAskForestry.ForestryID,
-    frmAskForestry.ReportYear, frmAskForestry.ReportQuarter);
+  dmData.ValidateTable(frmAskForestry.RegionID,
+                       frmAskForestry.ForestryID,
+                       frmAskForestry.ReportYear,
+                       frmAskForestry.ReportQuarter);
 
-  if (vrMainInvalid in dmData.ValidationResult) and (ldMathErrors in
-    dmData.LogDetails) then
+  if (vrMainInvalid in dmData.ValidationResult) and (ldMathErrors in dmData.LogDetails) then
     ShowMessage(S_LOG_MAIN_INVALID)
-  else if (vrExtraInvalid in dmData.ValidationResult) and (ldMathErrors in
-    dmData.LogDetails) then
+  else if (vrExtraInvalid in dmData.ValidationResult) and (ldMathErrors in dmData.LogDetails) then
     ShowMessage(S_LOG_EXTRA_INVALID)
-  else if (vrDuplicateInvalid in dmData.ValidationResult) and (ldDuplicates in
-    dmData.LogDetails) then
+  else if (vrDuplicateInvalid in dmData.ValidationResult) and (ldDuplicates in dmData.LogDetails) then
     ShowMessage(S_LOG_DUPLICATE_INVALID)
-  else if (vrRelationInvalid in dmData.ValidationResult) and (ldRelationErrors in
-    dmData.LogDetails) then
+  else if (vrRelationInvalid in dmData.ValidationResult) and (ldRelationErrors in dmData.LogDetails) then
     ShowMessage(S_LOG_RELATION_INVALID)
   else if vrStop in dmData.ValidationResult then
     Application.ProcessMessages() // Do nothing
@@ -630,18 +629,12 @@ begin
     Exit;
   end;
 
-  WordCount := (Length(SQLText) - Length(StringReplace(SQLText,
-    S_FREE_SELECT, '', [rfReplaceAll]))) div Length(S_FREE_SELECT);
-  DotCommaCount := (Length(SQLText) - Length(StringReplace(SQLText,
-    S_DOTCOMMA_SELECT, '', [rfReplaceAll]))) div Length(S_DOTCOMMA_SELECT);
-  Braked1Count := (Length(SQLText) - Length(StringReplace(SQLText,
-    S_BRACKED1_SELECT, '', [rfReplaceAll]))) div Length(S_BRACKED1_SELECT);
-  Braked2Count := (Length(SQLText) - Length(StringReplace(SQLText,
-    S_BRACKED2_SELECT, '', [rfReplaceAll]))) div Length(S_BRACKED2_SELECT);
-  EqualCount := (Length(SQLText) - Length(StringReplace(SQLText,
-    S_EQUAL_SELECT, '', [rfReplaceAll]))) div Length(S_EQUAL_SELECT);
-  CommaCount := (Length(SQLText) - Length(StringReplace(SQLText,
-    S_COMMA_SELECT, '', [rfReplaceAll]))) div Length(S_COMMA_SELECT);
+  WordCount := (Length(SQLText) - Length(StringReplace(SQLText, S_FREE_SELECT, '', [rfReplaceAll]))) div Length(S_FREE_SELECT);
+  DotCommaCount := (Length(SQLText) - Length(StringReplace(SQLText, S_DOTCOMMA_SELECT, '', [rfReplaceAll]))) div Length(S_DOTCOMMA_SELECT);
+  Braked1Count := (Length(SQLText) - Length(StringReplace(SQLText, S_BRACKED1_SELECT, '', [rfReplaceAll]))) div Length(S_BRACKED1_SELECT);
+  Braked2Count := (Length(SQLText) - Length(StringReplace(SQLText, S_BRACKED2_SELECT, '', [rfReplaceAll]))) div Length(S_BRACKED2_SELECT);
+  EqualCount := (Length(SQLText) - Length(StringReplace(SQLText, S_EQUAL_SELECT, '', [rfReplaceAll]))) div Length(S_EQUAL_SELECT);
+  CommaCount := (Length(SQLText) - Length(StringReplace(SQLText, S_COMMA_SELECT, '', [rfReplaceAll]))) div Length(S_COMMA_SELECT);
 
   // Free SELECT more than (SELECT + )SELECT + =SELECT + ,SELECT
   if WordCount > (Braked1Count + Braked2Count + EqualCount + CommaCount) then
@@ -714,8 +707,7 @@ begin
   InitFileProcessControls();
   pcPagesChange(Sender);
   ShowQueriesCount();
-  sbStatus.SimpleText := Application.Title + ' v.' +
-    GetFullFileVersion(Application.ExeName);
+  sbStatus.SimpleText := Application.Title + ' v.' + GetFullFileVersion(Application.ExeName);
   dmData.OnValidationLog := ValidationLog;
   dmData.OnProgress := StepProcess;
 end;
@@ -758,8 +750,8 @@ begin
     grdFile.DefaultDrawColumnCell(Rect, DataCol, Column, State);
   end;
 
-  if dmData.InvalidRow(grdFile.DataSource.DataSet.RecNo) and (ldMathErrors in
-    dmData.LogDetails) then
+  if dmData.InvalidRow(grdFile.DataSource.DataSet.RecNo) and
+    (ldMathErrors in dmData.LogDetails) then
   begin
     grdFile.Canvas.Brush.Color := clRed;
     grdFile.DefaultDrawColumnCell(Rect, DataCol, Column, State);
@@ -795,11 +787,11 @@ begin
 
   case Msg.LParam of
     WM_LBUTTONUP, WM_LBUTTONDBLCLK:
-      begin
-        Tray(2, Application.Icon);
-        ShowWindow(Application.Handle, SW_SHOW);
-        ShowWindow(Handle, SW_SHOW);
-      end;
+    begin
+      Tray(2, Application.Icon);
+      ShowWindow(Application.Handle, SW_SHOW);
+      ShowWindow(Handle, SW_SHOW);
+    end;
 
     WM_RBUTTONUP:
       pmnuTray.Popup(P.X, P.Y);
@@ -926,8 +918,8 @@ begin
   mnuSaveQuery.Visible := not FilePageActive;
   mnuSaveQuery.Enabled := not FilePageActive;
   mnuSaveQueryResult.Visible := not FilePageActive;
-  mnuSaveQueryResult.Enabled := dmData.mtCache.Active and (not FilePageActive);
-  btnSaveQueryResult.Enabled := dmData.mtCache.Active and (not FilePageActive);
+  mnuSaveQueryResult.Enabled := dmData.mdCache.Active and (not FilePageActive);
+  btnSaveQueryResult.Enabled := dmData.mdCache.Active and (not FilePageActive);
   btnExecuteQuery.Enabled := not FilePageActive;
 end;
 
@@ -980,8 +972,7 @@ end;
 procedure TfrmUI.QueryKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if (ssCtrl in Shift) and (Key = 65) then // Oops, it has been broken
-    memQueryText.SelectAll()
+  if (ssCtrl in Shift) and (Key = 65) then memQueryText.SelectAll()
   else if (ssCtrl in Shift) and ((Key = VK_1) or (Key = VK_NUMPAD1)) then
     actPasteSelectTemplate.Execute()
   else if (ssCtrl in Shift) and ((Key = VK_2) or (Key = VK_NUMPAD2)) then
@@ -1074,21 +1065,15 @@ end;
 
 procedure TfrmUI.ReadSettings;
 begin
-  if not FileExists(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME)
-    then
+  if not FileExists(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) then
     Exit;
 
-  with TIniFile.Create(ExtractFilePath(Application.ExeName) +
-    S_SETTINGS_FILE_NAME) do
+  with TIniFile.Create(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) do
     try
-      SQLSelectTemplate := ReadString(S_INI_TEMPLATES, S_SELECT_TEMPLATE,
-        SQLSelectTemplate);
-      SQLInsertTemplate := ReadString(S_INI_TEMPLATES, S_INSERT_TEMPLATE,
-        SQLInsertTemplate);
-      SQLUpdateTemplate := ReadString(S_INI_TEMPLATES, S_UPDATE_TEMPLATE,
-        SQLUpdateTemplate);
-      SQLDeleteTemplate := ReadString(S_INI_TEMPLATES, S_DELETE_TEMPLATE,
-        SQLDeleteTemplate);
+      SQLSelectTemplate := ReadString(S_INI_TEMPLATES, S_SELECT_TEMPLATE, SQLSelectTemplate);
+      SQLInsertTemplate := ReadString(S_INI_TEMPLATES, S_INSERT_TEMPLATE, SQLInsertTemplate);
+      SQLUpdateTemplate := ReadString(S_INI_TEMPLATES, S_UPDATE_TEMPLATE, SQLUpdateTemplate);
+      SQLDeleteTemplate := ReadString(S_INI_TEMPLATES, S_DELETE_TEMPLATE, SQLDeleteTemplate);
       TrayEnabled := ReadBool(S_INI_GUI, S_TRAY_ENABLED, TrayEnabled);
 
     finally

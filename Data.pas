@@ -5,8 +5,9 @@ unit Data;
 interface
 
 uses
-  Windows, SysUtils, Classes, DB, ADODB, MemTableDataEh, DataDriverEh,
-  ADODataDriverEh, MemTableEh, Validator, DBScript, ForestTypes;
+  Windows, SysUtils, Classes, DB, ADODB, //MemTableDataEh, DataDriverEh,
+  //ADODataDriverEh, MemTableEh,
+  Validator, DBScript, ForestTypes, dxmdaset;
 
 type
   TdmData = class(TDataModule)
@@ -14,9 +15,9 @@ type
     qryCommand: TADOQuery;
     connFile: TADOConnection;
     qryFileSelect: TADOQuery;
-    mtCache: TMemTableEh;
-    qrySelect: TADODataDriverEh;
     qryGetTableValues: TADOQuery;
+    mdCache: TdxMemData;
+    qrySelect: TADOQuery;
     procedure DataModuleCreate(Sender: TObject);
     procedure DataModuleDestroy(Sender: TObject);
   private
@@ -45,8 +46,7 @@ type
     procedure Rollback;
     //
     function SearchForDuplicates: TValidationRes;
-    procedure ReadDBString(const RegionID, ForestryID, ReportQuarter,
-      ReportYear: Integer);
+    procedure ReadDBString(const RegionID, ForestryID, ReportQuarter, ReportYear: Integer);
     //
     procedure ValidationLog(Str: AnsiString);
     procedure Progress(CurrentIteration: Integer);
@@ -55,12 +55,10 @@ type
     function EmptyRec: Boolean;
     function MoveTo(const DataSet: TDataSet; const Position: Integer): Boolean;
     //
-    function ExistsSameReport(const ForestryID, ReportQuarter, ReportYear:
-      Integer): Boolean;
-    function ExistsPrevReport(const ForestryID: Integer; ReportQuarter,
-      ReportYear: Integer): Boolean;
-    function GetPrevReportSums(const ForestryID, ReportYear, ReportQuarter:
-      Integer; const PrevYear: Boolean): TReportSums;
+    function ExistsSameReport(const ForestryID, ReportQuarter, ReportYear: Integer): Boolean;
+    function ExistsPrevReport(const ForestryID: Integer; ReportQuarter, ReportYear: Integer): Boolean;
+    function GetPrevReportSums(const ForestryID, ReportYear, ReportQuarter: Integer;
+      const PrevYear: Boolean): TReportSums;
     //
     procedure AddSkippedRec(RecNo: Integer);
     procedure AddInvalidRec(RecNo: Integer);
@@ -92,16 +90,13 @@ type
     function OpenTable(const TableName: AnsiString): Boolean;
     function GetFileRecordsCount: Integer;
     //
-    procedure ValidateTable(const RegionID, ForestryID, ReportYear,
-      ReportQuarter: Integer);
-    procedure ValidateRecord(const RegionID, ForestryID, ReportYear,
-      ReportQuarter: Integer);
+    procedure ValidateTable(const RegionID, ForestryID, ReportYear, ReportQuarter: Integer);
+    procedure ValidateRecord(const RegionID, ForestryID, ReportYear, ReportQuarter: Integer);
     procedure PositionTable;
     //
     property TableList: TStringList read GetTableList;
     property InProgress: Boolean read GetInProgress;
-    property OnValidationLog: TOnValidationLog read FOnValidationLog write
-      FOnValidationLog;
+    property OnValidationLog: TOnValidationLog read FOnValidationLog write FOnValidationLog;
     property OnProgress: TOnProgress read FOnProgress write FOnProgress;
     property ValidationResult: TValidationResult read FValidationResult;
     property LogDetails: TLogDetails read GetLogDetails write SetLogDetails;
@@ -252,12 +247,12 @@ function TdmData.ExistsPrevReport(const ForestryID: Integer; ReportQuarter,
 begin
   case ReportQuarter of
     1:
-      begin
-        ReportQuarter := 4;
-        ReportYear := ReportYear - 1;
-      end;
+    begin
+      ReportQuarter := 4;
+      ReportYear := ReportYear - 1;
+    end;
 
-  else
+    else
     begin
       ReportQuarter := ReportQuarter - 1;
     end;
@@ -272,8 +267,7 @@ end;
 function TdmData.ExistsSameReport(const ForestryID, ReportQuarter, ReportYear:
   Integer): Boolean;
 begin
-  Result := GetIntField(Format(S_DB_GET_REPORT_ROW_COUNT, [S_DB_TABLE_NAME,
-    ForestryID, ReportQuarter, ReportYear])) > 0;
+  Result := GetIntField(Format(S_DB_GET_REPORT_ROW_COUNT, [S_DB_TABLE_NAME, ForestryID, ReportQuarter, ReportYear])) > 0;
 end;
 
 //---------------------------------------------------------------------------
@@ -357,18 +351,18 @@ function TdmData.GetDBConnectionString: AnsiString;
 begin
   Result := Format(S_POSTGRESQL_FORMAT, [S_PG_PROVIDER, S_PG_PASSWORD,
     PgPassword, S_PG_SECURITY_INFO, S_PG_USER_ID, PgUID, S_PG_EXTENDED_PROPS,
-      S_PG_DRIVER, S_PG_DATABASE, PgDatabase, S_PG_SERVER, PgServer,
-      S_PG_PORT, PgPort, S_PG_UID, PgUID, S_PG_PWD, PgPassword, S_PG_SSL_MODE,
-      S_PG_READ_ONLY, S_PG_PROTOCOL, S_PG_FAKE_OID_INDEX, S_PG_SHOW_OID_COLS,
-      S_PG_ROW_VERSIONONG, S_PG_SHOW_SYS_TABLES, S_PG_CONN_SETTINGS, S_PG_FETCH,
-      S_PG_SOCKET, S_PG_UNKNOWN_SIZES, S_PG_VARCHAR_SIZE, S_PG_LVARCHAR_SIZE,
-      S_PG_DEBUG, S_PG_COMM_LOG, S_PG_OPTIMIZER, S_PG_KSQO, S_PG_DECLARE_FETCH,
-      S_PG_TEXT_LVARCHAR, S_PG_UNKNOWNS_LVARCHAR, S_PG_BOOLS_AS_CHAR,
-      S_PG_PARSE, S_PG_CANCEL_FREE_STMT, S_PG_SYS_TABLE_PREFIXES,
-      S_PG_LF_CONVERSION, S_PG_UPD_CURSORS, S_PG_DISALLOW_PREMATURE,
-      S_PG_TRUE_IS_MINUS1, S_PG_BI, S_PG_BYTEA_LVARBINARY,
-      S_PG_SERVERSIDE_PREPARE, S_PG_LOWERCASE_ID, S_PG_GSSAUTH_USE_GSS,
-      S_PG_XA_OPT, S_PG_INIT_CATALOG, PgDatabase]);
+    S_PG_DRIVER, S_PG_DATABASE, PgDatabase, S_PG_SERVER, PgServer,
+    S_PG_PORT, PgPort, S_PG_UID, PgUID, S_PG_PWD, PgPassword, S_PG_SSL_MODE,
+    S_PG_READ_ONLY, S_PG_PROTOCOL, S_PG_FAKE_OID_INDEX, S_PG_SHOW_OID_COLS,
+    S_PG_ROW_VERSIONONG, S_PG_SHOW_SYS_TABLES, S_PG_CONN_SETTINGS, S_PG_FETCH,
+    S_PG_SOCKET, S_PG_UNKNOWN_SIZES, S_PG_VARCHAR_SIZE, S_PG_LVARCHAR_SIZE,
+    S_PG_DEBUG, S_PG_COMM_LOG, S_PG_OPTIMIZER, S_PG_KSQO, S_PG_DECLARE_FETCH,
+    S_PG_TEXT_LVARCHAR, S_PG_UNKNOWNS_LVARCHAR, S_PG_BOOLS_AS_CHAR,
+    S_PG_PARSE, S_PG_CANCEL_FREE_STMT, S_PG_SYS_TABLE_PREFIXES,
+    S_PG_LF_CONVERSION, S_PG_UPD_CURSORS, S_PG_DISALLOW_PREMATURE,
+    S_PG_TRUE_IS_MINUS1, S_PG_BI, S_PG_BYTEA_LVARBINARY,
+    S_PG_SERVERSIDE_PREPARE, S_PG_LOWERCASE_ID, S_PG_GSSAUTH_USE_GSS,
+    S_PG_XA_OPT, S_PG_INIT_CATALOG, PgDatabase]);
 end;
 
 //---------------------------------------------------------------------------
@@ -379,11 +373,11 @@ begin
   //  if AnsiUpperCase(ExtractFileExt(FileName)) = '.XLSX' then
   Result := Format(S_XLSX_FORMAT, [S_EXCEL_PROVIDER12, S_EXCEL_USERID,
     S_EXCEL_DATASOURCE, FileName, S_EXCEL_MODE, S_EXCEL_EXTENDED12,
-      S_EXCEL_JET_DB, S_EXCEL_JET_REG, S_EXCEL_JET_PASS, S_EXCEL_JET_ENGINE,
-      S_EXCEL_JET_LOCK, S_EXCEL_JET_BULK_OPS, S_EXCEL_JET_BULK_TRN,
-      S_EXCEL_JET_NEWPASS, S_EXCEL_JET_CRTDB, S_EXCEL_JET_ENC,
-      S_EXCEL_JET_COPY, S_EXCEL_JET_REPL, S_EXCEL_JET_SFP,
-      S_EXCEL_JET_COMPLEX]);
+    S_EXCEL_JET_DB, S_EXCEL_JET_REG, S_EXCEL_JET_PASS, S_EXCEL_JET_ENGINE,
+    S_EXCEL_JET_LOCK, S_EXCEL_JET_BULK_OPS, S_EXCEL_JET_BULK_TRN,
+    S_EXCEL_JET_NEWPASS, S_EXCEL_JET_CRTDB, S_EXCEL_JET_ENC,
+    S_EXCEL_JET_COPY, S_EXCEL_JET_REPL, S_EXCEL_JET_SFP,
+    S_EXCEL_JET_COMPLEX]);
   {  else
       Result := Format(S_XLS_FORMAT, [S_EXCEL_PROVIDER4, S_EXCEL_DATASOURCE,
         FileName, S_EXCEL_EXTENDED4]);
@@ -409,8 +403,7 @@ begin
 
   try
     Connect();
-    qryGetTableValues.SQL.Text := Format(S_SQL_GET_FORESTRIES_BY_REGION,
-      [RegionID]);
+    qryGetTableValues.SQL.Text := Format(S_SQL_GET_FORESTRIES_BY_REGION, [RegionID]);
     qryGetTableValues.Open();
 
     qryGetTableValues.First();
@@ -467,11 +460,9 @@ begin
     Connect();
 
     if PrevYear then
-      qryGetTableValues.SQL.Text := Format(S_DB_GET_PREV_YEAR_SUMS,
-        [S_DB_TABLE_NAME, ForestryID, ReportYear])
+      qryGetTableValues.SQL.Text := Format(S_DB_GET_PREV_YEAR_SUMS, [S_DB_TABLE_NAME, ForestryID, ReportYear])
     else
-      qryGetTableValues.SQL.Text := Format(S_DB_GET_PREV_QUARTER_SUMS,
-        [S_DB_TABLE_NAME, ForestryID, ReportYear, ReportQuarter]);
+      qryGetTableValues.SQL.Text := Format(S_DB_GET_PREV_QUARTER_SUMS, [S_DB_TABLE_NAME, ForestryID, ReportYear, ReportQuarter]);
 
     qryGetTableValues.Open();
     Result.DamagedArea := qryGetTableValues.Fields[0].AsCurrency;
@@ -488,21 +479,21 @@ end;
 
 function TdmData.GetQueryRecordsCount: Integer;
 begin
-  Result := mtCache.RecordCount;
+  Result := mdCache.RecordCount;
 end;
 
 //---------------------------------------------------------------------------
 
 procedure TdmData.GetQueryResult(const SQLText: AnsiString);
 begin
-  if mtCache.Active then
-    mtCache.Close();
+  if mdCache.Active then
+    mdCache.Close();
 
   try
     try
       Connect();
-      qrySelect.SelectSQL.Text := SQLText;
-      mtCache.Open();
+      qrySelect.SQL.Text := SQLText;
+      mdCache.Open();
 
     except
       ShowMsg(S_QUERY_EXEC_SUCCESS);
@@ -548,8 +539,7 @@ begin
       I := Length(Result);
       SetLength(Result, I + 1);
       Result[I].WordIndex := qryGetTableValues.Fields[0].AsInteger;
-      Result[I].WordValue :=
-        AnsiUpperCase(Trim(qryGetTableValues.Fields[1].AsString));
+      Result[I].WordValue := AnsiUpperCase(Trim(qryGetTableValues.Fields[1].AsString));
       Result[I].RelationID := qryGetTableValues.Fields[2].AsInteger;
       qryGetTableValues.Next();
     end;
@@ -644,8 +634,7 @@ end;
 
 //---------------------------------------------------------------------------
 
-function TdmData.MoveTo(const DataSet: TDataSet; const Position: Integer):
-  Boolean;
+function TdmData.MoveTo(const DataSet: TDataSet; const Position: Integer): Boolean;
 begin
   DataSet.First();
   Result := DataSet.MoveBy(Position - 1) = (Position - 1);
@@ -737,143 +726,75 @@ procedure TdmData.ReadDBString(const RegionID, ForestryID, ReportQuarter,
 begin
   FillChar(FCurrentRecord, SizeOf(FCurrentRecord), 0);
   FCurrentRecord.RegionID := RegionID;
-  FCurrentRecord.ForestryName := Trim(qryFileSelect.Fields[0 +
-    FFirstCol].AsString);
+  FCurrentRecord.ForestryName := Trim(qryFileSelect.Fields[0 + FFirstCol].AsString);
   FCurrentRecord.ForestryID := ForestryID;
-  FCurrentRecord.LocalForestryName := Trim(qryFileSelect.Fields[1 +
-    FFirstCol].AsString);
-  FCurrentRecord.Quarter := DefInteger(qryFileSelect.Fields[2 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.Patch := DefInteger(qryFileSelect.Fields[3 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.LanduseName := Trim(qryFileSelect.Fields[4 +
-    FFirstCol].AsString);
-  FCurrentRecord.DefenseCategoryName := Trim(qryFileSelect.Fields[5 +
-    FFirstCol].AsString);
-  FCurrentRecord.MainSpeciesName := Trim(qryFileSelect.Fields[6 +
-    FFirstCol].AsString);
-  FCurrentRecord.DamageSpeciesName := Trim(qryFileSelect.Fields[7 +
-    FFirstCol].AsString);
-  FCurrentRecord.DamageReasonName := Trim(qryFileSelect.Fields[8 +
-    FFirstCol].AsString);
-  FCurrentRecord.F10 := DefInteger(qryFileSelect.Fields[9 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F11 := DefInteger(qryFileSelect.Fields[10 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F12 := DefCurrency(qryFileSelect.Fields[11 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F13 := DefCurrency(qryFileSelect.Fields[12 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F14 := DefCurrency(qryFileSelect.Fields[13 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F15 := DefCurrency(qryFileSelect.Fields[14 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F16 := DefCurrency(qryFileSelect.Fields[15 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F17 := DefCurrency(qryFileSelect.Fields[16 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F18 := DefCurrency(qryFileSelect.Fields[17 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F19 := DefCurrency(qryFileSelect.Fields[18 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F20 := DefCurrency(qryFileSelect.Fields[19 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F21 := DefCurrency(qryFileSelect.Fields[20 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F22 := DefCurrency(qryFileSelect.Fields[21 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F23 := DefCurrency(qryFileSelect.Fields[22 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F24 := DefCurrency(qryFileSelect.Fields[23 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F25 := DefCurrency(qryFileSelect.Fields[24 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F26 := DefCurrency(qryFileSelect.Fields[25 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F27 := DefCurrency(qryFileSelect.Fields[26 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F28 := DefCurrency(qryFileSelect.Fields[27 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F29 := DefCurrency(qryFileSelect.Fields[28 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F30 := Trim(qryFileSelect.Fields[29 +
-    FFirstCol].AsString);
-  FCurrentRecord.F31 := DefCurrency(qryFileSelect.Fields[30 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F32 := DefCurrency(qryFileSelect.Fields[31 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F33 := DefCurrency(qryFileSelect.Fields[32 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F34 := DefCurrency(qryFileSelect.Fields[33 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F35 := DefCurrency(qryFileSelect.Fields[34 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F36 := DefCurrency(qryFileSelect.Fields[35 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F37 := DefCurrency(qryFileSelect.Fields[36 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F38 := DefCurrency(qryFileSelect.Fields[37 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F39 := DefCurrency(qryFileSelect.Fields[38 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F40 := DefCurrency(qryFileSelect.Fields[39 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F41 := DefCurrency(qryFileSelect.Fields[40 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F42 := DefCurrency(qryFileSelect.Fields[41 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F43 := DefCurrency(qryFileSelect.Fields[42 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F44 := DefCurrency(qryFileSelect.Fields[43 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F45 := DefCurrency(qryFileSelect.Fields[44 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F46 := DefCurrency(qryFileSelect.Fields[45 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F47 := DefCurrency(qryFileSelect.Fields[46 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F48 := DefCurrency(qryFileSelect.Fields[47 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F49 := DefCurrency(qryFileSelect.Fields[48 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F50 := Trim(qryFileSelect.Fields[49 +
-    FFirstCol].AsString);
-  FCurrentRecord.F51 := DefCurrency(qryFileSelect.Fields[50 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F52 := DefCurrency(qryFileSelect.Fields[51 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F53 := DefCurrency(qryFileSelect.Fields[52 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F54 := DefCurrency(qryFileSelect.Fields[53 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F55 := DefCurrency(qryFileSelect.Fields[54 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F56 := DefCurrency(qryFileSelect.Fields[55 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.PestStatus := Trim(qryFileSelect.Fields[56 +
-    FFirstCol].AsString);
-  FCurrentRecord.PestName := Trim(qryFileSelect.Fields[57 +
-    FFirstCol].AsString);
-  FCurrentRecord.F59 := DefCurrency(qryFileSelect.Fields[58 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F60 := DefCurrency(qryFileSelect.Fields[59 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F61 := DefCurrency(qryFileSelect.Fields[60 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F62 := DefCurrency(qryFileSelect.Fields[61 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F63 := DefCurrency(qryFileSelect.Fields[62 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F64 := DefCurrency(qryFileSelect.Fields[63 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F65 := DefCurrency(qryFileSelect.Fields[64 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F66 := DefCurrency(qryFileSelect.Fields[65 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F67 := DefCurrency(qryFileSelect.Fields[66 +
-    FFirstCol].AsVariant);
-  FCurrentRecord.F68 := DefCurrency(qryFileSelect.Fields[67 +
-    FFirstCol].AsVariant);
+  FCurrentRecord.LocalForestryName := Trim(qryFileSelect.Fields[1 + FFirstCol].AsString);
+  FCurrentRecord.Quarter := DefInteger(qryFileSelect.Fields[2 + FFirstCol].AsVariant);
+  FCurrentRecord.Patch := DefInteger(qryFileSelect.Fields[3 + FFirstCol].AsVariant);
+  FCurrentRecord.LanduseName := Trim(qryFileSelect.Fields[4 + FFirstCol].AsString);
+  FCurrentRecord.DefenseCategoryName := Trim(qryFileSelect.Fields[5 + FFirstCol].AsString);
+  FCurrentRecord.MainSpeciesName := Trim(qryFileSelect.Fields[6 + FFirstCol].AsString);
+  FCurrentRecord.DamageSpeciesName := Trim(qryFileSelect.Fields[7 + FFirstCol].AsString);
+  FCurrentRecord.DamageReasonName := Trim(qryFileSelect.Fields[8 + FFirstCol].AsString);
+  FCurrentRecord.F10 := DefInteger(qryFileSelect.Fields[9 + FFirstCol].AsVariant);
+  FCurrentRecord.F11 := DefInteger(qryFileSelect.Fields[10 + FFirstCol].AsVariant);
+  FCurrentRecord.F12 := DefCurrency(qryFileSelect.Fields[11 + FFirstCol].AsVariant);
+  FCurrentRecord.F13 := DefCurrency(qryFileSelect.Fields[12 + FFirstCol].AsVariant);
+  FCurrentRecord.F14 := DefCurrency(qryFileSelect.Fields[13 + FFirstCol].AsVariant);
+  FCurrentRecord.F15 := DefCurrency(qryFileSelect.Fields[14 + FFirstCol].AsVariant);
+  FCurrentRecord.F16 := DefCurrency(qryFileSelect.Fields[15 + FFirstCol].AsVariant);
+  FCurrentRecord.F17 := DefCurrency(qryFileSelect.Fields[16 + FFirstCol].AsVariant);
+  FCurrentRecord.F18 := DefCurrency(qryFileSelect.Fields[17 + FFirstCol].AsVariant);
+  FCurrentRecord.F19 := DefCurrency(qryFileSelect.Fields[18 + FFirstCol].AsVariant);
+  FCurrentRecord.F20 := DefCurrency(qryFileSelect.Fields[19 + FFirstCol].AsVariant);
+  FCurrentRecord.F21 := DefCurrency(qryFileSelect.Fields[20 + FFirstCol].AsVariant);
+  FCurrentRecord.F22 := DefCurrency(qryFileSelect.Fields[21 + FFirstCol].AsVariant);
+  FCurrentRecord.F23 := DefCurrency(qryFileSelect.Fields[22 + FFirstCol].AsVariant);
+  FCurrentRecord.F24 := DefCurrency(qryFileSelect.Fields[23 + FFirstCol].AsVariant);
+  FCurrentRecord.F25 := DefCurrency(qryFileSelect.Fields[24 + FFirstCol].AsVariant);
+  FCurrentRecord.F26 := DefCurrency(qryFileSelect.Fields[25 + FFirstCol].AsVariant);
+  FCurrentRecord.F27 := DefCurrency(qryFileSelect.Fields[26 + FFirstCol].AsVariant);
+  FCurrentRecord.F28 := DefCurrency(qryFileSelect.Fields[27 + FFirstCol].AsVariant);
+  FCurrentRecord.F29 := DefCurrency(qryFileSelect.Fields[28 + FFirstCol].AsVariant);
+  FCurrentRecord.F30 := Trim(qryFileSelect.Fields[29 + FFirstCol].AsString);
+  FCurrentRecord.F31 := DefCurrency(qryFileSelect.Fields[30 + FFirstCol].AsVariant);
+  FCurrentRecord.F32 := DefCurrency(qryFileSelect.Fields[31 + FFirstCol].AsVariant);
+  FCurrentRecord.F33 := DefCurrency(qryFileSelect.Fields[32 + FFirstCol].AsVariant);
+  FCurrentRecord.F34 := DefCurrency(qryFileSelect.Fields[33 + FFirstCol].AsVariant);
+  FCurrentRecord.F35 := DefCurrency(qryFileSelect.Fields[34 + FFirstCol].AsVariant);
+  FCurrentRecord.F36 := DefCurrency(qryFileSelect.Fields[35 + FFirstCol].AsVariant);
+  FCurrentRecord.F37 := DefCurrency(qryFileSelect.Fields[36 + FFirstCol].AsVariant);
+  FCurrentRecord.F38 := DefCurrency(qryFileSelect.Fields[37 + FFirstCol].AsVariant);
+  FCurrentRecord.F39 := DefCurrency(qryFileSelect.Fields[38 + FFirstCol].AsVariant);
+  FCurrentRecord.F40 := DefCurrency(qryFileSelect.Fields[39 + FFirstCol].AsVariant);
+  FCurrentRecord.F41 := DefCurrency(qryFileSelect.Fields[40 + FFirstCol].AsVariant);
+  FCurrentRecord.F42 := DefCurrency(qryFileSelect.Fields[41 + FFirstCol].AsVariant);
+  FCurrentRecord.F43 := DefCurrency(qryFileSelect.Fields[42 + FFirstCol].AsVariant);
+  FCurrentRecord.F44 := DefCurrency(qryFileSelect.Fields[43 + FFirstCol].AsVariant);
+  FCurrentRecord.F45 := DefCurrency(qryFileSelect.Fields[44 + FFirstCol].AsVariant);
+  FCurrentRecord.F46 := DefCurrency(qryFileSelect.Fields[45 + FFirstCol].AsVariant);
+  FCurrentRecord.F47 := DefCurrency(qryFileSelect.Fields[46 + FFirstCol].AsVariant);
+  FCurrentRecord.F48 := DefCurrency(qryFileSelect.Fields[47 + FFirstCol].AsVariant);
+  FCurrentRecord.F49 := DefCurrency(qryFileSelect.Fields[48 + FFirstCol].AsVariant);
+  FCurrentRecord.F50 := Trim(qryFileSelect.Fields[49 + FFirstCol].AsString);
+  FCurrentRecord.F51 := DefCurrency(qryFileSelect.Fields[50 + FFirstCol].AsVariant);
+  FCurrentRecord.F52 := DefCurrency(qryFileSelect.Fields[51 + FFirstCol].AsVariant);
+  FCurrentRecord.F53 := DefCurrency(qryFileSelect.Fields[52 + FFirstCol].AsVariant);
+  FCurrentRecord.F54 := DefCurrency(qryFileSelect.Fields[53 + FFirstCol].AsVariant);
+  FCurrentRecord.F55 := DefCurrency(qryFileSelect.Fields[54 + FFirstCol].AsVariant);
+  FCurrentRecord.F56 := DefCurrency(qryFileSelect.Fields[55 + FFirstCol].AsVariant);
+  FCurrentRecord.PestStatus := Trim(qryFileSelect.Fields[56 + FFirstCol].AsString);
+  FCurrentRecord.PestName := Trim(qryFileSelect.Fields[57 + FFirstCol].AsString);
+  FCurrentRecord.F59 := DefCurrency(qryFileSelect.Fields[58 + FFirstCol].AsVariant);
+  FCurrentRecord.F60 := DefCurrency(qryFileSelect.Fields[59 + FFirstCol].AsVariant);
+  FCurrentRecord.F61 := DefCurrency(qryFileSelect.Fields[60 + FFirstCol].AsVariant);
+  FCurrentRecord.F62 := DefCurrency(qryFileSelect.Fields[61 + FFirstCol].AsVariant);
+  FCurrentRecord.F63 := DefCurrency(qryFileSelect.Fields[62 + FFirstCol].AsVariant);
+  FCurrentRecord.F64 := DefCurrency(qryFileSelect.Fields[63 + FFirstCol].AsVariant);
+  FCurrentRecord.F65 := DefCurrency(qryFileSelect.Fields[64 + FFirstCol].AsVariant);
+  FCurrentRecord.F66 := DefCurrency(qryFileSelect.Fields[65 + FFirstCol].AsVariant);
+  FCurrentRecord.F67 := DefCurrency(qryFileSelect.Fields[66 + FFirstCol].AsVariant);
+  FCurrentRecord.F68 := DefCurrency(qryFileSelect.Fields[67 + FFirstCol].AsVariant);
   FCurrentRecord.ReportQuarter := ReportQuarter;
   FCurrentRecord.ReportYear := ReportYear;
   FCurrentRecord.ValidationResult := [];
@@ -883,12 +804,10 @@ end;
 
 procedure TdmData.ReadSettings;
 begin
-  if not FileExists(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME)
-    then
+  if not FileExists(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) then
     Exit;
 
-  with TIniFile.Create(ExtractFilePath(Application.ExeName) +
-    S_SETTINGS_FILE_NAME) do
+  with TIniFile.Create(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) do
     try
       PgDatabase := ReadString(S_INI_DATA, S_DB_DATABASE, PgDatabase);
       PgServer := ReadString(S_INI_DATA, S_DB_SERVER, PgServer);
@@ -942,36 +861,25 @@ begin
   begin
     UniqueKey.RecNo := qryFileSelect.RecNo;
     UniqueKey.Forestry := Trim(qryFileSelect.Fields[0 + FFirstCol].AsString);
-    UniqueKey.LocalForestry := Trim(qryFileSelect.Fields[1 +
-      FFirstCol].AsString);
-    UniqueKey.Quarter := DefInteger(qryFileSelect.Fields[2 +
-      FFirstCol].AsVariant);
-    UniqueKey.Location := DefInteger(qryFileSelect.Fields[3 +
-      FFirstCol].AsVariant);
+    UniqueKey.LocalForestry := Trim(qryFileSelect.Fields[1 + FFirstCol].AsString);
+    UniqueKey.Quarter := DefInteger(qryFileSelect.Fields[2 + FFirstCol].AsVariant);
+    UniqueKey.Location := DefInteger(qryFileSelect.Fields[3 + FFirstCol].AsVariant);
     UniqueKey.Landuse := Trim(qryFileSelect.Fields[4 + FFirstCol].AsString);
-    UniqueKey.LocationArea := DefCurrency(qryFileSelect.Fields[11 +
-      FFirstCol].AsVariant);
+    UniqueKey.LocationArea := DefCurrency(qryFileSelect.Fields[11 + FFirstCol].AsVariant);
 
     qryFileSelect.Next();
 
     while qryFileSelect.RecNo <= FLastRow do
     begin
-      if (UniqueKey.Forestry = Trim(qryFileSelect.Fields[0 +
-        FFirstCol].AsString)) and
-        (UniqueKey.LocalForestry = Trim(qryFileSelect.Fields[1 +
-          FFirstCol].AsString)) and
-        (UniqueKey.Quarter = DefInteger(qryFileSelect.Fields[2 +
-          FFirstCol].AsVariant)) and
-        (UniqueKey.Location = DefInteger(qryFileSelect.Fields[3 +
-          FFirstCol].AsVariant)) and
-        (UniqueKey.Landuse = Trim(qryFileSelect.Fields[4 + FFirstCol].AsString))
-          and
-        (UniqueKey.LocationArea = DefCurrency(qryFileSelect.Fields[11 +
-          FFirstCol].AsVariant)) then
+      if (UniqueKey.Forestry = Trim(qryFileSelect.Fields[0 + FFirstCol].AsString)) and
+         (UniqueKey.LocalForestry = Trim(qryFileSelect.Fields[1 + FFirstCol].AsString)) and
+         (UniqueKey.Quarter = DefInteger(qryFileSelect.Fields[2 + FFirstCol].AsVariant)) and
+         (UniqueKey.Location = DefInteger(qryFileSelect.Fields[3 + FFirstCol].AsVariant)) and
+         (UniqueKey.Landuse = Trim(qryFileSelect.Fields[4 + FFirstCol].AsString)) and
+         (UniqueKey.LocationArea = DefCurrency(qryFileSelect.Fields[11 + FFirstCol].AsVariant)) then
       begin
         if ldDuplicates in FLogDetails then
-          ValidationLog(Format(S_LOG_DUPLICATE_ROW, [UniqueKey.RecNo,
-            qryFileSelect.RecNo]));
+          ValidationLog(Format(S_LOG_DUPLICATE_ROW, [UniqueKey.RecNo, qryFileSelect.RecNo]));
         Result := vrDuplicateInvalid;
       end;
       qryFileSelect.Next();
@@ -1028,18 +936,13 @@ begin
   FValidator.Validate(qryFileSelect.RecNo, FCurrentRecord);
   FCurrentRecord.ValidationResult := FValidator.ValidationResult;
 
-  if (vrStop in FCurrentRecord.ValidationResult) or (vrSkip in
-    FCurrentRecord.ValidationResult) then
+  if (vrStop in FCurrentRecord.ValidationResult) or (vrSkip in FCurrentRecord.ValidationResult) then
     Exit;
 
-  if ((vrStringInvalid in FCurrentRecord.ValidationResult)
-    and (ldDictReplaces in FLogDetails))
-    or ((vrRelationInvalid in FCurrentRecord.ValidationResult)
-    and (ldRelationErrors in FLogDetails))
-    or ((vrMainInvalid in FCurrentRecord.ValidationResult)
-    and (ldMathErrors in FLogDetails))
-    or ((vrExtraInvalid in FCurrentRecord.ValidationResult)
-    and (ldMathErrors in FLogDetails)) then
+  if ((vrStringInvalid in FCurrentRecord.ValidationResult) and (ldDictReplaces in FLogDetails))
+    or ((vrRelationInvalid in FCurrentRecord.ValidationResult) and (ldRelationErrors in FLogDetails))
+    or ((vrMainInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails))
+    or ((vrExtraInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) then
     ValidationLog(FValidator.RecordStatus);
 
   RemoveSkippedRec(qryFileSelect.RecNo);
@@ -1107,22 +1010,15 @@ begin
       if vrSkip in FCurrentRecord.ValidationResult then
         AddSkippedRec(CurRecNo);
 
-      if ((vrRelationInvalid in FCurrentRecord.ValidationResult)
-        and (ldRelationErrors in FLogDetails))
-        or ((vrMainInvalid in FCurrentRecord.ValidationResult)
-        and (ldMathErrors in FLogDetails))
-        or ((vrExtraInvalid in FCurrentRecord.ValidationResult)
-        and (ldMathErrors in FLogDetails)) then
+      if ((vrRelationInvalid in FCurrentRecord.ValidationResult) and (ldRelationErrors in FLogDetails))
+        or ((vrMainInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails))
+        or ((vrExtraInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) then
         AddInvalidRec(CurRecNo);
 
-      if ((vrStringInvalid in FCurrentRecord.ValidationResult)
-        and (ldDictReplaces in FLogDetails))
-        or ((vrRelationInvalid in FCurrentRecord.ValidationResult)
-        and (ldRelationErrors in FLogDetails))
-        or ((vrMainInvalid in FCurrentRecord.ValidationResult)
-        and (ldMathErrors in FLogDetails))
-        or ((vrExtraInvalid in FCurrentRecord.ValidationResult)
-        and (ldMathErrors in FLogDetails)) then
+      if ((vrStringInvalid in FCurrentRecord.ValidationResult) and (ldDictReplaces in FLogDetails))
+        or ((vrRelationInvalid in FCurrentRecord.ValidationResult) and (ldRelationErrors in FLogDetails))
+        or ((vrMainInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails))
+        or ((vrExtraInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) then
         ValidationLog(FValidator.RecordStatus);
 
       FScript.AddInsert(FCurrentRecord);
@@ -1130,11 +1026,9 @@ begin
 
     case ReportQuarter of
       1:
-        PrevReportSums := GetPrevReportSums(ForestryID, ReportYear,
-          ReportQuarter, True);
-    else
-      PrevReportSums := GetPrevReportSums(ForestryID, ReportYear, ReportQuarter,
-        False);
+        PrevReportSums := GetPrevReportSums(ForestryID, ReportYear, ReportQuarter, True);
+      else
+        PrevReportSums := GetPrevReportSums(ForestryID, ReportYear, ReportQuarter, False);
     end;
 
     if ldPrevReportSum in FLogDetails then
@@ -1153,8 +1047,7 @@ begin
         ValidationLog(S_LOG_PREV_REPORT_NOT_FOUND);
 
     FScript.SetScriptFooter();
-    ValidationLog(DateToStr(Date()) + ' ' + TimeToStr(Time()) + ' ' +
-      S_LOG_COMPLETED);
+    ValidationLog(DateToStr(Date()) + ' ' + TimeToStr(Time()) + ' ' + S_LOG_COMPLETED);
 
   finally
     FInProgress := False;
@@ -1173,8 +1066,7 @@ end;
 
 procedure TdmData.WriteSettings;
 begin
-  with TIniFile.Create(ExtractFilePath(Application.ExeName) +
-    S_SETTINGS_FILE_NAME) do
+  with TIniFile.Create(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) do
     try
       WriteString(S_INI_DATA, S_DB_DATABASE, PgDatabase);
       WriteString(S_INI_DATA, S_DB_SERVER, PgServer);

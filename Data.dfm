@@ -2,8 +2,8 @@ object dmData: TdmData
   OldCreateOrder = False
   OnCreate = DataModuleCreate
   OnDestroy = DataModuleDestroy
-  Left = 944
-  Top = 179
+  Left = 329
+  Top = 194
   Height = 435
   Width = 245
   object connDB: TADOConnection
@@ -44,27 +44,22 @@ object dmData: TdmData
     Left = 152
     Top = 24
   end
-  object mtCache: TMemTableEh
-    FetchAllOnOpen = True
-    Params = <>
-    DataDriver = qrySelect
-    Left = 40
-    Top = 168
-  end
-  object qrySelect: TADODataDriverEh
-    ADOConnection = connDB
-    SelectCommand.Parameters = <>
-    UpdateCommand.Parameters = <>
-    InsertCommand.Parameters = <>
-    DeleteCommand.Parameters = <>
-    GetrecCommand.Parameters = <>
-    Left = 40
-    Top = 120
-  end
   object qryGetTableValues: TADOQuery
     Connection = connDB
     Parameters = <>
     Left = 40
     Top = 216
+  end
+  object mdCache: TdxMemData
+    Indexes = <>
+    SortOptions = []
+    Left = 152
+    Top = 216
+  end
+  object qrySelect: TADOQuery
+    Connection = connDB
+    Parameters = <>
+    Left = 40
+    Top = 120
   end
 end

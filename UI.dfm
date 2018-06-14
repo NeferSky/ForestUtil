@@ -1,6 +1,6 @@
 object frmUI: TfrmUI
-  Left = 326
-  Top = 156
+  Left = 158
+  Top = 242
   Width = 800
   Height = 701
   Caption = 'ForestUtil'
@@ -69,7 +69,7 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 462
+          Top = 459
           Width = 147
           Height = 38
           Action = actValidateTable
@@ -78,7 +78,7 @@ object frmUI: TfrmUI
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 375
+          Top = 372
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -172,7 +172,7 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 510
+          Top = 507
           Width = 145
           Height = 42
           Action = actCreateScript
@@ -184,7 +184,7 @@ object frmUI: TfrmUI
           Left = 8
           Top = 96
           Width = 145
-          Height = 191
+          Height = 188
           Anchors = [akLeft, akTop, akRight, akBottom]
           Caption = #1042#1082#1083#1102#1095#1072#1090#1100' '#1074' '#1083#1086#1075':'
           ParentShowHint = False
@@ -192,7 +192,7 @@ object frmUI: TfrmUI
           TabOrder = 6
           DesignSize = (
             145
-            191)
+            188)
           object chbMathErrors: TCheckBox
             Left = 8
             Top = 16
@@ -275,7 +275,7 @@ object frmUI: TfrmUI
         end
         object gbxSkippedRecs: TGroupBox
           Left = 8
-          Top = 294
+          Top = 291
           Width = 145
           Height = 81
           Anchors = [akLeft, akRight, akBottom]
@@ -337,24 +337,6 @@ object frmUI: TfrmUI
           Cursor = crVSplit
           Align = alTop
         end
-        object grdFile: TDBGrid
-          Left = 1
-          Top = 34
-          Width = 619
-          Height = 461
-          Align = alClient
-          DataSource = dsFile
-          Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit]
-          ReadOnly = True
-          TabOrder = 1
-          TitleFont.Charset = DEFAULT_CHARSET
-          TitleFont.Color = clWindowText
-          TitleFont.Height = -11
-          TitleFont.Name = 'MS Sans Serif'
-          TitleFont.Style = []
-          OnDrawColumnCell = grdFileDrawColumnCell
-          OnTitleClick = grdFileTitleClick
-        end
         object pnlHint: TPanel
           Left = 1
           Top = 1
@@ -393,8 +375,24 @@ object frmUI: TfrmUI
           Color = clCream
           ReadOnly = True
           ScrollBars = ssVertical
-          TabOrder = 2
+          TabOrder = 1
           Visible = False
+        end
+        object grdFile: TNsScrolledDBGrid
+          Left = 1
+          Top = 34
+          Width = 619
+          Height = 461
+          Align = alClient
+          DataSource = dsFile
+          TabOrder = 2
+          TitleFont.Charset = DEFAULT_CHARSET
+          TitleFont.Color = clWindowText
+          TitleFont.Height = -11
+          TitleFont.Name = 'MS Sans Serif'
+          TitleFont.Style = []
+          OnDrawColumnCell = grdFileDrawColumnCell
+          OnTitleClick = grdFileTitleClick
         end
       end
     end
@@ -481,7 +479,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 492
+          Top = 489
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -555,7 +553,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 436
+          Top = 433
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]
@@ -1670,7 +1668,6 @@ object frmUI: TfrmUI
     Top = 64
   end
   object dsQuery: TDataSource
-    DataSet = dmData.mtCache
     Left = 12
     Top = 232
   end
