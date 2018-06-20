@@ -58,10 +58,8 @@ begin
   try
     FSQLQueriesArray[FWritingIndex] := Value;
     FModified := True;
-
   except
-    raise Exception.Create(Format(E_WRITE_QUERY, [MaxQueriesCount, FActualCount,
-      FWritingIndex, FReadingIndex]));
+    raise Exception.Create(Format(E_WRITE_QUERY, [MaxQueriesCount, FActualCount, FWritingIndex, FReadingIndex]));
   end;
 end;
 
@@ -126,10 +124,8 @@ begin
     try
       Result := FSQLQueriesArray[FReadingIndex + 1];
       Inc(FReadingIndex);
-
     except
-      raise Exception.Create(Format(E_READ_QUERY, [MaxQueriesCount,
-        FActualCount, FWritingIndex, FReadingIndex]));
+      raise Exception.Create(Format(E_READ_QUERY, [MaxQueriesCount, FActualCount, FWritingIndex, FReadingIndex]));
     end;
 end;
 
@@ -141,10 +137,8 @@ begin
     try
       Result := FSQLQueriesArray[FReadingIndex - 1];
       Dec(FReadingIndex);
-
     except
-      raise Exception.Create(Format(E_READ_QUERY, [MaxQueriesCount,
-        FActualCount, FWritingIndex, FReadingIndex]));
+      raise Exception.Create(Format(E_READ_QUERY, [MaxQueriesCount, FActualCount, FWritingIndex, FReadingIndex]));
     end;
 end;
 
@@ -182,13 +176,11 @@ begin
     then
     Exit;
 
-  with TIniFile.Create(ExtractFilePath(Application.ExeName) +
-    S_SETTINGS_FILE_NAME) do
+  with TIniFile.Create(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) do
     try
       FReadingIndex := ReadInteger(S_INI_QUERIES, S_READING_INDEX, 0);
       FWritingIndex := ReadInteger(S_INI_QUERIES, S_WRITING_INDEX, 0);
       MaxQueriesCount := ReadInteger(S_INI_QUERIES, S_MAX_QUERIES_COUNT, 50);
-
     finally
       Free();
     end;
@@ -223,13 +215,11 @@ end;
 
 procedure TSQLQueries.SaveSettings;
 begin
-  with TIniFile.Create(ExtractFilePath(Application.ExeName) +
-    S_SETTINGS_FILE_NAME) do
+  with TIniFile.Create(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) do
     try
       WriteInteger(S_INI_QUERIES, S_READING_INDEX, FReadingIndex);
       WriteInteger(S_INI_QUERIES, S_WRITING_INDEX, FWritingIndex);
       WriteInteger(S_INI_QUERIES, S_MAX_QUERIES_COUNT, MaxQueriesCount);
-
     finally
       Free();
     end;

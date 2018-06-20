@@ -1106,7 +1106,7 @@ var
 
 begin
   try
-    Result := StrToFloat(Value)
+    Result := StrToFloat(Value);
   except
     try
       StrValue := Value;

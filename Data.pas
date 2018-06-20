@@ -5,8 +5,7 @@ unit Data;
 interface
 
 uses
-  Windows, SysUtils, Classes, DB, ADODB, //MemTableDataEh, DataDriverEh,
-  //ADODataDriverEh, MemTableEh,
+  Windows, SysUtils, Classes, DB, ADODB,
   Validator, DBScript, ForestTypes, dxmdaset;
 
 type
@@ -258,8 +257,7 @@ begin
     end;
   end;
 
-  Result := GetIntField(Format(S_DB_GET_REPORT_ROW_COUNT, [S_DB_TABLE_NAME,
-    ForestryID, ReportQuarter, ReportYear])) > 0;
+  Result := GetIntField(Format(S_DB_GET_REPORT_ROW_COUNT, [S_DB_TABLE_NAME, ForestryID, ReportQuarter, ReportYear])) > 0;
 end;
 
 //---------------------------------------------------------------------------
@@ -437,7 +435,6 @@ begin
     qryGetTableValues.SQL.Text := SQLText;
     qryGetTableValues.Open();
     Result := qryGetTableValues.Fields[0].AsInteger;
-
   finally
     qryGetTableValues.Close();
     Disconnect();
@@ -468,7 +465,6 @@ begin
     Result.DamagedArea := qryGetTableValues.Fields[0].AsCurrency;
     Result.LostArea := qryGetTableValues.Fields[1].AsCurrency;
     Result.PestArea := qryGetTableValues.Fields[2].AsCurrency;
-
   finally
     qryGetTableValues.Close();
     Disconnect();
@@ -814,7 +810,6 @@ begin
       PgPort := ReadString(S_INI_DATA, S_DB_PORT, PgPort);
       PgUID := ReadString(S_INI_DATA, S_DB_UID, PgUID);
       PgPassword := ReadString(S_INI_DATA, S_DB_PASSWORD, PgPassword);
-
     finally
       Free();
     end;
@@ -939,10 +934,10 @@ begin
   if (vrStop in FCurrentRecord.ValidationResult) or (vrSkip in FCurrentRecord.ValidationResult) then
     Exit;
 
-  if ((vrStringInvalid in FCurrentRecord.ValidationResult) and (ldDictReplaces in FLogDetails))
-    or ((vrRelationInvalid in FCurrentRecord.ValidationResult) and (ldRelationErrors in FLogDetails))
-    or ((vrMainInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails))
-    or ((vrExtraInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) then
+  if ((vrStringInvalid in FCurrentRecord.ValidationResult) and (ldDictReplaces in FLogDetails)) or
+     ((vrRelationInvalid in FCurrentRecord.ValidationResult) and (ldRelationErrors in FLogDetails)) or
+     ((vrMainInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) or
+     ((vrExtraInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) then
     ValidationLog(FValidator.RecordStatus);
 
   RemoveSkippedRec(qryFileSelect.RecNo);
@@ -1010,15 +1005,15 @@ begin
       if vrSkip in FCurrentRecord.ValidationResult then
         AddSkippedRec(CurRecNo);
 
-      if ((vrRelationInvalid in FCurrentRecord.ValidationResult) and (ldRelationErrors in FLogDetails))
-        or ((vrMainInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails))
-        or ((vrExtraInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) then
+      if ((vrRelationInvalid in FCurrentRecord.ValidationResult) and (ldRelationErrors in FLogDetails)) or
+         ((vrMainInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) or
+         ((vrExtraInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) then
         AddInvalidRec(CurRecNo);
 
-      if ((vrStringInvalid in FCurrentRecord.ValidationResult) and (ldDictReplaces in FLogDetails))
-        or ((vrRelationInvalid in FCurrentRecord.ValidationResult) and (ldRelationErrors in FLogDetails))
-        or ((vrMainInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails))
-        or ((vrExtraInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) then
+      if ((vrStringInvalid in FCurrentRecord.ValidationResult) and (ldDictReplaces in FLogDetails)) or
+         ((vrRelationInvalid in FCurrentRecord.ValidationResult) and (ldRelationErrors in FLogDetails)) or
+         ((vrMainInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) or
+         ((vrExtraInvalid in FCurrentRecord.ValidationResult) and (ldMathErrors in FLogDetails)) then
         ValidationLog(FValidator.RecordStatus);
 
       FScript.AddInsert(FCurrentRecord);
@@ -1073,7 +1068,6 @@ begin
       WriteString(S_INI_DATA, S_DB_PORT, PgPort);
       WriteString(S_INI_DATA, S_DB_UID, PgUID);
       WriteString(S_INI_DATA, S_DB_PASSWORD, PgPassword);
-
     finally
       Free();
     end;

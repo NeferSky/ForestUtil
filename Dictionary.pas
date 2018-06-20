@@ -107,8 +107,7 @@ begin
     CloseFile(CatalogFile);
   end;
 
-  DictFilePath := Format('%s%s%s', [GetAppPath, S_DICT_VALID_PREFIX,
-    FDictionaryFile]);
+  DictFilePath := Format('%s%s%s', [GetAppPath, S_DICT_VALID_PREFIX, FDictionaryFile]);
   if FileExists(DictFilePath) then
   begin
     Assign(DictFile, DictFilePath);
@@ -142,8 +141,7 @@ begin
     Write(CatalogFile, FCatalogArray[I]);
   CloseFile(CatalogFile);
 
-  DictFilePath := Format('%s%s%s', [GetAppPath, S_DICT_VALID_PREFIX,
-    FDictionaryFile]);
+  DictFilePath := Format('%s%s%s', [GetAppPath, S_DICT_VALID_PREFIX, FDictionaryFile]);
   Assign(DictFile, DictFilePath);
   Rewrite(DictFile);
   for I := 0 to (Length(FDictArray) - 1) do
@@ -255,10 +253,8 @@ begin
   for I := 0 to Length(FDictArray) - 1 do
   begin
     TmpStr := FDictionaryFormatString;
-    TmpStr := StringReplace(TmpStr, S_DICT_NAME_FORMAT,
-      FDictArray[I].WordValue, [rfReplaceAll, rfIgnoreCase]);
-    TmpStr := StringReplace(TmpStr, S_DICT_ID_FORMAT,
-      IntToStr(FDictArray[I].WordIndex), [rfReplaceAll, rfIgnoreCase]);
+    TmpStr := StringReplace(TmpStr, S_DICT_NAME_FORMAT, FDictArray[I].WordValue, [rfReplaceAll, rfIgnoreCase]);
+    TmpStr := StringReplace(TmpStr, S_DICT_ID_FORMAT, IntToStr(FDictArray[I].WordIndex), [rfReplaceAll, rfIgnoreCase]);
     FDictionaryList.Add(TmpStr);
   end;
 end;
@@ -272,9 +268,7 @@ begin
 
   with TIniFile.Create(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) do
     try
-      FDictionaryFormatString := ReadString(S_INI_DICT_FORMATS, FDictionaryFile,
-        S_DICT_NAME_FORMAT);
-
+      FDictionaryFormatString := ReadString(S_INI_DICT_FORMATS, FDictionaryFile, S_DICT_NAME_FORMAT);
     finally
       Free();
     end;
@@ -346,7 +340,7 @@ begin
 
   for I := 0 to Length(FDictArray) - 1 do
     if (FDictArray[I].WordValue = AnsiUpperCase(AWord)) and
-      (FDictArray[I].RelationID = RelationID) then
+       (FDictArray[I].RelationID = RelationID) then
     begin
       Result := FDictArray[I].WordIndex;
       Break;
@@ -376,11 +370,9 @@ end;
 
 procedure TDictionary.WriteSettings;
 begin
-  with TIniFile.Create(ExtractFilePath(Application.ExeName) +
-    S_SETTINGS_FILE_NAME) do
+  with TIniFile.Create(ExtractFilePath(Application.ExeName) + S_SETTINGS_FILE_NAME) do
     try
       WriteString(S_INI_DICT_FORMATS, FDictionaryFile, FDictionaryFormatString);
-
     finally
       Free();
     end;

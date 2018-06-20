@@ -69,7 +69,7 @@ object frmUI: TfrmUI
         end
         object btnMathValidate: TButton
           Left = 8
-          Top = 459
+          Top = 458
           Width = 147
           Height = 38
           Action = actValidateTable
@@ -78,7 +78,7 @@ object frmUI: TfrmUI
         end
         object gbxStatus: TGroupBox
           Left = 8
-          Top = 372
+          Top = 371
           Width = 147
           Height = 77
           Anchors = [akLeft, akRight, akBottom]
@@ -172,7 +172,7 @@ object frmUI: TfrmUI
         end
         object btnCreateScript: TButton
           Left = 8
-          Top = 507
+          Top = 506
           Width = 145
           Height = 42
           Action = actCreateScript
@@ -184,7 +184,7 @@ object frmUI: TfrmUI
           Left = 8
           Top = 96
           Width = 145
-          Height = 188
+          Height = 187
           Anchors = [akLeft, akTop, akRight, akBottom]
           Caption = #1042#1082#1083#1102#1095#1072#1090#1100' '#1074' '#1083#1086#1075':'
           ParentShowHint = False
@@ -192,7 +192,7 @@ object frmUI: TfrmUI
           TabOrder = 6
           DesignSize = (
             145
-            188)
+            187)
           object chbMathErrors: TCheckBox
             Left = 8
             Top = 16
@@ -275,7 +275,7 @@ object frmUI: TfrmUI
         end
         object gbxSkippedRecs: TGroupBox
           Left = 8
-          Top = 291
+          Top = 290
           Width = 145
           Height = 81
           Anchors = [akLeft, akRight, akBottom]
@@ -479,7 +479,7 @@ object frmUI: TfrmUI
         end
         object btnExecuteQuery: TButton
           Left = 8
-          Top = 489
+          Top = 488
           Width = 147
           Height = 49
           Action = actExecuteQuery
@@ -553,7 +553,7 @@ object frmUI: TfrmUI
         end
         object gbxRecordsFetched: TGroupBox
           Left = 8
-          Top = 433
+          Top = 432
           Width = 147
           Height = 49
           Anchors = [akLeft, akRight, akBottom]
@@ -638,9 +638,6 @@ object frmUI: TfrmUI
     Left = 200
     object mnuMain: TMenuItem
       Caption = #1052#1077#1085#1102
-      object mnuBlowCoffee: TMenuItem
-        Action = actBlowCoffee
-      end
       object mnuExit: TMenuItem
         Action = actExit
       end
@@ -1606,7 +1603,6 @@ object frmUI: TfrmUI
     object actBlowCoffee: TAction
       Caption = #1057#1074#1072#1088#1080#1090#1100' '#1084#1085#1077' '#1082#1086#1092#1077
       ImageIndex = 15
-      OnExecute = actBlowCoffeeExecute
     end
     object actSaveLog: TAction
       Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1088#1077#1079#1091#1083#1100#1090#1072#1090#1099' '#1087#1088#1086#1074#1077#1088#1082#1080
@@ -1673,11 +1669,6 @@ object frmUI: TfrmUI
   end
   object manXP: TXPManifest
     Left = 304
-  end
-  object tmrTimer: TTimer
-    Interval = 60000
-    OnTimer = tmrTimerTimer
-    Left = 336
   end
   object odlgOpenQuery: TOpenDialog
     Filter = 'SQL '#1079#1072#1087#1088#1086#1089#1099'|*.sql|'#1042#1089#1077' '#1092#1072#1081#1083#1099'|*.*'

@@ -17,8 +17,7 @@ type
     destructor Destroy; override;
     procedure Clear;
     procedure SetScriptHeader;
-    procedure AddDelete(const RegionID, ForestryID, ReportQuarter, ReportYear:
-      Integer);
+    procedure AddDelete(const RegionID, ForestryID, ReportQuarter, ReportYear: Integer);
     procedure AddInsert(Values: TValuesRec);
     procedure SetScriptFooter;
     function GetText: AnsiString;
@@ -32,14 +31,12 @@ uses
 //---------------------------------------------------------------------------
 { TDBScript }
 
-procedure TDBScript.AddDelete(const RegionID, ForestryID, ReportQuarter,
-  ReportYear: Integer);
+procedure TDBScript.AddDelete(const RegionID, ForestryID, ReportQuarter, ReportYear: Integer);
 var
   SQLLine: AnsiString;
 
 begin
-  SQLLine := Format(S_DB_DELETE_SCRIPT_FORMAT, [S_DB_TABLE_NAME, ForestryID,
-    ReportQuarter, ReportYear]);
+  SQLLine := Format(S_DB_DELETE_SCRIPT_FORMAT, [S_DB_TABLE_NAME, ForestryID, ReportQuarter, ReportYear]);
 
   SetLineHeader();
   FLines.Append('-- Удаление строк отчета');

@@ -44,10 +44,8 @@ type
     property CurrentText: AnsiString read FCurrentText;
   end;
 
-function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TDictionary):
-  TShowResult;
-function ShowEditEx(const OldWord, Prompt: AnsiString; const Dict: TDictionary;
-  Modal: Boolean = False): TShowResult;
+function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TDictionary): TShowResult;
+function ShowEditEx(const OldWord, Prompt: AnsiString; const Dict: TDictionary; Modal: Boolean = False): TShowResult;
 
 var
   frmEdit: TfrmEdit;
@@ -59,8 +57,7 @@ uses
 
 {$R *.dfm}
 
-function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TDictionary):
-  TShowResult;
+function ShowEdit(const OldWord, Prompt: AnsiString; const Dict: TDictionary): TShowResult;
 begin
   frmEdit.FWaiting := True;
   frmEdit.edtWord.Text := OldWord;
@@ -82,8 +79,7 @@ end;
 
 //---------------------------------------------------------------------------
 
-function ShowEditEx(const OldWord, Prompt: AnsiString; const Dict: TDictionary;
-  Modal: Boolean = False): TShowResult;
+function ShowEditEx(const OldWord, Prompt: AnsiString; const Dict: TDictionary; Modal: Boolean = False): TShowResult;
 begin
   frmEdit.FWaiting := True;
   frmEdit.edtWord.Text := OldWord;
@@ -172,8 +168,10 @@ end;
 
 procedure TfrmEdit.cmbSynonimDropDown(Sender: TObject);
 begin
-  if cmbSynonim.Items.Count < 10 then cmbSynonim.DropDownCount := cmbSynonim.Items.Count;
-  if cmbSynonim.Items.Count >= 10 then cmbSynonim.DropDownCount := 10;
+  if cmbSynonim.Items.Count < 10 then
+    cmbSynonim.DropDownCount := cmbSynonim.Items.Count;
+  if cmbSynonim.Items.Count >= 10 then
+    cmbSynonim.DropDownCount := 10;
 end;
 
 //---------------------------------------------------------------------------
@@ -259,7 +257,6 @@ begin
       WriteInteger(S_EDIT_TOP, frmEdit.Top);
       WriteInteger(S_EDIT_HEIGHT, frmEdit.Height);
       WriteInteger(S_EDIT_WIDTH, frmEdit.Width);
-
     finally
       CloseKey();
       Free();

@@ -21,7 +21,6 @@ type
     // Invisible components
     manXP: TXPManifest;
     ilUIImages: TImageList;
-    tmrTimer: TTimer;
     odlgOpenFile: TOpenDialog;
     odlgOpenQuery: TOpenDialog;
     sdlgSaveQuery: TSaveDialog;
@@ -44,7 +43,6 @@ type
     actPrevQuery: TAction;
     actDictSettings: TAction;
     actSaveQueryResult: TAction;
-    actBlowCoffee: TAction;
     actSaveLog: TAction;
     actSaveQuery: TAction;
     actOpenQuery: TAction;
@@ -59,7 +57,6 @@ type
     // Menu
     mmnuMain: TMainMenu;
     mnuMain: TMenuItem;
-    mnuBlowCoffee: TMenuItem;
     mnuExit: TMenuItem;
     mnuFile: TMenuItem;
     mnuOpenFile: TMenuItem;
@@ -176,12 +173,10 @@ type
     procedure splFileActionsMoved(Sender: TObject);
     procedure mnuCompressColumnsClick(Sender: TObject);
     procedure chbLogDetailClick(Sender: TObject);
-    procedure MouseWheelDown(Sender: TObject; Shift: TShiftState; MousePos:
-      TPoint; var Handled: Boolean);
-    procedure MouseWheelUp(Sender: TObject; Shift: TShiftState; MousePos:
-      TPoint; var Handled: Boolean);
-    procedure grdFileDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol:
-      Integer; Column: TColumn; State: TGridDrawState);
+    procedure MouseWheelDown(Sender: TObject; Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+    procedure MouseWheelUp(Sender: TObject; Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+    procedure grdFileDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn;
+      State: TGridDrawState);
     // Actions
     procedure actOpenFileExecute(Sender: TObject);
     procedure actPasteSelectTemplateExecute(Sender: TObject);
@@ -197,8 +192,6 @@ type
     procedure actPrevQueryExecute(Sender: TObject);
     procedure actDictSettingsExecute(Sender: TObject);
     procedure actSaveQueryResultExecute(Sender: TObject);
-    procedure tmrTimerTimer(Sender: TObject);
-    procedure actBlowCoffeeExecute(Sender: TObject);
     procedure actSaveLogExecute(Sender: TObject);
     procedure actOpenQueryExecute(Sender: TObject);
     procedure actSaveQueryExecute(Sender: TObject);
@@ -209,7 +202,6 @@ type
     procedure actPrevSkippedRecExecute(Sender: TObject);
     procedure actNextSkippedRecExecute(Sender: TObject);
     procedure actValidateRecordExecute(Sender: TObject);
-    procedure ImageClick(Sender: TObject);
     procedure actCatalogSettingsExecute(Sender: TObject);
     procedure actRepPrevReportExecute(Sender: TObject);
   private
@@ -252,7 +244,6 @@ uses
   About, AskForestry, Catalogs;
 
 {$R *.dfm}
-{$R 'res\Coffee.res'}
 
 //---------------------------------------------------------------------------
 { TfrmUI }
@@ -264,29 +255,6 @@ begin
   AboutBox.Copyright.Caption := S_COPYRIGHT;
   AboutBox.Comments.Caption := S_COMMENTS;
   AboutBox.ShowModal();
-end;
-
-//---------------------------------------------------------------------------
-
-procedure TfrmUI.actBlowCoffeeExecute(Sender: TObject);
-var
-  Img: TImage;
-  Creator: TWinControl;
-
-begin
-  if pcPages.ActivePageIndex = 0 then
-    Creator := grdFile
-  else
-    Creator := memQueryText;
-
-  Img := TImage.Create(Creator);
-  Img.Align := AlClient;
-  Img.Picture.Bitmap.Width := Creator.ClientWidth;
-  Img.Picture.Bitmap.Height := Creator.ClientHeight;
-  Img.Stretch := True;
-  Img.OnClick := ImageClick;
-  Img.Parent := Creator;
-  Img.Picture.Bitmap.Handle := LoadBitmap(hInstance, 'COFFEE');
 end;
 
 //---------------------------------------------------------------------------
@@ -702,7 +670,6 @@ begin
   ReadParams();
   ReadReports();
   FSQLQueries := TSQLQueries.Create(frmUI);
-  tmrTimerTimer(Sender);
   EnableFileControls(False);
   InitFileProcessControls();
   pcPagesChange(Sender);
@@ -738,7 +705,7 @@ var
 
 begin
   if (grdFile.DataSource.DataSet.RecNo < dmData.FirstRecNo) or
-    (grdFile.DataSource.DataSet.RecNo > dmData.LastRecNo) then
+     (grdFile.DataSource.DataSet.RecNo > dmData.LastRecNo) then
   begin
     grdFile.Canvas.Brush.Color := clSilver;
     grdFile.DefaultDrawColumnCell(Rect, DataCol, Column, State);
@@ -796,13 +763,6 @@ begin
     WM_RBUTTONUP:
       pmnuTray.Popup(P.X, P.Y);
   end;
-end;
-
-//---------------------------------------------------------------------------
-
-procedure TfrmUI.ImageClick(Sender: TObject);
-begin
-  Sender.Free();
 end;
 
 //---------------------------------------------------------------------------
@@ -1168,27 +1128,6 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TfrmUI.tmrTimerTimer(Sender: TObject);
-var
-  Hr, Mn, Sc, Msc: Word;
-
-begin
-  DecodeTime(Now(), Hr, Mn, Sc, Msc);
-
-  if (Hr = 12) and (Mn > 0) and (Mn < 45) then
-  begin
-    if not mnuBlowCoffee.Visible then
-      mnuBlowCoffee.Visible := True;
-  end
-  else
-  begin
-    if mnuBlowCoffee.Visible then
-      mnuBlowCoffee.Visible := False;
-  end;
-end;
-
-//---------------------------------------------------------------------------
-
 procedure TfrmUI.Tray(n: Integer; Icon: TIcon);
 var
   Nim: TNotifyIconData;
@@ -1282,7 +1221,6 @@ begin
       WriteBool(S_DICT_REPLACES, chbDictReplaces.Checked);
       WriteBool(S_EMPTY_RECORDS, chbEmptyRecords.Checked);
       WriteBool(S_PREV_REPORT_SUM, chbPrevReportSum.Checked);
-
     finally
       CloseKey();
       Free();

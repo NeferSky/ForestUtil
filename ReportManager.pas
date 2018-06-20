@@ -246,8 +246,7 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TdmReportManager.ReportQueryResult(const Sheet: Variant; const
-  SQLText: AnsiString);
+procedure TdmReportManager.ReportQueryResult(const Sheet: Variant; const SQLText: AnsiString);
 var
   CurRow, CurCol: Integer;
 
@@ -285,8 +284,7 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TdmReportManager.ReportUIQuery(const DataSet: TDataSet;
-  const TableName: AnsiString);
+procedure TdmReportManager.ReportUIQuery(const DataSet: TDataSet; const TableName: AnsiString);
 var
   CurRow, CurCol: Integer;
   Sheet: Variant;
@@ -319,8 +317,7 @@ end;
   
 //---------------------------------------------------------------------------
 
-procedure TdmReportManager.ReportString(const Sheet: Variant;
-  const Text: AnsiString);
+procedure TdmReportManager.ReportString(const Sheet: Variant; const Text: AnsiString);
 begin
   Sheet.Cells[FRow, 1] := Text;
   Inc(FRow);
@@ -328,8 +325,7 @@ end;
 
 //---------------------------------------------------------------------------
 
-procedure TdmReportManager.ReportStringListH(const Sheet: Variant;
-  const TextList: TStringList);
+procedure TdmReportManager.ReportStringListH(const Sheet: Variant; const TextList: TStringList);
 var
   CurCol: Integer;
 
@@ -347,8 +343,7 @@ end;
   
 //---------------------------------------------------------------------------
 
-procedure TdmReportManager.ReportStringListV(const Sheet: Variant;
-  const TextList: TStringList);
+procedure TdmReportManager.ReportStringListV(const Sheet: Variant; const TextList: TStringList);
 var
   CurRow: Integer;
 

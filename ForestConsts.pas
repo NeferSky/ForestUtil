@@ -6,8 +6,6 @@ uses
   Classes;
 
 const
-  CRLF: AnsiString = #13#10;
-     
   // Numbers
   I_FILE_INDEX = $FFFFFFFF;
   I_DEFAULT_COL_WIDTH = 64;
